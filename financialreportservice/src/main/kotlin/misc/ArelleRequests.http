@@ -1,0 +1,27 @@
+### Show added packages
+GET http://localhost:8081/rest/configure?packages=show&media=json
+Accept: application/json
+
+### Show added packages
+GET http://localhost:8081/rest/configure?packages=show&media=xml
+Accept: application/xml
+
+### Add esef taxonomy package
+GET http://localhost:8081/rest/configure?packages=/var/lib/taxonomies/esef_taxonomy_2021.zip&media=json
+Accept: application/json
+
+### Add esef taxonomy package
+GET http://localhost:8081/rest/configure?packages=/var/lib/taxonomies/esef_taxonomy_2021.zip&media=xml
+Accept: application/xml
+
+###
+GET http://localhost:8081/rest/configure?packages=/var/lib/taxonomies/esef_taxonomy_2021.zip&media=xml
+Accept: application/xml
+
+###
+http://localhost:8081/rest/xbrl/view?file=https://filings.xbrl.org/529900XO0YTOOKCLQB44/2021-06-30/ESEF/DE/0/529900XO0YTOOKCLQB44-2021-06-30.zip&view=facts&media=xml
+Accept: application/xml
+
+###
+http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/sap-2020-12-31AR.zip&view=facts&media=json
+Accept: application/json

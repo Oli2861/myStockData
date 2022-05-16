@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: financialreportservice
+arelle:
+  url: arelle
+  port: "8081"
+xbrlfilings:
+  url: "https://filings.xbrl.org/"
