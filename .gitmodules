@@ -1,0 +1,3 @@
+[submodule "arelle-web-service"]
+	path = arelle-web-service
+	url = git://https://github.com/Oli2861/arelle-web-service

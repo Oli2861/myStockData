@@ -1,3 +1,7 @@
+GET http://localhost:80/api/item?id=99
+Accept: application/json
+
+###
 ### Show added packages
 GET http://localhost:8081/rest/configure?packages=show&media=json
 Accept: application/json
@@ -14,14 +18,14 @@ Accept: application/json
 GET http://localhost:8081/rest/configure?packages=/var/lib/taxonomies/esef_taxonomy_2021.zip&media=xml
 Accept: application/xml
 
-###
-GET http://localhost:8081/rest/configure?packages=/var/lib/taxonomies/esef_taxonomy_2021.zip&media=xml
+### View facts
+http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/sap-2020-12-31AR.zip&view=facts&factListCols=Label,unitRef,Dec,Value,EntityScheme,EntityIdentifier,Period,Dimensions&media=xml
+Accept: application/xml
+
+### View facts with all columns
+http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/softwareag-2020-12-31.zip&view=facts&factListCols=Label,contextRef,unitRef,Dec,Value,EntityScheme,EntityIdentifier,Period,Dimensions,Name,Prec,Lang&media=xml
 Accept: application/xml
 
 ###
-http://localhost:8081/rest/xbrl/view?file=https://filings.xbrl.org/529900XO0YTOOKCLQB44/2021-06-30/ESEF/DE/0/529900XO0YTOOKCLQB44-2021-06-30.zip&view=facts&media=xml
+http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/sap-2020-12-31AR.zip&view=facts&factListCols=Label,unitRef,Value,EntityScheme,EntityIdentifier,Period,PeriodType,Prec,Lang,Type,Balance&media=xml
 Accept: application/xml
-
-###
-http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/sap-2020-12-31AR.zip&view=facts&media=json
-Accept: application/json

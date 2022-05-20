@@ -6,3 +6,10 @@ Accept: application/json
 GET http://localhost:8082/v1/loadTaxonomy
 Accept: application/json
 
+### Load test sap
+GET http://localhost:8082/v1/testReport/sap-2020-12-31AR.zip
+Accept: application/json
+
+### Load test softwareag
+GET http://localhost:8082/v1/getFinancialReport/softwareag-2020-12-31.zip
+Accept: application/json

@@ -1,4 +1,4 @@
-package com.mystockdata.financialreportservice
+package com.mystockdata.financialreportservice.financialreports
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

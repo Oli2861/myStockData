@@ -1,14 +1,16 @@
 package com.mystockdata.financialreportservice.arelle
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.transform
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.bodyToFlow
+
+/**
+ * Adapter using a WebClient to query an Arelle Webservice.
+ * URL and port are injected into the configuration using environmental variables in docker-compose.
+ */
 
 @Component
 class ArelleAdapter(
@@ -17,28 +19,37 @@ class ArelleAdapter(
 ) {
     private val webClient: WebClient = WebClient.create("http://$url:$port/")
 
-    fun retrieveFactsLocal(fileName: String): Flow<List<Item>?> = retrieveFacts("/var/lib/financial-reports/$fileName")
-
     /**
      * Calls the local Arelle webservice and asks for a xml representation of the financial report which can be found at the provided path.
+     * @param fileName Path to the financial report to be read. (Local path or from Web (URL))
+     * @return Flow containing the retrieved items.
+     */
+    suspend fun retrieveFactsFromLocalFile(fileName: String) = retrieveFacts("/var/lib/financial-reports/$fileName")
+
+    /**
+     * Calls the local Arelle webservice and asks for a xml representation of the financial report which can be found at the provided location (either local path (--> use retrieveFactsLocal) or remote by providing a URL).
      * @param path Path to the financial report to be read. (Local path or from Web (URL))
      * @return Flow containing the retrieved items.
      */
-    fun retrieveFacts(path: String): Flow<List<Item>?> {
+    suspend fun retrieveFacts(path: String): List<Item>? {
         return webClient.get()
-            .uri("rest/xbrl/view?file=$path&view=facts&media=xml")
+            .uri("rest/xbrl/view?file=$path&view=facts&factListCols=Label,unitRef,Value,EntityScheme,EntityIdentifier,Period,PeriodType,Prec,Lang,Type,Balance&media=xml")
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
             .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
             .retrieve()
-            .bodyToFlow<FactList>()
-            .transform { emit(it.item) }
+            .awaitBody<FactList>().item
     }
 
+    /**
+     * Check whether the string is included in the response listing the loaded packages.
+     * @param taxonomy Taxonomy to search for.
+     * @return Whether the taxonomy is included (true) or not (false).
+     */
     suspend fun checkTaxonomyLoaded(taxonomy: String) = checkTaxonomiesLoaded(setOf(taxonomy))[taxonomy]
 
     /**
      * Check whether the strings are included in the response listing the loaded packages.
-     * Note: Wont return either json or xml (with correct application/xml or application/json header and query parameters)
+     * Note: Won't return either json or xml (with correct application/xml or application/json header and query parameters)
      * @param taxonomies Taxonomies to search for.
      * @return HashMap containing the passed taxonomies with the corresponding results.
      */
@@ -64,7 +75,7 @@ class ArelleAdapter(
 
     /**
      * Add a taxonomy file by its path.
-     * Note: Wont return either json or xml (with correct application/xml or application/json header and query parameters)
+     * Note: Won't return either json or xml (with correct application/xml or application/json header and query parameters)
      * @param path Path to location of the file to be added (inside Docker container).
      * @return Boolean indicating success (true) or failure (false)
      */
