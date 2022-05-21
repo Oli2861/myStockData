@@ -1,5 +1,8 @@
 package com.mystockdata.financialreportservice.arelle
 
+import com.mystockdata.financialreportservice.financialreports.FinancialReportService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.math.BigDecimal
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -43,21 +46,16 @@ enum class TYPE(val str: String){
 @XmlRootElement(name = "item")
 @XmlAccessorType(XmlAccessType.FIELD)
 data class Item(
+
     @XmlAttribute(name = "name")
     var name: String? = null,
 
     @XmlElement(name = "label")
     var label: String? = null,
-/*
-    @XmlElement(name = "contextRef")
-    var contextRef: String? = null,
-*/
+
     @XmlElement(name = "unitRef")
     var unitRef: String? = null,
-/*
-    @XmlElement(name = "dec")
-    var dec: Int = 0,
-*/
+
     @XmlElement(name = "value")
     var value: String? = null,
 
@@ -83,34 +81,28 @@ data class Item(
     var type: String? = null,
 
     @XmlElement(name = "balance")
-    var balance: String? = null,
-
-    /*
-    @XmlElement(name = "dimension")
-    var dimension: List<String>? = null
-    */
+    var balance: String? = null
 ) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(Item::class.java)
+    }
+
     val valueNumeric: BigDecimal?
         get() = try {
             value?.toBigDecimal()
         } catch (e: NumberFormatException) {
-            //TODO: Proper logging
-            println("tried to convert $value of type $type into a BigDecimal")
-            e.printStackTrace()
+            logger.error("tried to convert $value of type $type into a BigDecimal, e")
             null
         }
-    // 2020-12-31
+
     val valueDate: Date?
         get() = try {
             value?.let {
                 val formatter = SimpleDateFormat("yyyy-mm-dd")
                 formatter.parse(value)
             }
-
         }catch (e: ParseException){
-            //TODO: Proper logging
-            println("tried to convert $value of type $type into a date")
-            e.printStackTrace()
+            logger.error("tried to convert $value of type $type into a date", e)
             null
         }
 }

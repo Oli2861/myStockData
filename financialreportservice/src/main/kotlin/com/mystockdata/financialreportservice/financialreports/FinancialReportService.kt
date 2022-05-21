@@ -5,53 +5,89 @@ package com.mystockdata.financialreportservice.financialreports
 import com.mystockdata.financialreportservice.arelle.ArelleAdapter
 import com.mystockdata.financialreportservice.arelle.Item
 import com.mystockdata.financialreportservice.arelle.TYPE
+import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
 import com.mystockdata.financialreportservice.xbrlfilings.RetrievedReportInfo
 import com.mystockdata.financialreportservice.xbrlfilings.XBRLFilingsAdapter
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.transform
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.math.log
+
+object FinancialReportServiceConstants {
+    const val DELAY_TIME: Long = 120 * 1000
+}
 
 @Service
 class FinancialReportService(
-    @Autowired
-    val arelleAdapter: ArelleAdapter,
-    @Autowired
-    val xbrlFilingsAdapter: XBRLFilingsAdapter
+    @Autowired val arelleAdapter: ArelleAdapter, @Autowired val xbrlFilingsAdapter: XBRLFilingsAdapter
 ) {
+    companion object {
+        val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
+    }
+
     /**
      * Tells arelle to load a taxonomy.
      * @param fileName Name of the taxonomy file to be loaded. File has to be placed within the taxonomies (docker) volume. By default, loads the esef taxonomy.
      * @return Boolean indicating success (true) or failure (false) of the operation.
      */
-    suspend fun loadEsefTaxonomy(fileName: String = "esef_taxonomy_2021.zip"): Boolean =
-        arelleAdapter.loadTaxonomy(fileName)
+    suspend fun loadEsefTaxonomy(fileName: String = "esef_taxonomy_2021.zip"): Boolean{
+        val result = arelleAdapter.loadTaxonomy(fileName)
+        logger.debug("Taxonomy $fileName was ${if(result) "successfully" else "not"} loaded.")
+        return result
+    }
 
-    suspend fun loadFinancialReports(): Flow<List<FinancialReport>> {
+    suspend fun getFinancialReports(): Flow<List<FinancialReport>> {
         val retrievedReportInfoFlow: Flow<RetrievedReportInfo> = xbrlFilingsAdapter.getAvailableFinancialReports()
-        // TODO: Check whether the data is already stored and only request the zip when it is not
 
-        val financialReportFlow =
-            retrievedReportInfoFlow.transform<RetrievedReportInfo, List<FinancialReport>> { retrievedReportInfo ->
-                val factList = arelleAdapter.retrieveFacts(retrievedReportInfo.url)
-                if (factList != null) emit(getFinancialReports(factList))
+        val financialReportFlow = retrievedReportInfoFlow.filter { retrievedReportInfo ->
+            // Only save reports that have no errors and are not saved yet
+            retrievedReportInfo.hasErrors != null && retrievedReportInfo.lei != null && retrievedReportInfo.date != null && !retrievedReportInfo.hasErrors!! && !checkReportAlreadyExists(
+                retrievedReportInfo.lei!!,
+                retrievedReportInfo.date!!
+            )
+        }.transform { retrievedReportInfo ->
+            logger.debug("Delayed for ${DELAY_TIME / 1000} seconds, afterwards retrieving report for ${retrievedReportInfo.name}")
+            kotlinx.coroutines.delay(DELAY_TIME)
+            val factList = arelleAdapter.retrieveFacts(retrievedReportInfo.url)
+
+            if (factList != null) {
+                // Generates financial reports for each year for which data is found in the financial report (often includes data from the previous year to compare the current year against)
+                val reports = getFinancialReports(factList)
+                val mainReport = reports.find { it.date == retrievedReportInfo.date }
+
+                // Log if the lei and date in the report does not match the lei and date from the location the report was retrieved from ("https://filings.xbrl.org/)
+                if (mainReport != null && mainReport.entityIdentifier == retrievedReportInfo.lei && mainReport.date == retrievedReportInfo.date) {
+                    logger.debug("Successfully retrieved financial report for ${mainReport.date} of company ${mainReport.entityIdentifier}")
+                } else {
+                    // No report was generated whose year matches the year specified in the data source
+                    logger.debug("Mismatch: Entity identifier of the generated report: ${mainReport?.entityIdentifier}\tEntity identifier provided by data source: ${retrievedReportInfo.lei}\nDate of the generated report ${mainReport?.date}\tDate provided by data source ${retrievedReportInfo.date}")
+                }
+
+                emit(reports)
             }
+        }
         return financialReportFlow
     }
 
+    suspend fun checkReportAlreadyExists(lei: String, date: Date): Boolean {
+        // TODO: Implement function
+        return false
+    }
+
     /**
-     * Retrieve financial reports from a given path.
-     * @param path Path to the local report.
-     * @return Map containing the date for the financial report and the financial report.
+     * Generate financial reports from items / facts.
+     * @param factList List containing items / facts.
+     * @return Financial reports and for each year.
      */
     suspend fun getFinancialReports(factList: List<Item>): List<FinancialReport> {
-        //TODO: Maybe there is a more efficient way to do this
-        val map = splitByDate(factList)
-
-        val reportMap = map.mapValues { (date, list) -> createFinancialReportFromList(date, list) }
-
-        return reportMap.values.toList()
+        return splitByDate(factList).mapValues { (date, list) ->
+            createFinancialReportFromList(date, list)
+        }.values.toList()
     }
 
     /**
@@ -104,13 +140,13 @@ class FinancialReportService(
         }
 
         return FinancialReport(
+            entityIdentifier,
+            entityScheme,
+            date,
             ifrsGeneralInformation,
             ifrsStatementOfFinancialPositionCurrentNotCurrent,
             ifrsStatementOfFinancialPositionOrderOfLiquidity,
-            date,
-            currency,
-            entityIdentifier,
-            entityScheme
+            currency
         )
     }
 

@@ -3,3 +3,4 @@ spring:
     name: financialreportservice
   profiles:
     active: default
+logging.level.com.mystockdata: DEBUG

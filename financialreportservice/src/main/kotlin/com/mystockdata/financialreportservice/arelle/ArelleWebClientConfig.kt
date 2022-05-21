@@ -1,5 +1,6 @@
-package com.mystockdata.financialreportservice.financialreports
+package com.mystockdata.financialreportservice.arelle
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.codec.ClientCodecConfigurer
@@ -9,10 +10,13 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
-class WebClientConfig {
+class ArelleWebClientConfig(
+    @Value("\${arelle.url}") val url: String,
+    @Value("\${arelle.port}") val port: Int,
+) {
     @Bean
-    fun webClient(): WebClient? {
-        // Byte * 1024 --> KB * 10245 --> MB
+    fun arelleWebClient(): WebClient {
+        // Byte * 1024 --> KB * 1024 --> MB
         val bufferSize = 16 * 1024 * 1024
         return WebClient
             .builder()
@@ -21,6 +25,7 @@ class WebClientConfig {
                 configurer.defaultCodecs().jaxb2Decoder(Jaxb2XmlDecoder())
                 configurer.defaultCodecs().maxInMemorySize(bufferSize)
             }.build())
+            .baseUrl("http://$url:$port/")
             .build()
     }
 }

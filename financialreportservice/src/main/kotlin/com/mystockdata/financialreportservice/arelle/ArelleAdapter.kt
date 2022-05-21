@@ -1,6 +1,6 @@
 package com.mystockdata.financialreportservice.arelle
 
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -14,11 +14,8 @@ import org.springframework.web.reactive.function.client.awaitBody
 
 @Component
 class ArelleAdapter(
-    @Value("\${arelle.url}") val url: String,
-    @Value("\${arelle.port}") val port: Int
+    @Autowired val arelleWebClient: WebClient
 ) {
-    private val webClient: WebClient = WebClient.create("http://$url:$port/")
-
     /**
      * Calls the local Arelle webservice and asks for a xml representation of the financial report which can be found at the provided path.
      * @param fileName Path to the financial report to be read. (Local path or from Web (URL))
@@ -32,7 +29,7 @@ class ArelleAdapter(
      * @return Flow containing the retrieved items.
      */
     suspend fun retrieveFacts(path: String): List<Item>? {
-        return webClient.get()
+        return arelleWebClient.get()
             .uri("rest/xbrl/view?file=$path&view=facts&factListCols=Label,unitRef,Value,EntityScheme,EntityIdentifier,Period,PeriodType,Prec,Lang,Type,Balance&media=xml")
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
             .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
@@ -54,7 +51,7 @@ class ArelleAdapter(
      * @return HashMap containing the passed taxonomies with the corresponding results.
      */
     suspend fun checkTaxonomiesLoaded(taxonomies: Set<String>): HashMap<String, Boolean> {
-        val response = webClient.get()
+        val response = arelleWebClient.get()
             .uri("/rest/configure?packages=show")
             .header(MediaType.TEXT_HTML_VALUE)
             .retrieve()
@@ -80,7 +77,7 @@ class ArelleAdapter(
      * @return Boolean indicating success (true) or failure (false)
      */
     private suspend fun include(path: String): Boolean {
-        val response = webClient.get()
+        val response = arelleWebClient.get()
             .uri("/rest/configure?packages=$path")
             .header(MediaType.TEXT_HTML_VALUE)
             .retrieve()

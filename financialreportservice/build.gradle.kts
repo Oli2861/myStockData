@@ -33,9 +33,11 @@ dependencies {
     // Spring Webflux
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
+    // Jaxb
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("javax.activation:activation:1.1.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
+
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
