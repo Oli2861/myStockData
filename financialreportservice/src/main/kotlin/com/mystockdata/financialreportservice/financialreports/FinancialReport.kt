@@ -9,5 +9,7 @@ data class FinancialReport(
     val IFRSGeneralInformation: IFRSGeneralInformation,
     val IFRSStatementOfFinancialPositionCurrentNotCurrent: IFRSStatementOfFinancialPositionCurrentNotCurrent,
     val IFRSStatementOfFinancialPositionOrderOfLiquidity: IFRSStatementOfFinancialPositionOrderOfLiquidity,
+    val IFRSStatementOfComprehensiveIncomeByFunctionOfExpense: IFRSStatementOfComprehensiveIncomeByFunctionOfExpense,
+    val IFRSStatementOfComprehensiveIncomeByNatureOfExpense: IFRSStatementOfComprehensiveIncomeByNatureOfExpense,
     val currency: String
 )

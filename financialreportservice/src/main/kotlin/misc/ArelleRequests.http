@@ -26,6 +26,6 @@ Accept: application/xml
 http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/softwareag-2020-12-31.zip&view=facts&factListCols=Label,contextRef,unitRef,Dec,Value,EntityScheme,EntityIdentifier,Period,Dimensions,Name,Prec,Lang&media=xml
 Accept: application/xml
 
-###
+### View facts with selected columns
 http://localhost:8081/rest/xbrl/view?file=/var/lib/financial-reports/sap-2020-12-31AR.zip&view=facts&factListCols=Label,unitRef,Value,EntityScheme,EntityIdentifier,Period,PeriodType,Prec,Lang,Type,Balance&media=xml
 Accept: application/xml

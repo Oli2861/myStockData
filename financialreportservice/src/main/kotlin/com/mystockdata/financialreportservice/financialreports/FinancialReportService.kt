@@ -16,10 +16,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
-import kotlin.math.log
 
 object FinancialReportServiceConstants {
-    const val DELAY_TIME: Long = 120 * 1000
+    const val DELAY_TIME: Long = 120_000L
 }
 
 @Service
@@ -120,6 +119,8 @@ class FinancialReportService(
         val ifrsGeneralInformation = IFRSGeneralInformation()
         val ifrsStatementOfFinancialPositionCurrentNotCurrent = IFRSStatementOfFinancialPositionCurrentNotCurrent()
         val ifrsStatementOfFinancialPositionOrderOfLiquidity = IFRSStatementOfFinancialPositionOrderOfLiquidity()
+        val ifrsStatementOfComprehensiveIncomeByFunctionOfExpense = IFRSStatementOfComprehensiveIncomeByFunctionOfExpense()
+        val ifrsStatementOfComprehensiveIncomeByNatureOfExpense = IFRSStatementOfComprehensiveIncomeByNatureOfExpense()
         val currency: String = list.firstNotNullOf { it.unitRef }
         val entityIdentifier: String = list.firstNotNullOf { it.entityIdentifier }
         val entityScheme: String = list.firstNotNullOf { it.entityScheme }
@@ -131,10 +132,13 @@ class FinancialReportService(
             if (type == TYPE.DATE_ITEM.str || type == TYPE.STRING_ITEM.str) {
                 ifrsGeneralInformation.setValue(item)
             }
-
-            if (type == TYPE.MONETARY_ITEM.str || type == TYPE.PER_SHARE_ITEM.str) {
-                ifrsStatementOfFinancialPositionCurrentNotCurrent.setValue(item)
-                ifrsStatementOfFinancialPositionOrderOfLiquidity.setValue(item)
+            if (type == TYPE.MONETARY_ITEM.str || type == TYPE.PER_SHARE_ITEM.str || type == TYPE.STRING_ITEM.str) {
+                if (type != TYPE.STRING_ITEM.str) {
+                    ifrsStatementOfFinancialPositionCurrentNotCurrent.setValue(item)
+                    ifrsStatementOfFinancialPositionOrderOfLiquidity.setValue(item)
+                }
+                ifrsStatementOfComprehensiveIncomeByFunctionOfExpense.setValue(item)
+                ifrsStatementOfComprehensiveIncomeByNatureOfExpense.setValue(item)
             }
 
         }
@@ -146,6 +150,8 @@ class FinancialReportService(
             ifrsGeneralInformation,
             ifrsStatementOfFinancialPositionCurrentNotCurrent,
             ifrsStatementOfFinancialPositionOrderOfLiquidity,
+            ifrsStatementOfComprehensiveIncomeByFunctionOfExpense,
+            ifrsStatementOfComprehensiveIncomeByNatureOfExpense,
             currency
         )
     }
