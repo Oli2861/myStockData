@@ -1,6 +1,6 @@
 package com.mystockdata.financialreportservice.arelle
 
-import com.mystockdata.financialreportservice.financialreports.FinancialReportService
+import com.mystockdata.financialreportservice.arelle.TYPE.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
@@ -21,7 +21,7 @@ data class FactList(
  * @property STRING_ITEM The value is a string.
  * @property DATE_ITEM The value is a date.
  */
-enum class TYPE(val str: String){
+enum class TYPE(val str: String) {
     MONETARY_ITEM("xbrli:monetaryItemType"),
     PER_SHARE_ITEM("num:perShareItemType"),
     STRING_ITEM("xbrli:stringItemType"),
@@ -85,24 +85,22 @@ data class Item(
 ) {
     companion object {
         val logger: Logger = LoggerFactory.getLogger(Item::class.java)
+        val formatter = SimpleDateFormat("yyyy-mm-dd")
     }
 
     val valueNumeric: BigDecimal?
         get() = try {
-            value?.toBigDecimal()
+            if(value == null) null else value?.toBigDecimal()
         } catch (e: NumberFormatException) {
-            logger.error("tried to convert $value of type $type into a BigDecimal, e")
+            logger.error("tried to convert $value of type $type with tag $name into a BigDecimal, ${e.stackTraceToString()}")
             null
         }
 
     val valueDate: Date?
         get() = try {
-            value?.let {
-                val formatter = SimpleDateFormat("yyyy-mm-dd")
-                formatter.parse(value)
-            }
-        }catch (e: ParseException){
-            logger.error("tried to convert $value of type $type into a date", e)
+            if (value != null) formatter.parse(value) else null
+        } catch (e: ParseException) {
+            logger.error("tried to convert $value of type $type tag $name into a date", e.stackTraceToString())
             null
         }
 }

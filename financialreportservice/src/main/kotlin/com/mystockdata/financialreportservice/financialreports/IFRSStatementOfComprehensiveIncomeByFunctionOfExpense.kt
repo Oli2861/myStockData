@@ -6,14 +6,12 @@ import java.math.BigDecimal
 data class IFRSStatementOfComprehensiveIncomeByFunctionOfExpense(
     var ifrs_full_Revenue: BigDecimal? = null,
     var ifrs_full_InterestRevenueCalculatedUsingEffectiveInterestMethod: BigDecimal? = null,
+    var ifrs_full_CostOfSales: BigDecimal? = null,
+    var ifrs_full_GrossProfit: BigDecimal? = null,
     var ifrs_full_OtherIncome: BigDecimal? = null,
-    var ifrs_full_ChangesInInventoriesOfFinishedGoodsAndWorkInProgress: BigDecimal? = null,
-    var ifrs_full_OtherWorkPerformedByEntityAndCapitalised: BigDecimal? = null,
-    var ifrs_full_RawMaterialsAndConsumablesUsed: BigDecimal? = null,
-    var ifrs_full_EmployeeBenefitsExpense: BigDecimal? = null,
-    var ifrs_full_DepreciationAndAmortisationExpense: BigDecimal? = null,
-    var ifrs_full_ImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss: BigDecimal? = null,
-    var ifrs_full_OtherExpenseByNature: BigDecimal? = null,
+    var ifrs_full_DistributionCosts: BigDecimal? = null,
+    var ifrs_full_AdministrativeExpense: BigDecimal? = null,
+    var ifrs_full_OtherExpenseByFunction: BigDecimal? = null,
     var ifrs_full_OtherGainsLosses: BigDecimal? = null,
     var ifrs_full_ProfitLossFromOperatingActivities: BigDecimal? = null,
     var ifrs_full_DifferenceBetweenCarryingAmountOfDividendsPayableAndCarryingAmountOfNoncashAssetsDistributed: BigDecimal? = null,
@@ -42,47 +40,42 @@ data class IFRSStatementOfComprehensiveIncomeByFunctionOfExpense(
     var ifrs_full_DilutedEarningsLossPerShareFromDiscontinuedOperations: BigDecimal? = null,
     var ifrs_full_DilutedEarningsLossPerShare: BigDecimal? = null
     ){
-
-    fun setValue(item: Item) {
-        if (item.name.isNullOrEmpty()) return
-        when (item.name) {
-            "ifrs-full:Revenue" -> ifrs_full_Revenue = item.valueNumeric
-            "ifrs-full:InterestRevenueCalculatedUsingEffectiveInterestMethod" -> ifrs_full_InterestRevenueCalculatedUsingEffectiveInterestMethod = item.valueNumeric
-            "ifrs-full:OtherIncome" -> ifrs_full_OtherIncome = item.valueNumeric
-            "ifrs-full:ChangesInInventoriesOfFinishedGoodsAndWorkInProgress" -> ifrs_full_ChangesInInventoriesOfFinishedGoodsAndWorkInProgress = item.valueNumeric
-            "ifrs-full:OtherWorkPerformedByEntityAndCapitalised" -> ifrs_full_OtherWorkPerformedByEntityAndCapitalised = item.valueNumeric
-            "ifrs-full:RawMaterialsAndConsumablesUsed" -> ifrs_full_RawMaterialsAndConsumablesUsed = item.valueNumeric
-            "ifrs-full:EmployeeBenefitsExpense" -> ifrs_full_EmployeeBenefitsExpense = item.valueNumeric
-            "ifrs-full:DepreciationAndAmortisationExpense" -> ifrs_full_DepreciationAndAmortisationExpense = item.valueNumeric
-            "ifrs-full:ImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss" -> ifrs_full_ImpairmentLossReversalOfImpairmentLossRecognisedInProfitOrLoss = item.valueNumeric
-            "ifrs-full:OtherExpenseByNature" -> ifrs_full_OtherExpenseByNature = item.valueNumeric
-            "ifrs-full:OtherGainsLosses" -> ifrs_full_OtherGainsLosses = item.valueNumeric
-            "ifrs-full:ProfitLossFromOperatingActivities" -> ifrs_full_ProfitLossFromOperatingActivities = item.valueNumeric
-            "ifrs-full:DifferenceBetweenCarryingAmountOfDividendsPayableAndCarryingAmountOfNoncashAssetsDistributed" -> ifrs_full_DifferenceBetweenCarryingAmountOfDividendsPayableAndCarryingAmountOfNoncashAssetsDistributed = item.valueNumeric
-            "ifrs-full:GainsLossesOnNetMonetaryPosition" -> ifrs_full_GainsLossesOnNetMonetaryPosition = item.valueNumeric
-            "ifrs-full:GainLossArisingFromDerecognitionOfFinancialAssetsMeasuredAtAmortisedCost" -> ifrs_full_GainLossArisingFromDerecognitionOfFinancialAssetsMeasuredAtAmortisedCost = item.valueNumeric
-            "ifrs-full:FinanceIncome" -> ifrs_full_FinanceIncome = item.valueNumeric
-            "ifrs-full:FinanceCosts" -> ifrs_full_FinanceCosts = item.valueNumeric
-            "ifrs-full:ImpairmentLossImpairmentGainAndReversalOfImpairmentLossDeterminedInAccordanceWithIFRS9" -> ifrs_full_ImpairmentLossImpairmentGainAndReversalOfImpairmentLossDeterminedInAccordanceWithIFRS9 = item.valueNumeric
-            "ifrs-full:ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod" -> ifrs_full_ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod = item.valueNumeric
-            "ifrs-full:OtherIncomeExpenseFromSubsidiariesJointlyControlledEntitiesAndAssociates" -> ifrs_full_OtherIncomeExpenseFromSubsidiariesJointlyControlledEntitiesAndAssociates = item.valueNumeric
-            "ifrs-full:GainsLossesArisingFromDifferenceBetweenPreviousCarryingAmountAndFairValueOfFinancialAssetsReclassifiedAsMeasuredAtFairValue" -> ifrs_full_GainsLossesArisingFromDifferenceBetweenPreviousCarryingAmountAndFairValueOfFinancialAssetsReclassifiedAsMeasuredAtFairValue = item.valueNumeric
-            "ifrs-full:CumulativeGainLossPreviouslyRecognisedInOtherComprehensiveIncomeArisingFromReclassificationOfFinancialAssetsOutOfFairValueThroughOtherComprehensiveIncomeIntoFairValueThroughProfitOrLossMeasurementCategory" -> ifrs_full_CumulativeGainLossPreviouslyRecognisedInOtherComprehensiveIncomeArisingFromReclassificationOfFinancialAssetsOutOfFairValueThroughOtherComprehensiveIncomeIntoFairValueThroughProfitOrLossMeasurementCategory = item.valueNumeric
-            "ifrs-full:HedgingGainsLossesForHedgeOfGroupOfItemsWithOffsettingRiskPositions" -> ifrs_full_HedgingGainsLossesForHedgeOfGroupOfItemsWithOffsettingRiskPositions = item.valueNumeric
-            "ifrs-full:ProfitLossBeforeTax" -> ifrs_full_ProfitLossBeforeTax = item.valueNumeric
-            "ifrs-full:IncomeTaxExpenseContinuingOperations" -> ifrs_full_IncomeTaxExpenseContinuingOperations = item.valueNumeric
-            "ifrs-full:ProfitLossFromContinuingOperations" -> ifrs_full_ProfitLossFromContinuingOperations = item.valueNumeric
-            "ifrs-full:ProfitLossFromDiscontinuedOperations" -> ifrs_full_ProfitLossFromDiscontinuedOperations = item.valueNumeric
-            "ifrs-full:ProfitLoss" -> ifrs_full_ProfitLoss = item.valueNumeric
-            "ifrs-full:ProfitLossAttributableToOwnersOfParent" -> ifrs_full_ProfitLossAttributableToOwnersOfParent = item.valueNumeric
-            "ifrs-full:ProfitLossAttributableToNoncontrollingInterests" -> ifrs_full_ProfitLossAttributableToNoncontrollingInterests = item.valueNumeric
-            "ifrs-full:EarningsPerShareExplanatory" -> ifrs_full_EarningsPerShareExplanatory = item.value
-            "ifrs-full:BasicEarningsLossPerShareFromContinuingOperations" -> ifrs_full_BasicEarningsLossPerShareFromContinuingOperations = item.valueNumeric
-            "ifrs-full:BasicEarningsLossPerShareFromDiscontinuedOperations" -> ifrs_full_BasicEarningsLossPerShareFromDiscontinuedOperations = item.valueNumeric
-            "ifrs-full:BasicEarningsLossPerShare" -> ifrs_full_BasicEarningsLossPerShare = item.valueNumeric
-            "ifrs-full:DilutedEarningsLossPerShareFromContinuingOperations" -> ifrs_full_DilutedEarningsLossPerShareFromContinuingOperations = item.valueNumeric
-            "ifrs-full:DilutedEarningsLossPerShareFromDiscontinuedOperations" -> ifrs_full_DilutedEarningsLossPerShareFromDiscontinuedOperations = item.valueNumeric
-            "ifrs-full:DilutedEarningsLossPerShare" -> ifrs_full_DilutedEarningsLossPerShare = item.valueNumeric
-        }
+        fun setValue(item: Item) = keyLambdaMap[item.name]?.invoke(this, item)
     }
-}
+private val keyLambdaMap = mapOf<String, (IFRSStatementOfComprehensiveIncomeByFunctionOfExpense, Item) -> Unit>(
+    "ifrs-full:Revenue" to {statement, item -> statement.ifrs_full_Revenue = item.valueNumeric},
+    "ifrs-full:InterestRevenueCalculatedUsingEffectiveInterestMethod" to {statement, item -> statement.ifrs_full_InterestRevenueCalculatedUsingEffectiveInterestMethod = item.valueNumeric},
+    "ifrs-full:CostOfSales" to {statement, item -> statement.ifrs_full_CostOfSales = item.valueNumeric},
+    "ifrs-full:GrossProfit" to {statement, item -> statement.ifrs_full_GrossProfit = item.valueNumeric},
+    "ifrs-full:OtherIncome" to {statement, item -> statement.ifrs_full_OtherIncome = item.valueNumeric},
+    "ifrs-full:DistributionCosts" to {statement, item -> statement.ifrs_full_DistributionCosts = item.valueNumeric},
+    "ifrs-full:AdministrativeExpense" to {statement, item -> statement.ifrs_full_AdministrativeExpense = item.valueNumeric},
+    "ifrs-full:OtherExpenseByFunction" to {statement, item -> statement.ifrs_full_OtherExpenseByFunction = item.valueNumeric},
+    "ifrs-full:OtherGainsLosses" to {statement, item -> statement.ifrs_full_OtherGainsLosses = item.valueNumeric},
+    "ifrs-full:ProfitLossFromOperatingActivities" to {statement, item -> statement.ifrs_full_ProfitLossFromOperatingActivities = item.valueNumeric},
+    "ifrs-full:DifferenceBetweenCarryingAmountOfDividendsPayableAndCarryingAmountOfNoncashAssetsDistributed" to {statement, item -> statement.ifrs_full_DifferenceBetweenCarryingAmountOfDividendsPayableAndCarryingAmountOfNoncashAssetsDistributed = item.valueNumeric},
+    "ifrs-full:GainsLossesOnNetMonetaryPosition" to {statement, item -> statement.ifrs_full_GainsLossesOnNetMonetaryPosition = item.valueNumeric},
+    "ifrs-full:GainLossArisingFromDerecognitionOfFinancialAssetsMeasuredAtAmortisedCost" to {statement, item -> statement.ifrs_full_GainLossArisingFromDerecognitionOfFinancialAssetsMeasuredAtAmortisedCost = item.valueNumeric},
+    "ifrs-full:FinanceIncome" to {statement, item -> statement.ifrs_full_FinanceIncome = item.valueNumeric},
+    "ifrs-full:FinanceCosts" to {statement, item -> statement.ifrs_full_FinanceCosts = item.valueNumeric},
+    "ifrs-full:ImpairmentLossImpairmentGainAndReversalOfImpairmentLossDeterminedInAccordanceWithIFRS9" to {statement, item -> statement.ifrs_full_ImpairmentLossImpairmentGainAndReversalOfImpairmentLossDeterminedInAccordanceWithIFRS9 = item.valueNumeric},
+    "ifrs-full:ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod" to {statement, item -> statement.ifrs_full_ShareOfProfitLossOfAssociatesAndJointVenturesAccountedForUsingEquityMethod = item.valueNumeric},
+    "ifrs-full:OtherIncomeExpenseFromSubsidiariesJointlyControlledEntitiesAndAssociates" to {statement, item -> statement.ifrs_full_OtherIncomeExpenseFromSubsidiariesJointlyControlledEntitiesAndAssociates = item.valueNumeric},
+    "ifrs-full:GainsLossesArisingFromDifferenceBetweenPreviousCarryingAmountAndFairValueOfFinancialAssetsReclassifiedAsMeasuredAtFairValue" to {statement, item -> statement.ifrs_full_GainsLossesArisingFromDifferenceBetweenPreviousCarryingAmountAndFairValueOfFinancialAssetsReclassifiedAsMeasuredAtFairValue = item.valueNumeric},
+    "ifrs-full:CumulativeGainLossPreviouslyRecognisedInOtherComprehensiveIncomeArisingFromReclassificationOfFinancialAssetsOutOfFairValueThroughOtherComprehensiveIncomeIntoFairValueThroughProfitOrLossMeasurementCategory" to {statement, item -> statement.ifrs_full_CumulativeGainLossPreviouslyRecognisedInOtherComprehensiveIncomeArisingFromReclassificationOfFinancialAssetsOutOfFairValueThroughOtherComprehensiveIncomeIntoFairValueThroughProfitOrLossMeasurementCategory = item.valueNumeric},
+    "ifrs-full:HedgingGainsLossesForHedgeOfGroupOfItemsWithOffsettingRiskPositions" to {statement, item -> statement.ifrs_full_HedgingGainsLossesForHedgeOfGroupOfItemsWithOffsettingRiskPositions = item.valueNumeric},
+    "ifrs-full:ProfitLossBeforeTax" to {statement, item -> statement.ifrs_full_ProfitLossBeforeTax = item.valueNumeric},
+    "ifrs-full:IncomeTaxExpenseContinuingOperations" to {statement, item -> statement.ifrs_full_IncomeTaxExpenseContinuingOperations = item.valueNumeric},
+    "ifrs-full:ProfitLossFromContinuingOperations" to {statement, item -> statement.ifrs_full_ProfitLossFromContinuingOperations = item.valueNumeric},
+    "ifrs-full:ProfitLossFromDiscontinuedOperations" to {statement, item -> statement.ifrs_full_ProfitLossFromDiscontinuedOperations = item.valueNumeric},
+    "ifrs-full:ProfitLoss" to {statement, item -> statement.ifrs_full_ProfitLoss = item.valueNumeric},
+    "ifrs-full:ProfitLossAttributableToOwnersOfParent" to {statement, item -> statement.ifrs_full_ProfitLossAttributableToOwnersOfParent = item.valueNumeric},
+    "ifrs-full:ProfitLossAttributableToNoncontrollingInterests" to {statement, item -> statement.ifrs_full_ProfitLossAttributableToNoncontrollingInterests = item.valueNumeric},
+    "ifrs-full:EarningsPerShareExplanatory" to {statement, item -> statement.ifrs_full_EarningsPerShareExplanatory = item.value},
+    "ifrs-full:BasicEarningsLossPerShareFromContinuingOperations" to {statement, item -> statement.ifrs_full_BasicEarningsLossPerShareFromContinuingOperations = item.valueNumeric},
+    "ifrs-full:BasicEarningsLossPerShareFromDiscontinuedOperations" to {statement, item -> statement.ifrs_full_BasicEarningsLossPerShareFromDiscontinuedOperations = item.valueNumeric},
+    "ifrs-full:BasicEarningsLossPerShare" to {statement, item -> statement.ifrs_full_BasicEarningsLossPerShare = item.valueNumeric},
+    "ifrs-full:DilutedEarningsLossPerShareFromContinuingOperations" to {statement, item -> statement.ifrs_full_DilutedEarningsLossPerShareFromContinuingOperations = item.valueNumeric},
+    "ifrs-full:DilutedEarningsLossPerShareFromDiscontinuedOperations" to {statement, item -> statement.ifrs_full_DilutedEarningsLossPerShareFromDiscontinuedOperations = item.valueNumeric},
+    "ifrs-full:DilutedEarningsLossPerShare" to {statement, item -> statement.ifrs_full_DilutedEarningsLossPerShare = item.valueNumeric}
+)

@@ -30,7 +30,7 @@ class ArelleAdapter(
      */
     suspend fun retrieveFacts(path: String): List<Item>? {
         return arelleWebClient.get()
-            .uri("rest/xbrl/view?file=$path&view=facts&factListCols=Label,unitRef,Value,EntityScheme,EntityIdentifier,Period,PeriodType,Prec,Lang,Type,Balance&media=xml")
+            .uri("rest/xbrl/view?file=$path&view=facts&factListCols=Concept,Name,Label,LocalName,Namespace,contextRef,unitRef,Dec,Prec,Lang,Value,EntityScheme,EntityIdentifier,Period,ID,Type,PeriodType,Balance,Documentation,Dimension&media=xml")
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
             .accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)
             .retrieve()

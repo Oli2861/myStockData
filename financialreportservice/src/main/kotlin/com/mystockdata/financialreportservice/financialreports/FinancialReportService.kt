@@ -4,8 +4,8 @@ package com.mystockdata.financialreportservice.financialreports
 
 import com.mystockdata.financialreportservice.arelle.ArelleAdapter
 import com.mystockdata.financialreportservice.arelle.Item
-import com.mystockdata.financialreportservice.arelle.TYPE
 import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
+import com.mystockdata.financialreportservice.utility.isDateInYear
 import com.mystockdata.financialreportservice.xbrlfilings.RetrievedReportInfo
 import com.mystockdata.financialreportservice.xbrlfilings.XBRLFilingsAdapter
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 object FinancialReportServiceConstants {
-    const val DELAY_TIME: Long = 120_000L
+    const val DELAY_TIME: Long = 60_000L
 }
 
 @Service
@@ -26,7 +26,7 @@ class FinancialReportService(
     @Autowired val arelleAdapter: ArelleAdapter, @Autowired val xbrlFilingsAdapter: XBRLFilingsAdapter
 ) {
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
     }
 
     /**
@@ -34,9 +34,9 @@ class FinancialReportService(
      * @param fileName Name of the taxonomy file to be loaded. File has to be placed within the taxonomies (docker) volume. By default, loads the esef taxonomy.
      * @return Boolean indicating success (true) or failure (false) of the operation.
      */
-    suspend fun loadEsefTaxonomy(fileName: String = "esef_taxonomy_2021.zip"): Boolean{
+    suspend fun loadEsefTaxonomy(fileName: String = "esef_taxonomy_2021.zip"): Boolean {
         val result = arelleAdapter.loadTaxonomy(fileName)
-        logger.debug("Taxonomy $fileName was ${if(result) "successfully" else "not"} loaded.")
+        logger.debug("Taxonomy $fileName was ${if (result) "successfully" else "not"} loaded.")
         return result
     }
 
@@ -45,10 +45,10 @@ class FinancialReportService(
 
         val financialReportFlow = retrievedReportInfoFlow.filter { retrievedReportInfo ->
             // Only save reports that have no errors and are not saved yet
-            retrievedReportInfo.hasErrors != null && retrievedReportInfo.lei != null && retrievedReportInfo.date != null && !retrievedReportInfo.hasErrors!! && !checkReportAlreadyExists(
-                retrievedReportInfo.lei!!,
-                retrievedReportInfo.date!!
-            )
+            retrievedReportInfo.hasErrors != null
+                    && retrievedReportInfo.lei != null
+                    && retrievedReportInfo.date != null
+                    && !checkReportAlreadyExists(retrievedReportInfo.lei!!, retrievedReportInfo.date!!)
         }.transform { retrievedReportInfo ->
             logger.debug("Delayed for ${DELAY_TIME / 1000} seconds, afterwards retrieving report for ${retrievedReportInfo.name}")
             kotlinx.coroutines.delay(DELAY_TIME)
@@ -57,16 +57,7 @@ class FinancialReportService(
             if (factList != null) {
                 // Generates financial reports for each year for which data is found in the financial report (often includes data from the previous year to compare the current year against)
                 val reports = getFinancialReports(factList)
-                val mainReport = reports.find { it.date == retrievedReportInfo.date }
-
-                // Log if the lei and date in the report does not match the lei and date from the location the report was retrieved from ("https://filings.xbrl.org/)
-                if (mainReport != null && mainReport.entityIdentifier == retrievedReportInfo.lei && mainReport.date == retrievedReportInfo.date) {
-                    logger.debug("Successfully retrieved financial report for ${mainReport.date} of company ${mainReport.entityIdentifier}")
-                } else {
-                    // No report was generated whose year matches the year specified in the data source
-                    logger.debug("Mismatch: Entity identifier of the generated report: ${mainReport?.entityIdentifier}\tEntity identifier provided by data source: ${retrievedReportInfo.lei}\nDate of the generated report ${mainReport?.date}\tDate provided by data source ${retrievedReportInfo.date}")
-                }
-
+                checkMainReportExists(retrievedReportInfo, reports)
                 emit(reports)
             }
         }
@@ -84,29 +75,31 @@ class FinancialReportService(
      * @return Financial reports and for each year.
      */
     suspend fun getFinancialReports(factList: List<Item>): List<FinancialReport> {
-        return splitByDate(factList).mapValues { (date, list) ->
-            createFinancialReportFromList(date, list)
+        return splitByYear(factList).mapValues { (year, list) ->
+            createFinancialReportFromList(year, list)
         }.values.toList()
     }
 
     /**
      * Map end instants on lists of items in order to differentiate between different report items (balance sheet 2019, 2020,..)
      * @param list List containing all items.
-     * @return Map mapping Dates to Lists of items.
+     * @return Map mapping year to lists of items.
      */
-    fun splitByDate(list: List<Item>): Map<Date, List<Item>> {
-        val map = HashMap<Date, MutableList<Item>>()
+    fun splitByYear(list: List<Item>): Map<Int, List<Item>> {
+        val map = HashMap<Int, MutableList<Item>>()
 
         list.forEach { item ->
             item.endInstant?.let { endDate ->
-                if (map[endDate].isNullOrEmpty()) {
-                    map[endDate] = mutableListOf(item)
+                val calendar = Calendar.getInstance()
+                calendar.time = endDate
+                val year = calendar.get(Calendar.YEAR)
+                if (map[year].isNullOrEmpty()) {
+                    map[year] = mutableListOf(item)
                 } else {
-                    map[endDate]?.add(item)
+                    map[year]?.add(item)
                 }
             }
         }
-
         return map
     }
 
@@ -115,11 +108,12 @@ class FinancialReportService(
      * @param list List of items used to create a financial reports.
      * @return Financial report containing the information of the provided items.
      */
-    fun createFinancialReportFromList(date: Date, list: List<Item>): FinancialReport {
+    fun createFinancialReportFromList(year: Int, list: List<Item>): FinancialReport {
         val ifrsGeneralInformation = IFRSGeneralInformation()
         val ifrsStatementOfFinancialPositionCurrentNotCurrent = IFRSStatementOfFinancialPositionCurrentNotCurrent()
         val ifrsStatementOfFinancialPositionOrderOfLiquidity = IFRSStatementOfFinancialPositionOrderOfLiquidity()
-        val ifrsStatementOfComprehensiveIncomeByFunctionOfExpense = IFRSStatementOfComprehensiveIncomeByFunctionOfExpense()
+        val ifrsStatementOfComprehensiveIncomeByFunctionOfExpense =
+            IFRSStatementOfComprehensiveIncomeByFunctionOfExpense()
         val ifrsStatementOfComprehensiveIncomeByNatureOfExpense = IFRSStatementOfComprehensiveIncomeByNatureOfExpense()
         val currency: String = list.firstNotNullOf { it.unitRef }
         val entityIdentifier: String = list.firstNotNullOf { it.entityIdentifier }
@@ -127,26 +121,21 @@ class FinancialReportService(
 
         // Loop over elements and their assignment to the appropriate report component
         list.forEach { item ->
-            val type = item.type
-
-            if (type == TYPE.DATE_ITEM.str || type == TYPE.STRING_ITEM.str) {
+            if (item.value == "(nil)" || item.value == null) {
+                logger.trace("${if (item.value == null) "Null" else "Nil"} item retrieved: $item")
+            }else{
                 ifrsGeneralInformation.setValue(item)
-            }
-            if (type == TYPE.MONETARY_ITEM.str || type == TYPE.PER_SHARE_ITEM.str || type == TYPE.STRING_ITEM.str) {
-                if (type != TYPE.STRING_ITEM.str) {
-                    ifrsStatementOfFinancialPositionCurrentNotCurrent.setValue(item)
-                    ifrsStatementOfFinancialPositionOrderOfLiquidity.setValue(item)
-                }
+                ifrsStatementOfFinancialPositionOrderOfLiquidity.setValue(item)
+                ifrsStatementOfFinancialPositionCurrentNotCurrent.setValue(item)
                 ifrsStatementOfComprehensiveIncomeByFunctionOfExpense.setValue(item)
                 ifrsStatementOfComprehensiveIncomeByNatureOfExpense.setValue(item)
             }
-
         }
 
         return FinancialReport(
             entityIdentifier,
             entityScheme,
-            date,
+            year,
             ifrsGeneralInformation,
             ifrsStatementOfFinancialPositionCurrentNotCurrent,
             ifrsStatementOfFinancialPositionOrderOfLiquidity,
@@ -156,4 +145,27 @@ class FinancialReportService(
         )
     }
 
+    /**
+     * For debugging purposes:
+     * Checks whether the main report (matches year with RetrievedReportInfo) could be identified.
+     */
+    fun checkMainReportExists(retrievedReportInfo: RetrievedReportInfo, reports: List<FinancialReport>) {
+        if (retrievedReportInfo.date == null) {
+            logger.debug("No date retrieved. RetrievedReportInfo: $retrievedReportInfo.")
+        }
+        retrievedReportInfo.date?.let { reportInfoDate ->
+            val mainReport = reports.find { isDateInYear(it.year, reportInfoDate) }
+            if (mainReport != null) {
+                // Log if the lei and date in the report does not match the lei and date from the location the report was retrieved from ("https://filings.xbrl.org/)
+                if (mainReport.entityIdentifier == retrievedReportInfo.lei) {
+                    logger.debug("Successfully retrieved financial report for ${mainReport.year} of company ${mainReport.entityIdentifier}")
+                } else {
+                    // No report was generated whose year matches the year specified in the data source
+                    logger.debug("Mismatch: Entity identifier of the generated report: ${mainReport.entityIdentifier}\tEntity identifier provided by data source: ${retrievedReportInfo.lei}")
+                }
+            } else {
+                logger.debug("Main report could not be identified RetrievedReportInfo: $retrievedReportInfo")
+            }
+        }
+    }
 }

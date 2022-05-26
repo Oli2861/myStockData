@@ -1,6 +1,7 @@
 package com.mystockdata.financialreportservice.financialreports
 
 import com.mystockdata.financialreportservice.arelle.Item
+import com.mystockdata.financialreportservice.arelle.TYPE
 import java.math.BigDecimal
 
 /**
@@ -64,68 +65,66 @@ data class IFRSStatementOfFinancialPositionCurrentNotCurrent(
     var ifrs_full_CurrentLiabilities: BigDecimal? = null,
     var ifrs_full_Liabilities: BigDecimal? = null,
     var ifrs_full_EquityAndLiabilities: BigDecimal? = null
-){
-
-    fun setValue(item: Item){
-        if(item.name.isNullOrEmpty()) return
-        when(item.name){
-            "ifrs-full:PropertyPlantAndEquipment" -> ifrs_full_PropertyPlantAndEquipment = item.valueNumeric
-            "ifrs-full:InvestmentProperty" -> ifrs_full_InvestmentProperty = item.valueNumeric
-            "ifrs-full:Goodwill" -> ifrs_full_Goodwill = item.valueNumeric
-            "ifrs-full:IntangibleAssetsOtherThanGoodwill" -> ifrs_full_IntangibleAssetsOtherThanGoodwill = item.valueNumeric
-            "ifrs-full:InvestmentsAccountedForUsingEquityMethodMember" -> ifrs_full_InvestmentsAccountedForUsingEquityMethodMember = item.valueNumeric
-            "ifrs-full:InvestmentsInSubsidiariesJointVenturesAndAssociates" -> ifrs_full_InvestmentsInSubsidiariesJointVenturesAndAssociates = item.valueNumeric
-            "ifrs-full:NoncurrentBiologicalAssets" -> ifrs_full_NoncurrentBiologicalAssets = item.valueNumeric
-            "ifrs-full:NoncurrentReceivables" -> ifrs_full_NoncurrentReceivables = item.valueNumeric
-            "ifrs-full:NoncurrentInventories" -> ifrs_full_NoncurrentInventories = item.valueNumeric
-            "ifrs-full:DeferredTaxAssets" -> ifrs_full_DeferredTaxAssets = item.valueNumeric
-            "ifrs-full:CurrentTaxAssetsNoncurrent" -> ifrs_full_CurrentTaxAssetsNoncurrent = item.valueNumeric
-            "ifrs-full:OtherNoncurrentFinancialAssets" -> ifrs_full_OtherNoncurrentFinancialAssets = item.valueNumeric
-            "ifrs-full:OtherNoncurrentNonfinancialAssets" -> ifrs_full_OtherNoncurrentNonfinancialAssets = item.valueNumeric
-            "ifrs-full:NoncurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral" -> ifrs_full_NoncurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral = item.valueNumeric
-            "ifrs-full:NoncurrentAssets" -> ifrs_full_NoncurrentAssets = item.valueNumeric
-            "ifrs-full:Inventories" -> ifrs_full_Inventories = item.valueNumeric
-            "ifrs-full:TradeAndOtherCurrentReceivables" -> ifrs_full_TradeAndOtherCurrentReceivables = item.valueNumeric
-            "ifrs-full:CurrentTaxAssetsCurrent" -> ifrs_full_CurrentTaxAssetsCurrent = item.valueNumeric
-            "ifrs-full:CurrentBiologicalAssets" -> ifrs_full_CurrentBiologicalAssets = item.valueNumeric
-            "ifrs-full:OtherCurrentFinancialAssets" -> ifrs_full_OtherCurrentFinancialAssets = item.valueNumeric
-            "ifrs-full:OtherCurrentNonfinancialAssets" -> ifrs_full_OtherCurrentNonfinancialAssets = item.valueNumeric
-            "ifrs-full:CashAndCashEquivalents" -> ifrs_full_CashAndCashEquivalents = item.valueNumeric
-            "ifrs-full:CurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral" -> ifrs_full_CurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral = item.valueNumeric
-            "ifrs-full:CurrentAssetsOtherThanAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners" -> ifrs_full_CurrentAssetsOtherThanAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners = item.valueNumeric
-            "ifrs-full:NoncurrentAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners" -> ifrs_full_NoncurrentAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners = item.valueNumeric
-            "ifrs-full:CurrentAssets" -> ifrs_full_CurrentAssets = item.valueNumeric
-            "ifrs-full:Assets" -> ifrs_full_Assets = item.valueNumeric
-            "ifrs-full:IssuedCapital" -> ifrs_full_IssuedCapital = item.valueNumeric
-            "ifrs-full:RetainedEarnings" -> ifrs_full_RetainedEarnings = item.valueNumeric
-            "ifrs-full:SharePremium" -> ifrs_full_SharePremium = item.valueNumeric
-            "ifrs-full:TreasuryShares" -> ifrs_full_TreasuryShares = item.valueNumeric
-            "ifrs-full:OtherEquityInterest" -> ifrs_full_OtherEquityInterest = item.valueNumeric
-            "ifrs-full:OtherReserves" -> ifrs_full_OtherReserves = item.valueNumeric
-            "ifrs-full:EquityAttributableToOwnersOfParent" -> ifrs_full_EquityAttributableToOwnersOfParent = item.valueNumeric
-            "ifrs-full:NoncontrollingInterests" -> ifrs_full_NoncontrollingInterests = item.valueNumeric
-            "ifrs-full:Equity" -> ifrs_full_Equity = item.valueNumeric
-            "ifrs-full:NoncurrentProvisionsForEmployeeBenefits" -> ifrs_full_NoncurrentProvisionsForEmployeeBenefits = item.valueNumeric
-            "ifrs-full:OtherLongtermProvisions" -> ifrs_full_OtherLongtermProvisions = item.valueNumeric
-            "ifrs-full:NoncurrentProvisions" -> ifrs_full_NoncurrentProvisions = item.valueNumeric
-            "ifrs-full:NoncurrentPayables" -> ifrs_full_NoncurrentPayables = item.valueNumeric
-            "ifrs-full:DeferredTaxLiabilities" -> ifrs_full_DeferredTaxLiabilities = item.valueNumeric
-            "ifrs-full:CurrentTaxLiabilitiesNoncurrent" -> ifrs_full_CurrentTaxLiabilitiesNoncurrent = item.valueNumeric
-            "ifrs-full:OtherNoncurrentFinancialLiabilities" -> ifrs_full_OtherNoncurrentFinancialLiabilities = item.valueNumeric
-            "ifrs-full:OtherNoncurrentNonfinancialLiabilities" -> ifrs_full_OtherNoncurrentNonfinancialLiabilities = item.valueNumeric
-            "ifrs-full:NoncurrentLiabilities" -> ifrs_full_NoncurrentLiabilities = item.valueNumeric
-            "ifrs-full:CurrentProvisionsForEmployeeBenefits" -> ifrs_full_CurrentProvisionsForEmployeeBenefits = item.valueNumeric
-            "ifrs-full:OtherShorttermProvisions" -> ifrs_full_OtherShorttermProvisions = item.valueNumeric
-            "ifrs-full:CurrentProvisions" -> ifrs_full_CurrentProvisions = item.valueNumeric
-            "ifrs-full:TradeAndOtherCurrentPayables" -> ifrs_full_TradeAndOtherCurrentPayables = item.valueNumeric
-            "ifrs-full:CurrentTaxLiabilitiesCurrent" -> ifrs_full_CurrentTaxLiabilitiesCurrent = item.valueNumeric
-            "ifrs-full:OtherCurrentFinancialLiabilities" -> ifrs_full_OtherCurrentFinancialLiabilities = item.valueNumeric
-            "ifrs-full:OtherCurrentNonfinancialLiabilities" -> ifrs_full_OtherCurrentNonfinancialLiabilities = item.valueNumeric
-            "ifrs-full:CurrentLiabilitiesOtherThanLiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale" -> ifrs_full_CurrentLiabilitiesOtherThanLiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale = item.valueNumeric
-            "ifrs-full:LiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale" -> ifrs_full_LiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale = item.valueNumeric
-            "ifrs-full:CurrentLiabilities" -> ifrs_full_CurrentLiabilities = item.valueNumeric
-            "ifrs-full:Liabilities" -> ifrs_full_Liabilities = item.valueNumeric
-            "ifrs-full:EquityAndLiabilities" -> ifrs_full_EquityAndLiabilities = item.valueNumeric
-        }
-    }
+) {
+    fun setValue(item: Item) = keyLambdaMap[item.name]?.invoke(this, item)
 }
+
+private val keyLambdaMap = mapOf<String, (IFRSStatementOfFinancialPositionCurrentNotCurrent, Item) -> Unit>(
+    "ifrs-full:PropertyPlantAndEquipment" to {statement, item -> statement.ifrs_full_PropertyPlantAndEquipment = item.valueNumeric},
+    "ifrs-full:InvestmentProperty" to {statement, item -> statement.ifrs_full_InvestmentProperty = item.valueNumeric},
+    "ifrs-full:Goodwill" to {statement, item -> statement.ifrs_full_Goodwill = item.valueNumeric},
+    "ifrs-full:IntangibleAssetsOtherThanGoodwill" to {statement, item -> statement.ifrs_full_IntangibleAssetsOtherThanGoodwill = item.valueNumeric},
+    "ifrs-full:InvestmentsAccountedForUsingEquityMethodMember" to {statement, item -> statement.ifrs_full_InvestmentsAccountedForUsingEquityMethodMember = item.valueNumeric},
+    "ifrs-full:InvestmentsInSubsidiariesJointVenturesAndAssociates" to {statement, item -> statement.ifrs_full_InvestmentsInSubsidiariesJointVenturesAndAssociates = item.valueNumeric},
+    "ifrs-full:NoncurrentBiologicalAssets" to {statement, item -> statement.ifrs_full_NoncurrentBiologicalAssets = item.valueNumeric},
+    "ifrs-full:NoncurrentReceivables" to {statement, item -> statement.ifrs_full_NoncurrentReceivables = item.valueNumeric},
+    "ifrs-full:NoncurrentInventories" to {statement, item -> statement.ifrs_full_NoncurrentInventories = item.valueNumeric},
+    "ifrs-full:DeferredTaxAssets" to {statement, item -> statement.ifrs_full_DeferredTaxAssets = item.valueNumeric},
+    "ifrs-full:CurrentTaxAssetsNoncurrent" to {statement, item -> statement.ifrs_full_CurrentTaxAssetsNoncurrent = item.valueNumeric},
+    "ifrs-full:OtherNoncurrentFinancialAssets" to {statement, item -> statement.ifrs_full_OtherNoncurrentFinancialAssets = item.valueNumeric},
+    "ifrs-full:OtherNoncurrentNonfinancialAssets" to {statement, item -> statement.ifrs_full_OtherNoncurrentNonfinancialAssets = item.valueNumeric},
+    "ifrs-full:NoncurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral" to {statement, item -> statement.ifrs_full_NoncurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral = item.valueNumeric},
+    "ifrs-full:NoncurrentAssets" to {statement, item -> statement.ifrs_full_NoncurrentAssets = item.valueNumeric},
+    "ifrs-full:Inventories" to {statement, item -> statement.ifrs_full_Inventories = item.valueNumeric},
+    "ifrs-full:TradeAndOtherCurrentReceivables" to {statement, item -> statement.ifrs_full_TradeAndOtherCurrentReceivables = item.valueNumeric},
+    "ifrs-full:CurrentTaxAssetsCurrent" to {statement, item -> statement.ifrs_full_CurrentTaxAssetsCurrent = item.valueNumeric},
+    "ifrs-full:CurrentBiologicalAssets" to {statement, item -> statement.ifrs_full_CurrentBiologicalAssets = item.valueNumeric},
+    "ifrs-full:OtherCurrentFinancialAssets" to {statement, item -> statement.ifrs_full_OtherCurrentFinancialAssets = item.valueNumeric},
+    "ifrs-full:OtherCurrentNonfinancialAssets" to {statement, item -> statement.ifrs_full_OtherCurrentNonfinancialAssets = item.valueNumeric},
+    "ifrs-full:CashAndCashEquivalents" to {statement, item -> statement.ifrs_full_CashAndCashEquivalents = item.valueNumeric},
+    "ifrs-full:CurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral" to {statement, item -> statement.ifrs_full_CurrentNoncashAssetsPledgedAsCollateralForWhichTransfereeHasRightByContractOrCustomToSellOrRepledgeCollateral = item.valueNumeric},
+    "ifrs-full:CurrentAssetsOtherThanAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners" to {statement, item -> statement.ifrs_full_CurrentAssetsOtherThanAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners = item.valueNumeric},
+    "ifrs-full:NoncurrentAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners" to {statement, item -> statement.ifrs_full_NoncurrentAssetsOrDisposalGroupsClassifiedAsHeldForSaleOrAsHeldForDistributionToOwners = item.valueNumeric},
+    "ifrs-full:CurrentAssets" to {statement, item -> statement.ifrs_full_CurrentAssets = item.valueNumeric},
+    "ifrs-full:Assets" to {statement, item -> statement.ifrs_full_Assets = item.valueNumeric},
+    "ifrs-full:IssuedCapital" to {statement, item -> statement.ifrs_full_IssuedCapital = item.valueNumeric},
+    "ifrs-full:RetainedEarnings" to {statement, item -> statement.ifrs_full_RetainedEarnings = item.valueNumeric},
+    "ifrs-full:SharePremium" to {statement, item -> statement.ifrs_full_SharePremium = item.valueNumeric},
+    "ifrs-full:TreasuryShares" to {statement, item -> statement.ifrs_full_TreasuryShares = item.valueNumeric},
+    "ifrs-full:OtherEquityInterest" to {statement, item -> statement.ifrs_full_OtherEquityInterest = item.valueNumeric},
+    "ifrs-full:OtherReserves" to {statement, item -> statement.ifrs_full_OtherReserves = item.valueNumeric},
+    "ifrs-full:EquityAttributableToOwnersOfParent" to {statement, item -> statement.ifrs_full_EquityAttributableToOwnersOfParent = item.valueNumeric},
+    "ifrs-full:NoncontrollingInterests" to {statement, item -> statement.ifrs_full_NoncontrollingInterests = item.valueNumeric},
+    "ifrs-full:Equity" to {statement, item -> statement.ifrs_full_Equity = item.valueNumeric},
+    "ifrs-full:NoncurrentProvisionsForEmployeeBenefits" to {statement, item -> statement.ifrs_full_NoncurrentProvisionsForEmployeeBenefits = item.valueNumeric},
+    "ifrs-full:OtherLongtermProvisions" to {statement, item -> statement.ifrs_full_OtherLongtermProvisions = item.valueNumeric},
+    "ifrs-full:NoncurrentProvisions" to {statement, item -> statement.ifrs_full_NoncurrentProvisions = item.valueNumeric},
+    "ifrs-full:NoncurrentPayables" to {statement, item -> statement.ifrs_full_NoncurrentPayables = item.valueNumeric},
+    "ifrs-full:DeferredTaxLiabilities" to {statement, item -> statement.ifrs_full_DeferredTaxLiabilities = item.valueNumeric},
+    "ifrs-full:CurrentTaxLiabilitiesNoncurrent" to {statement, item -> statement.ifrs_full_CurrentTaxLiabilitiesNoncurrent = item.valueNumeric},
+    "ifrs-full:OtherNoncurrentFinancialLiabilities" to {statement, item -> statement.ifrs_full_OtherNoncurrentFinancialLiabilities = item.valueNumeric},
+    "ifrs-full:OtherNoncurrentNonfinancialLiabilities" to {statement, item -> statement.ifrs_full_OtherNoncurrentNonfinancialLiabilities = item.valueNumeric},
+    "ifrs-full:NoncurrentLiabilities" to {statement, item -> statement.ifrs_full_NoncurrentLiabilities = item.valueNumeric},
+    "ifrs-full:CurrentProvisionsForEmployeeBenefits" to {statement, item -> statement.ifrs_full_CurrentProvisionsForEmployeeBenefits = item.valueNumeric},
+    "ifrs-full:OtherShorttermProvisions" to {statement, item -> statement.ifrs_full_OtherShorttermProvisions = item.valueNumeric},
+    "ifrs-full:CurrentProvisions" to {statement, item -> statement.ifrs_full_CurrentProvisions = item.valueNumeric},
+    "ifrs-full:TradeAndOtherCurrentPayables" to {statement, item -> statement.ifrs_full_TradeAndOtherCurrentPayables = item.valueNumeric},
+    "ifrs-full:CurrentTaxLiabilitiesCurrent" to {statement, item -> statement.ifrs_full_CurrentTaxLiabilitiesCurrent = item.valueNumeric},
+    "ifrs-full:OtherCurrentFinancialLiabilities" to {statement, item -> statement.ifrs_full_OtherCurrentFinancialLiabilities = item.valueNumeric},
+    "ifrs-full:OtherCurrentNonfinancialLiabilities" to {statement, item -> statement.ifrs_full_OtherCurrentNonfinancialLiabilities = item.valueNumeric},
+    "ifrs-full:CurrentLiabilitiesOtherThanLiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale" to {statement, item -> statement.ifrs_full_CurrentLiabilitiesOtherThanLiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale = item.valueNumeric},
+    "ifrs-full:LiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale" to {statement, item -> statement.ifrs_full_LiabilitiesIncludedInDisposalGroupsClassifiedAsHeldForSale = item.valueNumeric},
+    "ifrs-full:CurrentLiabilities" to {statement, item -> statement.ifrs_full_CurrentLiabilities = item.valueNumeric},
+    "ifrs-full:Liabilities" to {statement, item -> statement.ifrs_full_Liabilities = item.valueNumeric},
+    "ifrs-full:EquityAndLiabilities" to {statement, item -> statement.ifrs_full_EquityAndLiabilities = item.valueNumeric},
+)
