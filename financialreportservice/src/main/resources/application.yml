@@ -3,4 +3,11 @@ spring:
     name: financialreportservice
   profiles:
     active: default
+  cloud:
+      function:
+        definition: financialReportEventConsumer
+      stream:
+        bindings:
+          financialReportEventConsumer-in-0:
+            destination: financialReportEvent
 logging.level.com.mystockdata: DEBUG

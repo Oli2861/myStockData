@@ -12,6 +12,16 @@ services:
       - ./volumes/financial-reports:/var/lib/financial-reports
       - ./volumes/taxonomies:/var/lib/taxonomies
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./volumes/rabbitmq:/var/lib/rabbitmq/
+      - ./volumes/rabbitmq/log:/var/log/rabbitmq
+
   financialreportservice:
     build:
       context: ./financialreportservice
@@ -21,10 +31,32 @@ services:
       - "8082:8080"
     expose:
       - "8082"
+    depends_on:
+      rabbitmq:
+        condition: service_started
     environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"
       ARELLE_URL: arelle
       ARELLE_PORT: 8080
       XBRLFILINGS_URL: "https://filings.xbrl.org/"
-#volumes:
-#  financial-reports-volume:
-#    name: financial-reports
+
+  schedulingservice:
+    build:
+      context: ./schedulingservice
+    image: schedulingservice
+    container_name: schedulingservice
+    ports:
+      - "8083:8080"
+    expose:
+      - "8083"
+    depends_on:
+      rabbitmq:
+        condition: service_started
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: "5672"
+      SPRING_RABBITMQ_USERNAME: "guest"
+      SPRING_RABBITMQ_PASSWORD: "guest"

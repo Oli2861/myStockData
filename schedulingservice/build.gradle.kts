@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.6.7"
+    id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
@@ -14,7 +14,11 @@ var coroutinesVersion = "1.6.1"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/snapshot") }
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
+
+extra["springCloudVersion"] = "2021.0.3-SNAPSHOT"
 
 dependencies {
     // Kotlin
@@ -26,6 +30,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
 
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -35,21 +40,17 @@ dependencies {
 
     // Spring Cloud Stream for RabbitMQ
     implementation("org.springframework.cloud:spring-cloud-stream")
-    implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
+    implementation("org.springframework.cloud:spring-cloud-stream-binder-rabbit")
 
-    // Jaxb
-    implementation("javax.xml.bind:jaxb-api:2.3.1")
-    implementation("javax.activation:activation:1.1.1")
-    implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
-
+    // Awaitility for scheduling tasks
+    implementation("org.awaitility:awaitility:3.1.2")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.springframework.amqp:spring-rabbit-test")
 }
 
-extra["springCloudVersion"] = "2020.0.4"
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")

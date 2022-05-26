@@ -4,6 +4,7 @@ package com.mystockdata.financialreportservice.financialreports
 
 import com.mystockdata.financialreportservice.arelle.ArelleAdapter
 import com.mystockdata.financialreportservice.arelle.Item
+import com.mystockdata.financialreportservice.financialreportevent.FinancialReportEvent
 import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
 import com.mystockdata.financialreportservice.utility.isDateInYear
 import com.mystockdata.financialreportservice.xbrlfilings.RetrievedReportInfo
@@ -27,6 +28,10 @@ class FinancialReportService(
 ) {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
+    }
+
+    fun handleEvent(financialReportEvent: FinancialReportEvent) {
+        logger.debug("Received event $financialReportEvent")
     }
 
     /**
@@ -168,4 +173,6 @@ class FinancialReportService(
             }
         }
     }
+
+
 }

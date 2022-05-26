@@ -1,7 +1,6 @@
 package com.mystockdata.financialreportservice.financialreports
 
 import com.mystockdata.financialreportservice.arelle.Item
-import com.mystockdata.financialreportservice.arelle.TYPE
 import java.math.BigDecimal
 
 /**

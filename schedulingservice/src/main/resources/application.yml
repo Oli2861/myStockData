@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: schedulingservice
+  profiles:
+    active: default
+  cloud:
+    function:
+      definition: financialReportEventSupplier
+    stream:
+      bindings:
+        financialReportEventSupplier-out-0:
+          destination: financialReportEvent
+logging.level.com.mystockdata: DEBUG
