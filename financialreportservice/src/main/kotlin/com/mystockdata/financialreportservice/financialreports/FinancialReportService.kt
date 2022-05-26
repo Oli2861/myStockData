@@ -31,7 +31,7 @@ class FinancialReportService(
     }
 
     fun handleEvent(financialReportEvent: FinancialReportEvent) {
-        logger.debug("Received event $financialReportEvent")
+        //TODO: Implement function
     }
 
     /**

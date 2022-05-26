@@ -3,6 +3,9 @@ package com.mystockdata.schedulingservice
 import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEvent
 import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEventConfig
 import com.mystockdata.schedulingservice.financialreportevent.FuelStationEventType
+import com.mystockdata.schedulingservice.stockdataevent.StockDataEvent
+import com.mystockdata.schedulingservice.stockdataevent.StockDataEventConsumerConfig
+import com.mystockdata.schedulingservice.stockdataevent.StockDataEventType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,20 +20,29 @@ import java.util.*
 @Component
 class Scheduler(
     @Autowired val financialReportEventConfig: FinancialReportEventConfig,
-
+    @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig
 ) {
+    val scope = CoroutineScope(Dispatchers.Unconfined)
+    val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> = financialReportEventConfig.financialReportEventFlow
+    val stockDataEventConsumerFlow: MutableSharedFlow<StockDataEvent> = stockDataEventConsumerConfig.stockDataEventFlow
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
     }
-    val scope = CoroutineScope(Dispatchers.Unconfined)
-    val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> =
-        financialReportEventConfig.financialReportEventFlow
 
-    // @Scheduled(cron = "* * * * 1")
-    @Scheduled(cron = "2 * * * * *")
+
+    @Scheduled(cron = "* * * * * 1")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
         val event = FinancialReportEvent("${Date()}_REFRESH_DATA", FuelStationEventType.REFRESH_DATA)
         logger.debug("Sent event $event")
         financialReportEventFlow.emit(event)
     }
+
+    @Scheduled(cron = "1 * * * * *")
+    fun triggerStockDataTest() = scope.launch {
+        val event = StockDataEvent("${Date()}_REFRESH_DATA", StockDataEventType.TEST)
+        logger.debug("Sent event $event")
+        stockDataEventConsumerFlow.emit(event)
+    }
+
 }

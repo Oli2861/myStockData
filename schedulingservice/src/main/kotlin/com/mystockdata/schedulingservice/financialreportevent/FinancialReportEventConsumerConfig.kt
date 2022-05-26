@@ -18,8 +18,8 @@ class FinancialReportEventConfig {
     val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> = MutableSharedFlow()
 
     @Bean
-    fun financialReportEventSupplier(): Supplier<Flux<FinancialReportEvent>>{
-        return Supplier{
+    fun financialReportEventSupplier(): Supplier<Flux<FinancialReportEvent>> {
+        return Supplier {
             financialReportEventFlow.asFlux()
         }
     }

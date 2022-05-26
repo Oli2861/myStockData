@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: stockdataservice
+  profiles:
+    active: default
+  cloud:
+    function:
+      definition: stockDataEventConsumer
+    stream:
+      bindings:
+        stockDataEventConsumer-in-0:
+          destination: stockDataEvent
+logging.level.com.mystockdata: DEBUG

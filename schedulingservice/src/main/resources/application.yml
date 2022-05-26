@@ -5,9 +5,11 @@ spring:
     active: default
   cloud:
     function:
-      definition: financialReportEventSupplier
+      definition: financialReportEventSupplier;stockDataEventSupplier
     stream:
       bindings:
         financialReportEventSupplier-out-0:
           destination: financialReportEvent
+        stockDataEventSupplier-out-0:
+          destination: stockDataEvent
 logging.level.com.mystockdata: DEBUG
