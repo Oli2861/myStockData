@@ -37,6 +37,9 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-stream")
     implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit")
 
+    // Jsoup
+    implementation("org.jsoup:jsoup:1.14.3")
+
     // Jaxb
     implementation("javax.xml.bind:jaxb-api:2.3.1")
     implementation("javax.activation:activation:1.1.1")
