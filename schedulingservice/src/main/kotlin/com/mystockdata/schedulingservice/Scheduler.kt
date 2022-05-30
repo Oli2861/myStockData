@@ -23,26 +23,43 @@ class Scheduler(
     @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig
 ) {
     val scope = CoroutineScope(Dispatchers.Unconfined)
-    val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> = financialReportEventConfig.financialReportEventFlow
+    val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> =
+        financialReportEventConfig.financialReportEventFlow
     val stockDataEventConsumerFlow: MutableSharedFlow<StockDataEvent> = stockDataEventConsumerConfig.stockDataEventFlow
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
     }
 
-
-    @Scheduled(cron = "* * * * * 1")
+    // Every monday at 8 am: 0 0 8 * * MON
+     @Scheduled(cron = "0 0 20 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
         val event = FinancialReportEvent("${Date()}_REFRESH_DATA", FuelStationEventType.REFRESH_DATA)
         logger.debug("Sent event $event")
         financialReportEventFlow.emit(event)
     }
 
-    @Scheduled(cron = "1 * * * * *")
+    // Working days 8pm: 0 0 20 * * MON-FRI
+    @Scheduled(cron = "0 0 20 * * MON-FRI")
     fun triggerStockDataTest() = scope.launch {
-        val event = StockDataEvent("${Date()}_REFRESH_DATA", StockDataEventType.TEST)
+        val event = StockDataEvent("${Date()}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
     }
 
 }
+
+/*
+    Spring Scheduled (https://stackoverflow.com/questions/30887822/spring-cron-vs-normal-cron):
+    1 2 3 4 5 6 Index
+    - - - - - -
+    * * * * * * command to be executed
+    - - - - - -
+    | | | | | |
+    | | | | | ------- Day of week (MON - SUN)
+    | | | | --------- Month (1 - 12)
+    | | | ----------- Day of month (1 - 31)
+    | |-------------- Hour (0 - 23)
+    | --------------- Minute (0 - 59)
+    ----------------- Seconds (0 - 59)
+ */
