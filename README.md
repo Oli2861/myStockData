@@ -7,5 +7,5 @@
 `docker-compose up`
 
 ##### Start all gradle builds (requires gradle)
-- GitBash: `cd financialreportservice && ./gradlew build && cd ../`
+- GitBash: `cd financialreportservice && ./gradlew build && cd ../ && cd schedulingservice && ./gradlew build && cd ../ && cd stockdataservice && ./gradlew build && cd ../`
 - PowerShell: `cd financialreportservice; ./gradlew build; cd ../; cd schedulingservice; ./gradlew build; cd ../; cd stockdataservice; ./gradlew build; cd ../`
