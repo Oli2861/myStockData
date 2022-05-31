@@ -1,34 +1,26 @@
-package com.mystockdata.stockdataservice.dailystockdata
+package com.mystockdata.stockdataservice.historicalstockdata
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.web.reactive.function.client.ExchangeStrategies
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 
-
 @Configuration
-class OnVistaWebClientConfig {
+class YahooFinanceWebClient {
     val bufferSize = 16 * 1024 * 1024
 
     @Bean
-    fun onVistaWebClient(): WebClient = WebClient.builder()
-        .exchangeStrategies(
-            ExchangeStrategies.builder()
-                .codecs { codecs -> codecs.defaultCodecs().maxInMemorySize(bufferSize) }
-                .build()
-        )
+    fun onvistaWebClient(): WebClient = WebClient.builder()
         .clientConnector(
             ReactorClientHttpConnector(
                 HttpClient.create()
                     .followRedirect(true)
             )
         )
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XHTML_XML_VALUE)
-        .baseUrl("https://www.onvista.de/aktien")
+        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+        .baseUrl("https://query1.finance.yahoo.com")
         .build()
-
 }

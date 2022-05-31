@@ -1,14 +1,16 @@
 package com.mystockdata.stockdataservice.dailystockdata
 
 import java.math.BigDecimal
+import java.util.Date
 
-data class StockDataOHLCV(
+data class OnvistaStockDataOHLCV(
     val isin: String,
     val open: BigDecimal,
     val high: BigDecimal,
     val low: BigDecimal,
     val closePreviousDay: BigDecimal,
-    val volume: Int
+    val volume: Int,
+    val date: Date = Date()
 )
 
 /**
@@ -21,9 +23,9 @@ fun toStockDataOHLCV(
     low: BigDecimal?,
     closePreviousDay: BigDecimal?,
     volume: Int?
-): StockDataOHLCV? {
+): OnvistaStockDataOHLCV? {
     return if (open != null && high != null && low != null && closePreviousDay != null && volume != null) {
-        StockDataOHLCV(isin, open, high, low, closePreviousDay, volume)
+        OnvistaStockDataOHLCV(isin, open, high, low, closePreviousDay, volume)
     } else {
         null
     }

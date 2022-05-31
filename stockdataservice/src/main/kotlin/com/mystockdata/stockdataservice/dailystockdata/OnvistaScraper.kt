@@ -16,18 +16,18 @@ import java.util.*
  * @param redirectUrl The URL onvista redirects a user if he or she changes the selected trading place. Used to construct an url that is appendable by query parameters.
  * @param exchanges A list of the available trading places. Mapping their name to the onvista notation id.
  */
-data class ScrapingInfo(val redirectUrl: String, val exchanges: Map<OnVistaExchange, String>)
+data class ScrapingInfo(val redirectUrl: String, val exchanges: Map<OnvistaExchange, String>)
 
 private fun reduceToNumbers(string: String): String = string.replace(Regex("[^0-9.,]"), "")
 private fun onVistaMonetaryStringToBigDecimal(string: String): BigDecimal = string.replace(",", ".").toBigDecimal()
 private fun onVistaVolumeStringToInt(string: String): Int = reduceToNumbers(string).replace(".", "").toInt()
 
 @Component
-class DailyStockDataRetriever(
+class OnvistaScraper(
     @Autowired val onVistaWebClient: WebClient
 ) {
     companion object {
-        private val logger = LoggerFactory.getLogger(DailyStockDataRetriever::class.java)
+        private val logger = LoggerFactory.getLogger(OnvistaScraper::class.java)
     }
 
     /**
@@ -35,14 +35,17 @@ class DailyStockDataRetriever(
      *  @param exchange Exchange to retrieve the data from.
      *  @return List containing the successfully retrieved stock data.
      */
-    suspend fun retrieveStockDataForMultipleStocks(isinList: List<String>, exchange: OnVistaExchange): List<StockDataOHLCV> =
+    suspend fun retrieveStockDataForMultipleStocks(
+        isinList: List<String>,
+        exchange: OnvistaExchange
+    ): List<OnvistaStockDataOHLCV> =
         isinList.mapNotNull { isin -> retrieveStockData(isin, exchange) }
 
     /**
      *  @param isinList List containing International Securities Identification Number (ISIN).
      *  @return List containing the successfully retrieved stock data.
      */
-    suspend fun retrieveStockDataForMultipleStocks(isinList: List<String>): List<StockDataOHLCV> =
+    suspend fun retrieveStockDataForMultipleStocks(isinList: List<String>): List<OnvistaStockDataOHLCV> =
         isinList.mapNotNull { retrieveStockData(it) }
 
     /**
@@ -50,7 +53,7 @@ class DailyStockDataRetriever(
      *  @param onVistaExchange Exchange to retrieve the data from.
      *  @return Information about the historical price development of the stock (identified by the provided isin) on the corresponding exchange.
      */
-    private suspend fun retrieveStockData(isin: String, onVistaExchange: OnVistaExchange? = null): StockDataOHLCV? {
+    private suspend fun retrieveStockData(isin: String, onVistaExchange: OnvistaExchange? = null): OnvistaStockDataOHLCV? {
         val scrapingInfo = getRedirectUrlAndTradingPlace(isin) ?: return null
         // Map containing names of available exchanges
         val exchanges = scrapingInfo.exchanges
@@ -91,7 +94,7 @@ class DailyStockDataRetriever(
      * @param isin The isin of the stock.
      * @return StockDataOHLCV information retrieved from the provided document.
      */
-    private fun getStockDataOHLCV(document: Document, isin: String): StockDataOHLCV? {
+    private fun getStockDataOHLCV(document: Document, isin: String): OnvistaStockDataOHLCV? {
         val elementsWithHeaderAttribute = document.getElementsByAttribute("headers")
 
         var open: BigDecimal? = null
@@ -143,7 +146,7 @@ class DailyStockDataRetriever(
 
         val scrapingInfo: ScrapingInfo? = url?.let { ScrapingInfo(it, exchanges) }
         logger.trace("Retrieved ScrapingInfo for $isin: ${scrapingInfo.toString()}")
-        if(scrapingInfo == null) logger.debug("No ScrapingInfo found for $isin")
+        if (scrapingInfo == null) logger.debug("No ScrapingInfo found for $isin")
         return scrapingInfo
     }
 
@@ -164,8 +167,8 @@ class DailyStockDataRetriever(
      * @param document The document to query.
      * @return Map mapping the exchange (e.g. LS) to the ticker (e.g. SAP on LS).
      */
-    private fun getExchanges(document: Document): MutableMap<OnVistaExchange, String> {
-        val exchanges: MutableMap<OnVistaExchange, String> = EnumMap(OnVistaExchange::class.java)
+    private fun getExchanges(document: Document): MutableMap<OnvistaExchange, String> {
+        val exchanges: MutableMap<OnvistaExchange, String> = EnumMap(OnvistaExchange::class.java)
         // List containing information about exchanges.
         val retrievedExchangeList = document.selectXpath("//*[@id=\"exchangesLayer\"]/ul")
         retrievedExchangeList.first()?.children()?.forEach { li ->
@@ -176,7 +179,7 @@ class DailyStockDataRetriever(
             // The name of the exchange can be found as a text node (child of aElement).
             val retrievedName: String? = aElement?.textNodes()?.firstOrNull()?.text()?.trim()
             // Identify exchange.
-            val exchange: OnVistaExchange? = OnVistaExchange.values().firstOrNull { onVistaExchange ->
+            val exchange: OnvistaExchange? = OnvistaExchange.values().firstOrNull { onVistaExchange ->
                 retrievedName == onVistaExchange.exchangeName
             }
 

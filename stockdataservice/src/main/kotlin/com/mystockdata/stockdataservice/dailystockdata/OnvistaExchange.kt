@@ -1,6 +1,6 @@
 package com.mystockdata.stockdataservice.dailystockdata
 
-enum class OnVistaExchange(val exchangeName: String) {
+enum class OnvistaExchange(val exchangeName: String) {
     XETRA("Xetra"),
     TRADEGATE("Tradegate"),
     NASDAQ_OTIC("Nasdaq OTC"),

@@ -9,5 +9,5 @@ data class StockDataEvent(val correlationId: String, val stockDataEventType: Sto
  * Specifies the type of StockDataEvent.
  */
 enum class StockDataEventType{
-    RETRIEVE_DAILY_OHLCV
+    RETRIEVE_DAILY_OHLCV, RETRIEVE_HISTORIC_AGGREGATED_OHLCV
 }

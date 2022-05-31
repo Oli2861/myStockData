@@ -34,19 +34,27 @@ class Scheduler(
     // Every monday at 8 am: 0 0 8 * * MON
      @Scheduled(cron = "0 0 20 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
-        val event = FinancialReportEvent("${Date()}_REFRESH_DATA", FuelStationEventType.REFRESH_DATA)
+        val event = FinancialReportEvent("${Date().time}_REFRESH_DATA", FuelStationEventType.REFRESH_DATA)
         logger.debug("Sent event $event")
         financialReportEventFlow.emit(event)
     }
 
+    /*
     // Working days 8pm: 0 0 20 * * MON-FRI
     @Scheduled(cron = "0 0 20 * * MON-FRI")
     fun triggerStockDataTest() = scope.launch {
-        val event = StockDataEvent("${Date()}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
+        val event = StockDataEvent("${Date().time}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
     }
+    */
 
+    @Scheduled(cron = "")
+    suspend fun triggerAggregatedHistoricalStockDataTest(){
+        val event = StockDataEvent("${Date().time}_RETRIEVE_HISTORIC_AGGREGATED_OHLCV", StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV)
+        logger.debug("Sent event $event")
+        stockDataEventConsumerFlow.emit(event)
+    }
 }
 
 /*
