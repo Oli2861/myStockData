@@ -5,11 +5,13 @@ package com.mystockdata.financialreportservice.financialreports
 import com.mystockdata.financialreportservice.arelle.ArelleAdapter
 import com.mystockdata.financialreportservice.arelle.Item
 import com.mystockdata.financialreportservice.financialreportevent.FinancialReportEvent
+import com.mystockdata.financialreportservice.financialreportevent.FinancialReportEventType
 import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
 import com.mystockdata.financialreportservice.utility.isDateInYear
 import com.mystockdata.financialreportservice.xbrlfilings.RetrievedReportInfo
 import com.mystockdata.financialreportservice.xbrlfilings.XBRLFilingsAdapter
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.transform
 import org.slf4j.Logger
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 object FinancialReportServiceConstants {
-    const val DELAY_TIME: Long = 60_000L
+    const val DELAY_TIME: Long = 30_000L
 }
 
 @Service
@@ -30,8 +32,12 @@ class FinancialReportService(
         private val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
     }
 
-    fun handleEvent(financialReportEvent: FinancialReportEvent) {
-        //TODO: Implement function
+    suspend fun handleEvent(financialReportEvent: FinancialReportEvent) {
+        when (financialReportEvent.financialReportEventType) {
+            FinancialReportEventType.REFRESH_DATA -> getFinancialReports().collect()
+            FinancialReportEventType.LOAD_TAXONOMY -> loadEsefTaxonomy()
+            else -> logger.error("Unexpected FinancialReportEventType. Event: $financialReportEvent")
+        }
     }
 
     /**
@@ -47,9 +53,9 @@ class FinancialReportService(
 
     suspend fun getFinancialReports(): Flow<List<FinancialReport>> {
         val retrievedReportInfoFlow: Flow<RetrievedReportInfo> = xbrlFilingsAdapter.getAvailableFinancialReports()
-
         val financialReportFlow = retrievedReportInfoFlow.filter { retrievedReportInfo ->
             // Only save reports that have no errors and are not saved yet
+            logger.debug(retrievedReportInfo.toString())
             retrievedReportInfo.hasErrors != null
                     && retrievedReportInfo.lei != null
                     && retrievedReportInfo.date != null
@@ -128,7 +134,7 @@ class FinancialReportService(
         list.forEach { item ->
             if (item.value == "(nil)" || item.value == null) {
                 logger.trace("${if (item.value == null) "Null" else "Nil"} item retrieved: $item")
-            }else{
+            } else {
                 ifrsGeneralInformation.setValue(item)
                 ifrsStatementOfFinancialPositionOrderOfLiquidity.setValue(item)
                 ifrsStatementOfFinancialPositionCurrentNotCurrent.setValue(item)
@@ -169,7 +175,7 @@ class FinancialReportService(
                     logger.debug("Mismatch: Entity identifier of the generated report: ${mainReport.entityIdentifier}\tEntity identifier provided by data source: ${retrievedReportInfo.lei}")
                 }
             } else {
-                logger.debug("Main report could not be identified RetrievedReportInfo: $retrievedReportInfo")
+                logger.debug("Main report could not be identified. RetrievedReportInfo: $retrievedReportInfo")
             }
         }
     }

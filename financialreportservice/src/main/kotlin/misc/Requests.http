@@ -1,7 +1,7 @@
 ### Load reports
-GET http://localhost:8082/v1/loadReports
+GET http://localhost:8083/v1/loadReports
 Accept: application/stream+json
 
 ### Load taxonomy
-GET http://localhost:8082/v1/loadTaxonomy
+GET http://localhost:8083/v1/loadTaxonomy
 Accept: application/json

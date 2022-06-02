@@ -2,7 +2,7 @@ package com.mystockdata.schedulingservice
 
 import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEvent
 import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEventConfig
-import com.mystockdata.schedulingservice.financialreportevent.FuelStationEventType
+import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEventType
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEvent
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventConsumerConfig
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventType
@@ -32,9 +32,9 @@ class Scheduler(
     }
 
     // Every monday at 8 am: 0 0 8 * * MON
-     @Scheduled(cron = "0 0 20 * * MON")
+    @Scheduled(cron = "0 0 8 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
-        val event = FinancialReportEvent("${Date().time}_REFRESH_DATA", FuelStationEventType.REFRESH_DATA)
+        val event = FinancialReportEvent("${Date().time}_REFRESH_DATA", FinancialReportEventType.REFRESH_DATA)
         logger.debug("Sent event $event")
         financialReportEventFlow.emit(event)
     }
@@ -49,9 +49,13 @@ class Scheduler(
     }
     */
 
-    @Scheduled(cron = "")
-    suspend fun triggerAggregatedHistoricalStockDataTest(){
-        val event = StockDataEvent("${Date().time}_RETRIEVE_HISTORIC_AGGREGATED_OHLCV", StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV)
+    // Once per Month
+    @Scheduled(cron = "0 1 0 1 * *")
+    fun triggerAggregatedHistoricalStockDataTest() = scope.launch {
+        val event = StockDataEvent(
+            "${Date().time}_RETRIEVE_HISTORIC_AGGREGATED_OHLCV",
+            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV
+        )
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
     }
