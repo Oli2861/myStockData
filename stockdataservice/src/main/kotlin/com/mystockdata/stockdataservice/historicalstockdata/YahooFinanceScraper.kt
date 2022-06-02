@@ -2,6 +2,7 @@ package com.mystockdata.stockdataservice.historicalstockdata
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
@@ -11,7 +12,7 @@ import java.util.*
 
 @Component
 class YahooFinanceScraper(
-    @Autowired val webClient: WebClient
+    @Qualifier("yahooFinanceWebClient") @Autowired val yahooFinanceWebClient: WebClient
 ) {
     val formatter = SimpleDateFormat("yyyy-MM-dd")
 
@@ -38,7 +39,7 @@ class YahooFinanceScraper(
         val adjustedEndTimeStamp = Date.from(endDate.atStartOfDay().toInstant(ZoneOffset.UTC)).time / 1000
         logger.trace("Retrieving historical stock data for $stockSymbol ranging from $startDate to $endDate")
 
-        val csvResponse = webClient.get()
+        val csvResponse = yahooFinanceWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder.path("/v7/finance/download/$stockSymbol")
                     .queryParam("period1", adjustedStartTimeStamp)

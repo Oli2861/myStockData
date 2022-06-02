@@ -9,11 +9,11 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 
 @Configuration
-class YahooFinanceWebClient {
+class YahooFinanceWebClientConfig {
     val bufferSize = 16 * 1024 * 1024
 
     @Bean
-    fun onvistaWebClient(): WebClient = WebClient.builder()
+    fun yahooFinanceWebClient(): WebClient = WebClient.builder()
         .clientConnector(
             ReactorClientHttpConnector(
                 HttpClient.create()

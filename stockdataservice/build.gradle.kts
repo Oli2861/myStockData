@@ -1,16 +1,19 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.google.protobuf.gradle.*
 
 plugins {
     id("org.springframework.boot") version "2.7.0"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
+    id("com.google.protobuf") version "0.8.12"
 }
 
 group = "com.mystockdata"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 var coroutinesVersion = "1.6.1"
+val protobufVersion = "3.21.1"
 
 repositories {
     mavenCentral()
@@ -45,10 +48,24 @@ dependencies {
     implementation("javax.activation:activation:1.1.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
 
+    // Java WebSocket
+    implementation("org.java-websocket:Java-WebSocket:1.5.3")
+
+    // Protobuf
+    implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("junit:junit:4.13.2")
+    testImplementation ("org.mockito:mockito-core:4.5.1")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+
 }
 
 extra["springCloudVersion"] = "2020.0.4"
