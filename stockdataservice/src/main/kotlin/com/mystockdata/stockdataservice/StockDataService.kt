@@ -68,11 +68,10 @@ class StockDataService(
     }
 
 }
-/*
+
 suspend fun main() {
     val yahooFinanceScraper = YahooFinanceScraper(YahooFinanceWebClientConfig().yahooFinanceWebClient())
     val onvistaScraper = OnvistaScraper(OnvistaWebClientConfig().onvistaWebClient())
     val stockDataService = StockDataService(yahooFinanceScraper, onvistaScraper)
     stockDataService.startRetrievingDailyStockData()
 }
-*/

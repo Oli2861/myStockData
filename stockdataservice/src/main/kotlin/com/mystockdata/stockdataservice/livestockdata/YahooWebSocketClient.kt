@@ -19,7 +19,6 @@ class YahooWebSocketClient(
     serverUri: URI,
     private val initialRequest: String,
     private val base64Decoder: Base64.Decoder = Base64.getDecoder(),
-    private val protoParser: YahooProtoParser = YahooProtoParser()
 ) : WebSocketClient(serverUri) {
 
     companion object {
@@ -34,10 +33,9 @@ class YahooWebSocketClient(
     override fun onMessage(message: String?) {
         if (message == null) return
         val decodedByteString: ByteString = base64Decoder.decode(message).toByteString()
-        val parsed = protoParser.parseProto(decodedByteString)
+        val parsed = Yahoo.Yaticker.parseFrom(decodedByteString)
         logger.debug("Parsed Info:\nType: ${parsed?.javaClass}\nContent:$parsed")
     }
-
 
     override fun onMessage(message: ByteBuffer?) {
         val msg = parseFrom(message)

@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     id("com.google.protobuf") version "0.8.12"
+    idea
 }
 
 group = "com.mystockdata"
@@ -61,12 +62,29 @@ dependencies {
     testImplementation ("org.mockito:mockito-core:4.5.1")
 }
 
+sourceSets {
+    main {
+        java {
+            this.srcDirs.add(File("build/generated/source/proto/main/java"))
+        }
+    }
+}
+
 protobuf {
     protoc {
         artifact = "com.google.protobuf:protoc:$protobufVersion"
     }
-
+    generatedFilesBaseDir = "$projectDir/gen"
 }
+idea {
+    module {
+        // proto files and generated Java files are automatically added as
+        // source dirs.
+        // If you have additional sources, add them here:
+        sourceDirs.add(file("build/generated/source/proto/main/java"));
+    }
+}
+
 
 extra["springCloudVersion"] = "2020.0.4"
 dependencyManagement {
@@ -76,6 +94,7 @@ dependencyManagement {
 }
 
 tasks.withType<KotlinCompile> {
+    dependsOn.add(":generateProto")
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "17"
