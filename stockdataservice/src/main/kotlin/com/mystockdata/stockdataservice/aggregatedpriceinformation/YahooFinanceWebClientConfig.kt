@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.historicalstockdata
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

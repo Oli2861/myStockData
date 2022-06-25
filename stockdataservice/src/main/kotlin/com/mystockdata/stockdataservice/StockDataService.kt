@@ -1,31 +1,23 @@
 package com.mystockdata.stockdataservice
 
-import com.mystockdata.stockdataservice.dailystockdata.OnvistaExchange
-import com.mystockdata.stockdataservice.dailystockdata.OnvistaScraper
-import com.mystockdata.stockdataservice.dailystockdata.OnvistaWebClientConfig
-import com.mystockdata.stockdataservice.historicalstockdata.YahooFinanceScraper
-import com.mystockdata.stockdataservice.historicalstockdata.YahooFinanceWebClientConfig
-import com.mystockdata.stockdataservice.livestockdata.YahooWebSocketClient
+import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedInformationProvider
+import com.mystockdata.stockdataservice.aggregatedpriceinformation.YahooFinanceScraper
+import com.mystockdata.stockdataservice.aggregatedpriceinformation.YahooFinanceWebClientConfig
+import com.mystockdata.stockdataservice.precisepriceinformation.PreciseInformationProvider
+import com.mystockdata.stockdataservice.precisepriceinformation.YahooWebClientHandler
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEvent
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEventType
+import kotlinx.coroutines.delay
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.net.URI
 
 @Service
 class StockDataService(
-    @Autowired private val yahooFinanceScraper: YahooFinanceScraper,
-    @Autowired private val onvistaScraper: OnvistaScraper,
+    @Autowired private val aggregatedInformationProvider: AggregatedInformationProvider,
+    @Autowired private val preciseInformationProvider: PreciseInformationProvider
 ) {
-    private lateinit var yahooWebSocketClient: YahooWebSocketClient
-
-    init {
-        val uri = URI.create("wss://streamer.finance.yahoo.com/")
-        val initialRequest = "{\"subscribe\":[\"AMC\", \"TSLA\"]}"
-        yahooWebSocketClient = YahooWebSocketClient(uri, initialRequest)
-    }
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(StockDataService::class.java)
@@ -37,41 +29,43 @@ class StockDataService(
     suspend fun handleEvent(stockDataEvent: StockDataEvent) {
 
         when (stockDataEvent.stockDataEventType) {
-            StockDataEventType.RETRIEVE_DAILY_OHLCV -> retrieveDailyStockDataFromOnvista()
-            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV -> retrieveAggregatedHistoricalStockDataFromYahooFinance()
-            StockDataEventType.START_RETRIEVING_LIVE_STOCK_DATA -> startRetrievingDailyStockData()
-            StockDataEventType.STOP_RETRIEVING_LIVE_STOCK_DATA -> { /*TODO*/
-            }
-            else -> logger.error("Unknown event type received: $stockDataEvent")
+            StockDataEventType.RETRIEVE_DAILY_OHLCV -> retrieveAggregatedInformationForYesterday()
+            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV -> retrieveAggregatedInformationForPastMonth()
+            StockDataEventType.START_RETRIEVING_LIVE_STOCK_DATA -> startRetrievingPrecisePriceInformation()
+            StockDataEventType.STOP_RETRIEVING_LIVE_STOCK_DATA -> preciseInformationProvider.closeConnection()
         }
+
     }
 
-    suspend fun startRetrievingDailyStockData() {
-        yahooWebSocketClient.connect()
-    }
-
-    suspend fun retrieveAggregatedHistoricalStockDataFromYahooFinance() {
-        // TODO: Retrieve Symbol list
+    suspend fun retrieveAggregatedInformationForYesterday(){
+        // TODO
         val list = listOf("VOW3.DE", "SOW.DE", "SAP.DE")
-        val result = yahooFinanceScraper.retrieveAggregatedHistoricalStockData(list)
+        //val result = yahooFinanceScraper.retrieveAggregatedHistoricalStockDataForPastMonth(list)
+        val result =
+            aggregatedInformationProvider.retrieveAggregatedInformationForYesterday(list)
         logger.debug("Data from Yahoo Finance $result")
     }
 
-    /**
-     *  Retrieve OHLCV stock information for a list of ISINs identifying stocks of interest.
-     */
-    suspend fun retrieveDailyStockDataFromOnvista(exchange: OnvistaExchange = OnvistaExchange.XETRA) {
-        // TODO: Retrieve isin-list of stocks to be collected
-        val list = listOf("DE0007164600", "DE000A2GS401")
-        val result = onvistaScraper.retrieveStockDataForMultipleStocks(list, exchange)
-        logger.trace("Retrieved stock information: $result")
+    suspend fun retrieveAggregatedInformationForPastMonth() {
+        // TODO: Retrieve Watchlist
+        val list = listOf("VOW3.DE", "SOW.DE", "SAP.DE")
+        val result = aggregatedInformationProvider.retrieveAggregatedInformationForPastMonth(list)
+        logger.debug("Data from Yahoo Finance $result")
+    }
+
+    suspend fun startRetrievingPrecisePriceInformation() {
+        // TODO: Retrieve Watchlist
+        preciseInformationProvider.establishConnection(listOf("SAP.DE", "TSLA", "AMC"))
     }
 
 }
 
 suspend fun main() {
     val yahooFinanceScraper = YahooFinanceScraper(YahooFinanceWebClientConfig().yahooFinanceWebClient())
-    val onvistaScraper = OnvistaScraper(OnvistaWebClientConfig().onvistaWebClient())
-    val stockDataService = StockDataService(yahooFinanceScraper, onvistaScraper)
-    stockDataService.startRetrievingDailyStockData()
+    val yahooWebClientHandler = YahooWebClientHandler()
+    val stockDataService = StockDataService(yahooFinanceScraper, yahooWebClientHandler)
+    //stockDataService.retrieveAggregatedInformationForYesterday()
+    //stockDataService.retrieveAggregatedInformationForPastMonth()
+    stockDataService.startRetrievingPrecisePriceInformation()
+    delay(100L)
 }

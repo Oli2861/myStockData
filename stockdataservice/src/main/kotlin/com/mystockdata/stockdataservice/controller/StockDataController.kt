@@ -10,5 +10,5 @@ class StockDataController(
     @Autowired private val stockDataService: StockDataService
 ) {
     @GetMapping("streamData")
-    suspend fun streamData() = stockDataService.startRetrievingDailyStockData()
+    suspend fun streamData() = stockDataService.startRetrievingPrecisePriceInformation()
 }

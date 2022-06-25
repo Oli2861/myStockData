@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.dailystockdata
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import java.math.BigDecimal
 import java.util.Date

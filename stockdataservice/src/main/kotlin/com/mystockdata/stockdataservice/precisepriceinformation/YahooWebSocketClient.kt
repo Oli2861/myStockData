@@ -1,45 +1,58 @@
-package com.mystockdata.stockdataservice.livestockdata
+package com.mystockdata.stockdataservice.precisepriceinformation
 
-
+import Yahoo
 import com.google.protobuf.ByteString
 import com.google.protobuf.StringValue.parseFrom
 import com.google.protobuf.kotlin.toByteString
+import com.mystockdata.stockdataservice.utility.epochMilliToLocalDateTime
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.stereotype.Component
 import java.net.URI
 import java.nio.ByteBuffer
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class YahooWebSocketClient(
-    serverUri: URI,
-    private val initialRequest: String,
+    var initialMsg: String? = null,
+    serverUri: URI = URI.create("wss://streamer.finance.yahoo.com/"),
     private val base64Decoder: Base64.Decoder = Base64.getDecoder(),
+    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss.SSS")
 ) : WebSocketClient(serverUri) {
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(YahooWebSocketClient::class.java)
+
+        private var INSTANCE: YahooWebSocketClient? = null
+
+        fun getInstance() = INSTANCE ?: synchronized(this) {
+            YahooWebSocketClient()
+        }
+
     }
 
     override fun onOpen(handshakedata: ServerHandshake?) {
-        send(initialRequest)
+        if (initialMsg != null){
+            send(initialMsg)
+        }
         logger.debug("Connection open ${handshakedata.toString()}")
     }
 
     override fun onMessage(message: String?) {
         if (message == null) return
+
         val decodedByteString: ByteString = base64Decoder.decode(message).toByteString()
         val parsed = Yahoo.Yaticker.parseFrom(decodedByteString)
+
+        logger.debug(epochMilliToLocalDateTime(parsed.time).format(dateTimeFormatter))
         logger.debug("Parsed Info:\nType: ${parsed?.javaClass}\nContent:$parsed")
+        val precisePriceInformation =
+            PrecisePriceInformation(parsed.underlyingSymbol, parsed.price.toBigDecimal(), parsed.time)
     }
 
     override fun onMessage(message: ByteBuffer?) {
         val msg = parseFrom(message)
-        logger.debug(msg.value)
         logger.debug("received ByteBuffer $message $msg")
     }
 
@@ -52,6 +65,7 @@ class YahooWebSocketClient(
     }
 
 }
+
 
 /*
 @Component

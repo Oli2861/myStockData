@@ -1,9 +1,9 @@
-package com.mystockdata.stockdataservice.historicalstockdata
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import java.math.BigDecimal
 import java.util.*
 
-data class YahooFinanceStockDataOHLCV(
+data class StockDataOHLCV(
     val symbol: String,
     val date: Date,
     val open: BigDecimal,

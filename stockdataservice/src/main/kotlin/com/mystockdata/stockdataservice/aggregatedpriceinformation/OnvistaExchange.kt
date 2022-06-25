@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.dailystockdata
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 enum class OnvistaExchange(val exchangeName: String) {
     XETRA("Xetra"),

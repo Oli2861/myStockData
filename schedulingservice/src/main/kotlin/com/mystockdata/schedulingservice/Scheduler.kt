@@ -39,16 +39,6 @@ class Scheduler(
         financialReportEventFlow.emit(event)
     }
 
-    /*
-    // Working days 8pm: 0 0 20 * * MON-FRI
-    @Scheduled(cron = "0 0 20 * * MON-FRI")
-    fun triggerStockDataTest() = scope.launch {
-        val event = StockDataEvent("${Date().time}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
-        logger.debug("Sent event $event")
-        stockDataEventConsumerFlow.emit(event)
-    }
-    */
-
     // Once per Month
     @Scheduled(cron = "0 1 0 1 * *")
     fun triggerAggregatedHistoricalStockDataTest() = scope.launch {
@@ -59,8 +49,17 @@ class Scheduler(
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
     }
-}
 
+    /*
+    // Working days 8pm: 0 0 20 * * MON-FRI
+    @Scheduled(cron = "0 0 20 * * MON-FRI")
+    fun triggerStockDataTest() = scope.launch {
+        val event = StockDataEvent("${Date().time}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
+        logger.debug("Sent event $event")
+        stockDataEventConsumerFlow.emit(event)
+    }
+    */
+}
 /*
     Spring Scheduled (https://stackoverflow.com/questions/30887822/spring-cron-vs-normal-cron):
     1 2 3 4 5 6 Index

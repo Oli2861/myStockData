@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.dailystockdata
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -17,6 +17,7 @@ import java.util.*
  * @param redirectUrl The URL onvista redirects a user if he or she changes the selected trading place. Used to construct an url that is appendable by query parameters.
  * @param exchanges A list of the available trading places. Mapping their name to the onvista notation id.
  */
+
 data class ScrapingInfo(val redirectUrl: String, val exchanges: Map<OnvistaExchange, String>)
 
 private fun reduceToNumbers(string: String): String = string.replace(Regex("[^0-9.,]"), "")
