@@ -9,7 +9,6 @@ services:
     expose:
       - "8081"
     volumes:
-      - ./volumes/financial-reports:/var/lib/financial-reports
       - ./volumes/taxonomies:/var/lib/taxonomies
 
   rabbitmq:
@@ -63,7 +62,7 @@ services:
 
   stockdataservice:
     build:
-      context: stockdataservice
+      context: ./stockdataservice
     image: stockdataservice
     container_name: stockdataservice
     ports:
@@ -78,3 +77,19 @@ services:
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
+
+  influxdb:
+    image: influxdb:2.3.0
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./volumes/influxdb/data:/var/lib/influxdb2
+      - ./volumes/influxdb/config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: "setup"
+      DOCKER_INFLUXDB_INIT_USERNAME: "user"
+      DOCKER_INFLUXDB_INIT_PASSWORD: "password"
+      DOCKER_INFLUXDB_INIT_ORG: "mystockdata"
+      DOCKER_INFLUXDB_INIT_BUCKET: "stockdata"
+      DOCKER_INFLUXDB_INIT_RETENTION: "0"
