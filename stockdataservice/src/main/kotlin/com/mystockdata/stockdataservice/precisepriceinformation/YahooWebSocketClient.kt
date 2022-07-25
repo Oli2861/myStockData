@@ -5,35 +5,50 @@ import com.google.protobuf.ByteString
 import com.google.protobuf.StringValue.parseFrom
 import com.google.protobuf.kotlin.toByteString
 import com.mystockdata.stockdataservice.utility.epochMilliToLocalDateTime
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.net.URI
 import java.nio.ByteBuffer
+import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+@Component
 class YahooWebSocketClient(
     var initialMsg: String? = null,
     serverUri: URI = URI.create("wss://streamer.finance.yahoo.com/"),
     private val base64Decoder: Base64.Decoder = Base64.getDecoder(),
-    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss.SSS")
-) : WebSocketClient(serverUri) {
+    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss.SSS"),
+    override val flow: Flow<PrecisePriceInformation> = MutableSharedFlow<PrecisePriceInformation>()
+) : WebSocketClient(serverUri), PrecisePriceInformationProvider {
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(YahooWebSocketClient::class.java)
+    }
 
-        private var INSTANCE: YahooWebSocketClient? = null
+    override fun establishConnection(symbols: List<String>) {
+        initialMsg = prepareSymbolString(symbols)
+        connect()
+    }
 
-        fun getInstance() = INSTANCE ?: synchronized(this) {
-            YahooWebSocketClient()
+    override fun setWatchedSecurities(symbols: List<String>) {
+        send(prepareSymbolString(symbols))
+    }
+
+    private fun prepareSymbolString(symbols: List<String>): String {
+        val symbolString = symbols.foldIndexed("") { idx, acc, str ->
+            acc.plus("\"$str\"".plus(if (idx < symbols.size - 1) "," else ""))
         }
-
+        return "{\"subscribe\":[$symbolString]}"
     }
 
     override fun onOpen(handshakedata: ServerHandshake?) {
-        if (initialMsg != null){
+        if (initialMsg != null) {
             send(initialMsg)
         }
         logger.debug("Connection open ${handshakedata.toString()}")
@@ -48,7 +63,11 @@ class YahooWebSocketClient(
         logger.debug(epochMilliToLocalDateTime(parsed.time).format(dateTimeFormatter))
         logger.debug("Parsed Info:\nType: ${parsed?.javaClass}\nContent:$parsed")
         val precisePriceInformation =
-            PrecisePriceInformation(parsed.underlyingSymbol, parsed.price.toBigDecimal(), parsed.time)
+            PrecisePriceInformation(
+                parsed.underlyingSymbol,
+                parsed.price.toBigDecimal(),
+                Instant.ofEpochMilli(parsed.time)
+            )
     }
 
     override fun onMessage(message: ByteBuffer?) {

@@ -1,11 +1,11 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import java.math.BigDecimal
-import java.util.*
+import java.time.Instant
 
 data class StockDataOHLCV(
     val symbol: String,
-    val date: Date,
+    val date: Instant,
     val open: BigDecimal,
     val high: BigDecimal,
     val low: BigDecimal,
