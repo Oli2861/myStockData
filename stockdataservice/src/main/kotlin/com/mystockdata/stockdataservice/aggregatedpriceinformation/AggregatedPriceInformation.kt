@@ -1,15 +1,18 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
+import com.influxdb.annotations.Column
+import com.influxdb.annotations.Measurement
 import java.math.BigDecimal
 import java.time.Instant
 
-data class StockDataOHLCV(
-    val symbol: String,
-    val date: Instant,
-    val open: BigDecimal,
-    val high: BigDecimal,
-    val low: BigDecimal,
-    val close: BigDecimal,
-    val adjClose: BigDecimal,
-    val volume: Int
+@Measurement(name = "AggregatedPriceInformation")
+data class AggregatedPriceInformation(
+    @Column(tag = true) val symbol: String,
+    @Column(timestamp = true) val date: Instant,
+    @Column val open: BigDecimal,
+    @Column val high: BigDecimal,
+    @Column val low: BigDecimal,
+    @Column val close: BigDecimal,
+    @Column val adjClose: BigDecimal,
+    @Column val volume: Int
 )

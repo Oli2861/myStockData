@@ -25,7 +25,7 @@ class YahooFinanceScraper(
         stockSymbol: String,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<StockDataOHLCV>? {
+    ): List<AggregatedPriceInformation>? {
 
         logger.trace("Retrieving historical stock data for $stockSymbol ranging from $startDate to $endDate")
 
@@ -53,9 +53,8 @@ class YahooFinanceScraper(
      * @param stockSymbol Symbol of the associated stock.
      * @return List of the retrieved stock data.
      */
-    private fun retrieveDataFromCSV(csvString: String, stockSymbol: String): List<StockDataOHLCV>? {
+    private fun retrieveDataFromCSV(csvString: String, stockSymbol: String): List<AggregatedPriceInformation>? {
 
-        val list = mutableListOf<StockDataOHLCV>()
         val responseSplitByLines = csvString.lines()
         if (responseSplitByLines.isEmpty()) return null
 
@@ -63,6 +62,8 @@ class YahooFinanceScraper(
         // Check whether header ist existing and remove it
         if (headerLine != "Date,Open,High,Low,Close,Adj Close,Volume") return null
         val listBody = responseSplitByLines.subList(1, responseSplitByLines.size)
+
+        val list = mutableListOf<AggregatedPriceInformation>()
 
         for (line: String in listBody) {
             val stockDataOHLCV = parseLine(line, stockSymbol)
@@ -76,13 +77,13 @@ class YahooFinanceScraper(
         return if (list.isEmpty()) null else list
     }
 
-    private fun parseLine(line: String, stockSymbol: String): StockDataOHLCV? {
+    private fun parseLine(line: String, stockSymbol: String): AggregatedPriceInformation? {
         val properties = line.split(",")
         try {
 
-            return StockDataOHLCV(
+            return AggregatedPriceInformation(
                 symbol = stockSymbol,
-                date = formatter.parse(properties[0]),
+                date = formatter.parse(properties[0]).toInstant(),
                 open = properties[1].toBigDecimal(),
                 high = properties[2].toBigDecimal(),
                 low = properties[3].toBigDecimal(),

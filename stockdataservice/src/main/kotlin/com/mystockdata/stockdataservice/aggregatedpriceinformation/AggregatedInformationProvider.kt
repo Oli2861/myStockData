@@ -9,7 +9,7 @@ abstract class AggregatedInformationProvider {
      * @param symbols Symbols of the securities.
      * @return List containing lists of the retrieved information
      */
-    suspend fun retrieveAggregatedInformationForPastMonth(symbols: List<String>): List<List<StockDataOHLCV>> =
+    suspend fun retrieveAggregatedInformationForPastMonth(symbols: List<String>): List<List<AggregatedPriceInformation>> =
         symbols.mapNotNull { retrieveHistoricalStockData(it, LocalDate.now().minusMonths(1), LocalDate.now()) }
 
     /**
@@ -17,7 +17,7 @@ abstract class AggregatedInformationProvider {
      * @param symbols Symbols of the securities.
      * @return List containing one aggregated stock information object for each symbol.
      */
-    suspend fun retrieveAggregatedInformationForYesterday(symbols: List<String>): List<StockDataOHLCV> =
+    suspend fun retrieveAggregatedInformationForYesterday(symbols: List<String>): List<AggregatedPriceInformation> =
         symbols.mapNotNull { retrieveHistoricalStockData(it, LocalDate.now().minusDays(1), LocalDate.now())?.firstOrNull() }
 
     /**
@@ -27,6 +27,6 @@ abstract class AggregatedInformationProvider {
      *  @param endDate End date.
      *  @return List of the retrieved stock data.
      */
-    abstract suspend fun retrieveHistoricalStockData(stockSymbol: String, startDate: LocalDate, endDate: LocalDate): List<StockDataOHLCV>?
+    abstract suspend fun retrieveHistoricalStockData(stockSymbol: String, startDate: LocalDate, endDate: LocalDate): List<AggregatedPriceInformation>?
 
 }
