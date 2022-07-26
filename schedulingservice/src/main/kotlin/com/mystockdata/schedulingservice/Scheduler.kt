@@ -30,7 +30,7 @@ class Scheduler(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
     }
-
+/*
     // Every monday at 8 am: 0 0 8 * * MON
     @Scheduled(cron = "0 0 8 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
@@ -49,7 +49,7 @@ class Scheduler(
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
     }
-
+*/
     /*
     // Working days 8pm: 0 0 20 * * MON-FRI
     @Scheduled(cron = "0 0 20 * * MON-FRI")
