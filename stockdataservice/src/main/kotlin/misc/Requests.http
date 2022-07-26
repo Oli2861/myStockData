@@ -1,0 +1,4 @@
+GET http://localhost:8084/streamData
+Accept: application/stream+json
+
+###

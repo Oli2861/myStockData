@@ -7,7 +7,8 @@ import java.time.Instant
 
 @Measurement(name = "PrecisePriceInformation")
 data class PrecisePriceInformation(
-    @Column(tag = true) val symbol: String,
-    @Column val price: BigDecimal,
-    @Column(timestamp = true) val time: Instant
+    @Column(timestamp = true) val time: Instant,
+    @Column(name="symbol", tag = true) val symbol: String,
+    @Column(name="exchange", tag = true) val exchange: String,
+    @Column val price: BigDecimal
 )

@@ -5,8 +5,10 @@ import com.google.protobuf.ByteString
 import com.google.protobuf.StringValue.parseFrom
 import com.google.protobuf.kotlin.toByteString
 import com.mystockdata.stockdataservice.utility.epochMilliToLocalDateTime
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.slf4j.Logger
@@ -24,7 +26,8 @@ class YahooWebSocketClient(
     serverUri: URI = URI.create("wss://streamer.finance.yahoo.com/"),
     private val base64Decoder: Base64.Decoder = Base64.getDecoder(),
     private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss.SSS"),
-    override val flow: Flow<PrecisePriceInformation> = MutableSharedFlow<PrecisePriceInformation>()
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    override val flow: MutableSharedFlow<PrecisePriceInformation> = MutableSharedFlow<PrecisePriceInformation>()
 ) : WebSocketClient(serverUri), PrecisePriceInformationProvider {
 
     companion object {
@@ -56,18 +59,23 @@ class YahooWebSocketClient(
 
     override fun onMessage(message: String?) {
         if (message == null) return
+        scope.launch {
 
-        val decodedByteString: ByteString = base64Decoder.decode(message).toByteString()
-        val parsed = Yahoo.Yaticker.parseFrom(decodedByteString)
+            val decodedByteString: ByteString = base64Decoder.decode(message).toByteString()
+            val parsed = Yahoo.Yaticker.parseFrom(decodedByteString)
 
-        logger.debug(epochMilliToLocalDateTime(parsed.time).format(dateTimeFormatter))
-        logger.debug("Parsed Info:\nType: ${parsed?.javaClass}\nContent:$parsed")
-        val precisePriceInformation =
-            PrecisePriceInformation(
-                parsed.underlyingSymbol,
-                parsed.price.toBigDecimal(),
-                Instant.ofEpochMilli(parsed.time)
+            logger.debug(epochMilliToLocalDateTime(parsed.time).format(dateTimeFormatter))
+            logger.debug("Retrieved:$parsed")
+            flow.emit(
+                PrecisePriceInformation(
+                    Instant.ofEpochMilli(parsed.time),
+                    parsed.id,
+                    parsed.exchange,
+                    parsed.price.toBigDecimal()
+                )
             )
+        }
+
     }
 
     override fun onMessage(message: ByteBuffer?) {

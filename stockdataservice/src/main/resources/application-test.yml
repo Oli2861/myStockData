@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: stockdataservice
+influx.host: "http://localhost:8086/"
+influx.org: "mystockdata"
+influx.bucket: "stockdata"
+influx.token: "token"

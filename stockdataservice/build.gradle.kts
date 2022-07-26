@@ -28,7 +28,6 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
-
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
 
     // Jackson
@@ -54,6 +53,11 @@ dependencies {
 
     // Protobuf
     implementation("com.google.protobuf:protobuf-kotlin:$protobufVersion")
+
+    // InfluxDB Kotlin Client Library
+    implementation("com.influxdb:influxdb-client-kotlin:6.3.0")
+
+
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
