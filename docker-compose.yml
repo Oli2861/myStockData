@@ -89,6 +89,8 @@ services:
     container_name: influxdb
     ports:
       - "8086:8086"
+    expose:
+      - "8086"
     volumes:
       - ./volumes/influxdb/data:/var/lib/influxdb2
       - ./volumes/influxdb/config:/etc/influxdb2

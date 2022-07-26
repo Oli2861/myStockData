@@ -68,10 +68,12 @@ class YahooWebSocketClient(
             logger.debug("Retrieved:$parsed")
             flow.emit(
                 PrecisePriceInformation(
-                    Instant.ofEpochMilli(parsed.time),
-                    parsed.id,
-                    parsed.exchange,
-                    parsed.price.toBigDecimal()
+                    time = Instant.ofEpochMilli(parsed.time),
+                    symbol = parsed.id,
+                    exchange = parsed.exchange,
+                    price = parsed.price.toBigDecimal(),
+                    dayVolume = parsed.dayVolume,
+                    marketHours = parsed.marketHours.name
                 )
             )
         }

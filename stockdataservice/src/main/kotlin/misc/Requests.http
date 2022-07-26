@@ -1,4 +1,16 @@
-GET http://localhost:8084/streamData
+GET http://localhost:8084/aggregatedPriceInformation/retrieve
+Accept: application/json
+
+###
+GET http://localhost:8084/precisePriceInformation/start
+Accept: application/stream+json
+
+###
+GET http://localhost:8080/aggregatedPriceInformation/retrieve?days=100
+Accept: application/json
+
+###
+GET http://localhost:8080/precisePriceInformation/start
 Accept: application/stream+json
 
 ###
