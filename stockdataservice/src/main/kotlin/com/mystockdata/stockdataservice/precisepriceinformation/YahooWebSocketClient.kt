@@ -63,16 +63,14 @@ class YahooWebSocketClient(
 
             val decodedByteString: ByteString = base64Decoder.decode(message).toByteString()
             val parsed = Yahoo.Yaticker.parseFrom(decodedByteString)
-
-            logger.debug(epochMilliToLocalDateTime(parsed.time).format(dateTimeFormatter))
-            logger.debug("Retrieved:$parsed")
+            logger.trace("Retrieved:$parsed")
             flow.emit(
                 PrecisePriceInformation(
                     time = Instant.ofEpochMilli(parsed.time),
                     symbol = parsed.id,
                     exchange = parsed.exchange,
                     price = parsed.price.toBigDecimal(),
-                    dayVolume = parsed.dayVolume,
+                    //dayVolume = parsed.dayVolume,
                     marketHours = parsed.marketHours.name
                 )
             )

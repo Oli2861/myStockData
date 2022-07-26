@@ -57,7 +57,8 @@ dependencies {
     // InfluxDB Kotlin Client Library
     implementation("com.influxdb:influxdb-client-kotlin:6.3.0")
 
-
+    // Apache Commons CSV
+    implementation("org.apache.commons:commons-csv:1.8")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -11,6 +11,14 @@ data class PrecisePriceInformation(
     @Column(name = "symbol", tag = true) val symbol: String,
     @Column(name = "exchange", tag = true) val exchange: String,
     @Column(name = "marketHours", tag = true) val marketHours: String,
-    @Column val price: BigDecimal,
-    @Column(name = "dayVolume") val dayVolume: Long
-    )
+    @Column val price: BigDecimal
+    //@Column(name = "dayVolume") val dayVolume: Long
+)
+
+data class PriceInformationResponse(
+    val time: Instant,
+    val symbol: String,
+    val exchange: String,
+    val marketHours: String,
+    val price: BigDecimal?
+)

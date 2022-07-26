@@ -1,16 +1,31 @@
-GET http://localhost:8084/aggregatedPriceInformation/retrieve
+
+
+###
+GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?days=100
 Accept: application/json
 
 ###
-GET http://localhost:8084/precisePriceInformation/start
+GET http://localhost:8084/v1/precisePriceInformation/start
 Accept: application/stream+json
 
 ###
-GET http://localhost:8080/aggregatedPriceInformation/retrieve?days=100
+GET http://localhost:8084/v1/precisePriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
+Accept: text/csv
+
+
+
+###
+GET http://localhost:8080/v1/aggregatedPriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
 
 ###
-GET http://localhost:8080/precisePriceInformation/start
+GET http://localhost:8080/v1/aggregatedPriceInformation/retrieve?days=100
+Accept: application/json
+
+###
+GET http://localhost:8080/v1/precisePriceInformation/start
 Accept: application/stream+json
 
 ###
+GET http://localhost:8080/v1/precisePriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
+Accept: text/csv

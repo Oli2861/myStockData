@@ -79,10 +79,10 @@ services:
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
-      INFLUX_HOST: "http://influxdb:8086"
-      INFLUX_ORG: "mystockdata"
-      INFLUX_BUCKET: "stockdata"
-      INFLUX_TOKEN: "uJ1kurH8Y02A7mEjPB5SME1fXRpCaqTsoYtad4k-m5MQl-Xl8IPJqJdrjBd4TUBLNG9SYiKrDitr6k6wDSIRTQ=="
+      INFLUX2_HOST: "http://influxdb:8086"
+      INFLUX2_ORG: "mystockdata"
+      INFLUX2_BUCKET: "stockdata"
+      INFLUX2_TOKEN: "adminToken"
 
   influxdb:
     image: influxdb:2.3.0
@@ -100,5 +100,5 @@ services:
       DOCKER_INFLUXDB_INIT_PASSWORD: "password"
       DOCKER_INFLUXDB_INIT_ORG: "mystockdata"
       DOCKER_INFLUXDB_INIT_BUCKET: "stockdata"
-      DOCKER_INFLUXDB_INIT_TOKEN: "token"
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "adminToken"
       DOCKER_INFLUXDB_INIT_RETENTION: "0"

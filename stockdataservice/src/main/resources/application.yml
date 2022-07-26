@@ -15,9 +15,9 @@ spring:
     port: 5672
     username: guest
     password: guest
-influx:
+influx2:
   host: http://localhost:8086
   org: mystockdata
   bucket: stockdata
-  token: uJ1kurH8Y02A7mEjPB5SME1fXRpCaqTsoYtad4k-m5MQl-Xl8IPJqJdrjBd4TUBLNG9SYiKrDitr6k6wDSIRTQ==
+  token: adminToken
 logging.level.com.mystockdata: DEBUG
