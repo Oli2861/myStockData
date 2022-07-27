@@ -31,10 +31,10 @@ class PrecisePriceInformationController(
         val startInstant: Instant = start ?: Instant.now().minus(1, ChronoUnit.DAYS)
         val endInstant: Instant = end?: Instant.now()
 
-        val (filename, stream) = stockDataService.getPrecisePriceInformationCSV(symbols, startInstant, endInstant)
+        val stream = stockDataService.getPrecisePriceInformationCSV(symbols, startInstant, endInstant)
 
         val headers = HttpHeaders()
-        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=${filename}")
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=precisePriceInformation.csv")
         headers.set(HttpHeaders.CONTENT_TYPE, "text/csv")
 
         return ResponseEntity(stream, headers, HttpStatus.OK)

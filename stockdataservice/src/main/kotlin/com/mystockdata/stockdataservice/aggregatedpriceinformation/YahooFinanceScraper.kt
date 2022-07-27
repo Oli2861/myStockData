@@ -83,7 +83,7 @@ class YahooFinanceScraper(
 
             return AggregatedPriceInformation(
                 symbol = stockSymbol,
-                date = formatter.parse(properties[0]).toInstant(),
+                time = formatter.parse(properties[0]).toInstant(),
                 open = properties[1].toBigDecimal(),
                 high = properties[2].toBigDecimal(),
                 low = properties[3].toBigDecimal(),

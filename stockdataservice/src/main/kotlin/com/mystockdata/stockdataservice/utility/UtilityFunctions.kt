@@ -35,3 +35,13 @@ suspend fun <T> Flow<T>.chunks(size: Int): Flow<List<T>> = flow{
         emit(chunk)
     }
 }
+
+fun printMultiDimensionalArray(arr: Array<Array<String>>) {
+    for (subArr in arr) {
+        var row = ""
+        for ((index, str) in subArr.withIndex()) {
+            row += if (index < subArr.size - 1) "$str,\t" else str
+        }
+        println(row)
+    }
+}

@@ -71,7 +71,7 @@ class PrecisePriceInformationRepository(
         start: Instant,
         stop: Instant = Instant.now(),
         withDayVolume: Boolean = false
-    ): List<PriceInformationResponse> {
+    ): List<PrecisePriceInformationResponse> {
         if (symbols.isEmpty()) return listOf()
 
         val stringBuilder = StringBuilder()
@@ -93,7 +93,7 @@ class PrecisePriceInformationRepository(
 
         influxDBClientKotlin().use { client ->
             val queryApi = client.getQueryKotlinApi()
-            val result = queryApi.query(fluxQuery, InfluxPriceInformationResponse::class.java).consumeAsFlow().toList()
+            val result = queryApi.query(fluxQuery, InfluxPrecisePriceInformationResponse::class.java).consumeAsFlow().toList()
             return result.mapNotNull { influxPriceInformationResponse -> influxPriceInformationResponse.toPrecisePriceInformationOrNull() }
         }
 
@@ -102,7 +102,7 @@ class PrecisePriceInformationRepository(
     /**
      * Only used to map into PriceInformationResponse.
      */
-    data class InfluxPriceInformationResponse(
+    private data class InfluxPrecisePriceInformationResponse(
         val time: Instant? = null,
         val symbol: String? = null,
         val exchange: String? = null,
@@ -110,9 +110,9 @@ class PrecisePriceInformationRepository(
         val field: String? = null,
         val value: BigDecimal? = null
     ) {
-        fun toPrecisePriceInformationOrNull(): PriceInformationResponse? {
+        fun toPrecisePriceInformationOrNull(): PrecisePriceInformationResponse? {
             return if (time != null && symbol != null && exchange != null && marketHours != null && field != null && value != null && field == "price") {
-                PriceInformationResponse(time, symbol, exchange, marketHours, value)
+                PrecisePriceInformationResponse(time, symbol, exchange, marketHours, value)
             } else {
                 null
             }

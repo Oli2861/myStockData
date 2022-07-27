@@ -15,7 +15,7 @@ data class PrecisePriceInformation(
     //@Column(name = "dayVolume") val dayVolume: Long
 )
 
-data class PriceInformationResponse(
+data class PrecisePriceInformationResponse(
     val time: Instant,
     val symbol: String,
     val exchange: String,
