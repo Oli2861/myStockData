@@ -19,7 +19,11 @@ GET http://localhost:8080/v1/aggregatedPriceInformation/csv?symbols=SAP.DE&symbo
 Accept: application/json
 
 ###
-GET http://localhost:8080/v1/aggregatedPriceInformation/retrieve?days=100
+GET http://localhost:8080/v1/aggregatedPriceInformation/retrieve?days=30
+Accept: application/json
+
+###
+GET http://localhost:8080/v1/aggregatedPriceInformation/retrieve?months=1
 Accept: application/json
 
 ###

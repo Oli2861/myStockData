@@ -38,30 +38,35 @@ class AggregatedPriceInformationRepository(
     fun influxDBClientKotlin(): InfluxDBClientKotlin =
         InfluxDBClientKotlinFactory.create(host, token.toCharArray(), org, bucket)
 
+    /**
+     * Write a flow of aggregated price information to Influxdb.
+     * @param aggregatedPriceInformation Flow emitting aggregated price information.
+     */
     suspend fun writeAggregatedPriceInformation(aggregatedPriceInformation: Flow<AggregatedPriceInformation>) {
         influxDBClientKotlin().use { client ->
             val writeApi = client.getWriteKotlinApi()
 
-            aggregatedPriceInformation.collect { stockDataOHLCV ->
-                logger.debug("Writing $stockDataOHLCV")
-                writeApi.writeMeasurement(stockDataOHLCV, WritePrecision.S)
+            aggregatedPriceInformation.collect { aggregatedPriceInfo ->
+                logger.trace("Writing $aggregatedPriceInfo")
+                writeApi.writeMeasurement(aggregatedPriceInfo, WritePrecision.S)
             }
 
         }
     }
 
     /**
-     * @param symbols Symbols of interest
-     * @param start Start of the time window
-     * @param stop End of the time window
-     * @param openColumn Whether to retrieve opening prices
-     * @param highColumn Whether to retrieve high prices
-     * @param lowColumn Whether to retrieve low prices
-     * @param closeColumn Whether to retrieve closing prices
-     * @param adjCloseColumn Whether to retrieve adjusted close prices
-     * @param volumeColumn Whether to retrieve volumes
-     * @param aggregateWindow Size of the down sampling window
-     * @return List of the retrieved information of type InfluxAggregatedPriceInformationResponse
+     * Read aggregated price information from Influxdb.
+     * @param symbols Symbols of interest.
+     * @param start Start of the time window.
+     * @param stop End of the time window.
+     * @param openColumn Whether to retrieve opening prices.
+     * @param highColumn Whether to retrieve high prices.
+     * @param lowColumn Whether to retrieve low prices.
+     * @param closeColumn Whether to retrieve closing prices.
+     * @param adjCloseColumn Whether to retrieve adjusted close prices.
+     * @param volumeColumn Whether to retrieve volumes.
+     * @param aggregateWindow Size of the down sampling window.
+     * @return List of the retrieved AggregatedPriceInformationResponse.
      */
     suspend fun readAggregatedPriceInformation(
         symbols: List<String>,
@@ -94,7 +99,7 @@ class AggregatedPriceInformationRepository(
                 // Last value in every 5 min step, creates empty entries if there is no value
                 "|> aggregateWindow(every: ${aggregateWindow}h, fn: last, createEmpty: true)" +
                 "|> yield()"
-        logger.debug("fluxQuery: $fluxQuery")
+        logger.trace("fluxQuery: $fluxQuery")
         // Execute query
         influxDBClientKotlin().use { client ->
             val queryApi = client.getQueryKotlinApi()
@@ -105,19 +110,36 @@ class AggregatedPriceInformationRepository(
 
     }
 
+    /**
+     * Maps the response received form Influxdb into a AggregatedPriceInformationResponse
+     * @param list List of InfluxAggregatedPriceInformationResponse.
+     * @return List of AggregatedPriceInformationResponse
+     */
     private fun mapInfluxAggregatedPriceInformationResponseToAggregatedPriceInformationResponse(list: List<InfluxAggregatedPriceInformationResponse>): List<AggregatedPriceInformationResponse> {
-        val entries = list.mapNotNull { if(it.time != null && it.symbol != null)AggregatedPriceInformationResponse(it.time, it.symbol) else null}.distinct()
+        val entries = list.mapNotNull {
+            if (it.time != null && it.symbol != null) AggregatedPriceInformationResponse(
+                it.time,
+                it.symbol
+            ) else null
+        }.distinct()
         entries.forEach { aggregatedPriceInformationResponse ->
-            list.filter { (it.time == aggregatedPriceInformationResponse.time) && (it.symbol == aggregatedPriceInformationResponse.symbol) }.forEach {
-                when (it.field) {
-                    AggregatedPriceInformationFieldNames.OPEN.fieldName -> aggregatedPriceInformationResponse.open = it.value
-                    AggregatedPriceInformationFieldNames.HIGH.fieldName -> aggregatedPriceInformationResponse.high = it.value
-                    AggregatedPriceInformationFieldNames.LOW.fieldName -> aggregatedPriceInformationResponse.low = it.value
-                    AggregatedPriceInformationFieldNames.CLOSE.fieldName -> aggregatedPriceInformationResponse.close = it.value
-                    AggregatedPriceInformationFieldNames.ADJ_CLOSE.fieldName -> aggregatedPriceInformationResponse.adjClose = it.value
-                    AggregatedPriceInformationFieldNames.VOLUME.fieldName -> aggregatedPriceInformationResponse.volume = it.value?.toInt()
+            list.filter { (it.time == aggregatedPriceInformationResponse.time) && (it.symbol == aggregatedPriceInformationResponse.symbol) }
+                .forEach {
+                    when (it.field) {
+                        AggregatedPriceInformationFieldNames.OPEN.fieldName -> aggregatedPriceInformationResponse.open =
+                            it.value
+                        AggregatedPriceInformationFieldNames.HIGH.fieldName -> aggregatedPriceInformationResponse.high =
+                            it.value
+                        AggregatedPriceInformationFieldNames.LOW.fieldName -> aggregatedPriceInformationResponse.low =
+                            it.value
+                        AggregatedPriceInformationFieldNames.CLOSE.fieldName -> aggregatedPriceInformationResponse.close =
+                            it.value
+                        AggregatedPriceInformationFieldNames.ADJ_CLOSE.fieldName -> aggregatedPriceInformationResponse.adjClose =
+                            it.value
+                        AggregatedPriceInformationFieldNames.VOLUME.fieldName -> aggregatedPriceInformationResponse.volume =
+                            it.value?.toInt()
+                    }
                 }
-            }
         }
         return entries
     }

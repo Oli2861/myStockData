@@ -60,7 +60,11 @@ fun precisePriceInformationResponseToCSV(data: List<PrecisePriceInformationRespo
 
 data class Column(val time: Instant, val name: String, val value: String?)
 
-
+/**
+ * Builds a time-indexed csv based on provided data.
+ * @param data Data of the csv file.
+ * @return Pair containing the header and the body of the csv.
+ */
 fun toCSVBody(data: List<Column>): Pair<Array<String>, Array<Array<String>>> {
     val timeColumn: List<Instant> = data.distinctBy { it.time }.map { it.time }.sortedDescending()
     val columnNames: List<String> = data.distinctBy { it.name }.map { it.name }.sorted()

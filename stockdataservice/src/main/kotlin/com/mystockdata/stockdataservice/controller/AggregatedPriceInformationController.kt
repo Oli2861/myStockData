@@ -1,6 +1,8 @@
 package com.mystockdata.stockdataservice.controller
 
 import com.mystockdata.stockdataservice.StockDataService
+import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformation
+import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
@@ -19,8 +21,19 @@ class AggregatedPriceInformationController(
     @Autowired private val stockDataService: StockDataService
 ) {
     @GetMapping("retrieve")
-    suspend fun retrieve(@RequestParam(required = false) days: Int = 1) =
-        stockDataService.retrieveAggregatedInformation(days)
+    suspend fun retrieve(
+        @RequestParam(required = false) days: Long?,
+        @RequestParam(required = false) months: Long?
+    ): Flow<AggregatedPriceInformation> {
+        return if (days != null) {
+            stockDataService.retrieveAggregatedInformationForDays(days)
+        } else if (months != null) {
+            stockDataService.retrieveAggregatedInformationForMonths(months)
+        } else {
+            // If no time frame is provided, retrieve for 1 month
+            stockDataService.retrieveAggregatedInformationForMonths(1)
+        }
+    }
 
     @GetMapping("csv")
     suspend fun getAggregatedPriceInformationCSV(
@@ -29,7 +42,7 @@ class AggregatedPriceInformationController(
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<InputStreamResource> {
         val startInstant: Instant = start ?: Instant.now().minus(30, ChronoUnit.DAYS)
-        val endInstant: Instant = end?: Instant.now()
+        val endInstant: Instant = end ?: Instant.now()
         val stream = stockDataService.getAggregatedPriceInformationCSV(symbols, startInstant, endInstant)
 
         val headers = HttpHeaders()

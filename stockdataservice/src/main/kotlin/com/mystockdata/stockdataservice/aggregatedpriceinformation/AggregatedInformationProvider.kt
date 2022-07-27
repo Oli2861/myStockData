@@ -1,5 +1,6 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
+import java.time.Instant
 import java.time.LocalDate
 
 abstract class AggregatedInformationProvider {
@@ -10,7 +11,7 @@ abstract class AggregatedInformationProvider {
      *  @param endDate End date.
      *  @return List of the retrieved stock data.
      */
-    suspend fun retrieveHistoricalStockData(symbols: List<String>, startDate: LocalDate, endDate: LocalDate) = symbols.mapNotNull { retrieveHistoricalStockData(it, startDate, endDate) }
+    suspend fun retrieveHistoricalStockData(symbols: List<String>, startDate: Instant, endDate: Instant) = symbols.mapNotNull { retrieveHistoricalStockData(it, startDate, endDate) }
 
     /**
      * Retrieves aggregated price information for a given time window for the given symbol.
@@ -19,24 +20,6 @@ abstract class AggregatedInformationProvider {
      *  @param endDate End date.
      *  @return List of the retrieved stock data.
      */
-    abstract suspend fun retrieveHistoricalStockData(stockSymbol: String, startDate: LocalDate, endDate: LocalDate): List<AggregatedPriceInformation>?
-
-
-    /**
-     * Retrieves aggregated stock information concerning the past 30 days for a given symbol.
-     * @param symbols Symbols of the securities.
-     * @return List containing lists of the retrieved information
-     */
-    suspend fun retrieveAggregatedInformationForPastMonth(symbols: List<String>): List<List<AggregatedPriceInformation>> =
-        symbols.mapNotNull { retrieveHistoricalStockData(it, LocalDate.now().minusMonths(1), LocalDate.now()) }
-
-    /**
-     * Retrieves latest aggregated stock information for a given symbol.
-     * @param symbols Symbols of the securities.
-     * @return List containing one aggregated stock information object for each symbol.
-     */
-    suspend fun retrieveAggregatedInformationForYesterday(symbols: List<String>): List<AggregatedPriceInformation> =
-        symbols.mapNotNull { retrieveHistoricalStockData(it, LocalDate.now().minusDays(1), LocalDate.now())?.firstOrNull() }
-
+    abstract suspend fun retrieveHistoricalStockData(stockSymbol: String, startDate: Instant, endDate: Instant): List<AggregatedPriceInformation>?
 
 }

@@ -1,6 +1,5 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
-import com.mystockdata.stockdataservice.utility.localDateToEpochSeconds
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -9,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
+import java.time.Instant
 
 @Component
 class YahooFinanceScraper(
@@ -21,10 +20,17 @@ class YahooFinanceScraper(
         private val logger = LoggerFactory.getLogger(YahooFinanceScraper::class.java)
     }
 
+    /**
+     * Retrieves historical stock data from yahoo finance based on the endpoint https://query1.finance.yahoo.com/v7/finance/download/$stockSymbol .
+     * @param stockSymbol Symbol identifying the stock on the exchange.
+     * @param startDate Start of the time window.
+     * @param endDate End of the time window.
+     * @return Retrieved AggregatedPriceInformation.
+     */
     override suspend fun retrieveHistoricalStockData(
         stockSymbol: String,
-        startDate: LocalDate,
-        endDate: LocalDate
+        startDate: Instant,
+        endDate: Instant
     ): List<AggregatedPriceInformation>? {
 
         logger.trace("Retrieving historical stock data for $stockSymbol ranging from $startDate to $endDate")
@@ -32,8 +38,8 @@ class YahooFinanceScraper(
         val csvResponse = yahooFinanceWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder.path("/v7/finance/download/$stockSymbol")
-                    .queryParam("period1", localDateToEpochSeconds(startDate))
-                    .queryParam("period2", localDateToEpochSeconds(endDate))
+                    .queryParam("period1", startDate.toEpochMilli() / 1000)
+                    .queryParam("period2", endDate.toEpochMilli() / 1000)
                     .queryParam("interval", "1d")
                     .queryParam("events", "history")
                     .queryParam("includeAdjustedClose", true)
@@ -77,6 +83,12 @@ class YahooFinanceScraper(
         return if (list.isEmpty()) null else list
     }
 
+    /**
+     * Parses a line of retrieved data into a AggregatedPriceInformation object.
+     * @param line Line to be parsed.
+     * @param stockSymbol Symbol of the associated stock.
+     * @return Instance of the AggregatedPriceInformation containing the retrieved data or null if an error occurs while parsing.
+     */
     private fun parseLine(line: String, stockSymbol: String): AggregatedPriceInformation? {
         val properties = line.split(",")
         try {

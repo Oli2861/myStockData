@@ -27,14 +27,10 @@ class PrecisePriceInformationRepository(
     fun influxDBClientKotlin(): InfluxDBClientKotlin =
         InfluxDBClientKotlinFactory.create(host, token.toCharArray(), org, bucket)
 
-    suspend fun writePrecisePriceInformation(precisePriceInformation: PrecisePriceInformation) {
-        influxDBClientKotlin().use { client ->
-            val writeApi = client.getWriteKotlinApi()
-            logger.debug("Writing $precisePriceInformation")
-            writeApi.writeMeasurement(precisePriceInformation, WritePrecision.NS)
-        }
-    }
-
+    /**
+     * Writes a flow of precise price information to the database.
+     * @param precisePriceInformation Flow of PrecisePriceInformation to be written.
+     */
     suspend fun writePrecisePriceInformation(precisePriceInformation: Flow<PrecisePriceInformation>) {
         influxDBClientKotlin().use { client ->
             val writeApi = client.getWriteKotlinApi()
@@ -47,24 +43,13 @@ class PrecisePriceInformationRepository(
         }
     }
 
-    suspend fun readPrecisePriceInformation(
-        symbol: String,
-        start: Instant,
-        stop: Instant = Instant.now()
-    ): Flow<PrecisePriceInformation> {
-        influxDBClientKotlin().use { client ->
-            val queryApi = client.getQueryKotlinApi()
-
-            return queryApi.query(
-                "from(bucket: $bucket) |> range(start: $start, stop: $stop) |> filter(fn: (r) => r[\"_measurement\"] == \"PrecisePriceInformation\") |> filter(fn: (r) => r[\"symbol\"] == \"$symbol\") |> yield()",
-                PrecisePriceInformation::class.java
-            )
-                .consumeAsFlow()
-        }
-    }
-
     /**
-     *
+     * Retrieves precise price information from Influxdb.
+     * @param symbols Symbols of interest.
+     * @param start Start of the time window.
+     * @param stop End of the time window.
+     * @param withDayVolume Whether the dayVolume should be retrieved.
+     * @return List of the retrieved PrecisePriceInformationResponse.
      */
     suspend fun readPrecisePriceInformation(
         symbols: List<String>,
@@ -74,26 +59,20 @@ class PrecisePriceInformationRepository(
     ): List<PrecisePriceInformationResponse> {
         if (symbols.isEmpty()) return listOf()
 
-        val stringBuilder = StringBuilder()
-        for ((index, symbol) in symbols.withIndex()) {
-            stringBuilder.append("${if (index > 0) " or " else ""}r[\"symbol\"] == \"$symbol\"")
-        }
-
-        val symbolCondition = stringBuilder.toString()
-
         val fluxQuery = "from(bucket: \"$bucket\") " +
                 "|> range(start: $start, stop: $stop) " +
-                "|> filter(fn: (r) => r[\"_measurement\"] == \"PrecisePriceInformation\") " +
-                "|> filter(fn: (r) => $symbolCondition) " +
-                "|> filter(fn: (r) => r[\"_field\"] == \"price\")" +
+                createFilter("_measurement", listOf("PrecisePriceInformation")) +
+                createFilter("symbol", symbols) +
+                createFilter("_field", listOf("price")) +
                 // Last value in every 5 min step, creates empty entries if there is no value
                 "|> aggregateWindow(every: 5m, fn: last, createEmpty: true)" +
                 "|> yield()"
-        logger.debug("fluxQuery: $fluxQuery")
+        logger.trace("fluxQuery: $fluxQuery")
 
         influxDBClientKotlin().use { client ->
             val queryApi = client.getQueryKotlinApi()
-            val result = queryApi.query(fluxQuery, InfluxPrecisePriceInformationResponse::class.java).consumeAsFlow().toList()
+            val result =
+                queryApi.query(fluxQuery, InfluxPrecisePriceInformationResponse::class.java).consumeAsFlow().toList()
             return result.mapNotNull { influxPriceInformationResponse -> influxPriceInformationResponse.toPrecisePriceInformationOrNull() }
         }
 
@@ -102,7 +81,7 @@ class PrecisePriceInformationRepository(
     /**
      * Only used to map into PriceInformationResponse.
      */
-    private data class InfluxPrecisePriceInformationResponse(
+    data class InfluxPrecisePriceInformationResponse(
         val time: Instant? = null,
         val symbol: String? = null,
         val exchange: String? = null,
@@ -119,14 +98,3 @@ class PrecisePriceInformationRepository(
         }
     }
 }
-
-/*
- PrecisePriceInformation(
-                    time = it.time,
-                    symbol = it.values["symbol"],
-                    exchange = it.values["exchange"],
-                    marketHours = it.values["marketHours"],
-
-                    dayVolume = it.field[]
-                )
- */
