@@ -6,6 +6,7 @@ import com.mystockdata.stockdataservice.persistence.AggregatedPriceInformationRe
 import com.mystockdata.stockdataservice.persistence.PrecisePriceInformationRepository
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformation
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationProvider
+import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationResponse
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEvent
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEventType
 import kotlinx.coroutines.CoroutineScope
@@ -52,8 +53,11 @@ class StockDataService(
 
     }
 
-    suspend fun retrieveAggregatedInformationForDays(days: Long) = retrieveAggregatedPriceInformation(Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
-    suspend fun retrieveAggregatedInformationForMonths(months: Long) = retrieveAggregatedPriceInformation(ZonedDateTime.now().minusMonths(1).toInstant(), Instant.now())
+    suspend fun retrieveAggregatedInformationForDays(days: Long) =
+        retrieveAggregatedPriceInformation(Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
+
+    suspend fun retrieveAggregatedInformationForMonths(months: Long) =
+        retrieveAggregatedPriceInformation(ZonedDateTime.now().minusMonths(1).toInstant(), Instant.now())
 
     /**
      * Retrieves aggregated Price Information for all stocks on the watchlist.
@@ -113,15 +117,28 @@ class StockDataService(
         start: Instant,
         end: Instant
     ): InputStreamResource {
-        val data = precisePriceInformationRepository.readPrecisePriceInformation(symbols, start, end)
+        val data = getPrecisePriceInformation(symbols, start, end)
         val (csvHeader, csvBody) = precisePriceInformationResponseToCSV(data)
         return toCSVFile(csvHeader, csvBody)
     }
 
+    /**
+     * Get a List of aggregated Stock Price Information of given symbols and a given time window.
+     * @param symbols Stock symbols of interest.
+     * @param start Start of the time window.
+     * @param end End of the time window.
+     * @return List containing the desired price information.
+     */
+    suspend fun getPrecisePriceInformation(
+        symbols: List<String>,
+        start: Instant,
+        end: Instant
+    ): List<PrecisePriceInformationResponse> =
+        precisePriceInformationRepository.readPrecisePriceInformation(symbols, start, end)
 
 }
 /*
-For testing pruposes:
+For testing purposes:
 suspend fun main() {
     val yahooFinanceScraper = YahooFinanceScraper(YahooFinanceWebClientConfig().yahooFinanceWebClient())
     val yahooWebSocketClient = YahooWebSocketClient()
