@@ -38,16 +38,16 @@ fun toCSVFile(csvHeader: Array<String>, csvBody: Array<Array<String>>): InputStr
 fun aggregatedPriceInformationResponseToCSV(
     data: List<AggregatedPriceInformationResponse>
 ): Pair<Array<String>, Array<Array<String>>> {
-    val columns: MutableList<Column> = mutableListOf()
+    val entries: MutableList<Entry> = mutableListOf()
     data.forEach {
-        if (it.open != null) columns.add(Column(it.time, "open_${it.symbol}", it.open.toString()))
-        if (it.high != null) columns.add(Column(it.time, "high_${it.symbol}", it.high.toString()))
-        if (it.low != null) columns.add(Column(it.time, "low_${it.symbol}", it.low.toString()))
-        if (it.close != null) columns.add(Column(it.time, "close_${it.symbol}", it.close.toString()))
-        if (it.adjClose != null) columns.add(Column(it.time, "adjClose_${it.symbol}", it.adjClose.toString()))
-        if (it.volume != null) columns.add(Column(it.time, "volume_${it.symbol}", it.volume.toString()))
+        if (it.open != null) entries.add(Entry(it.time, "open_${it.symbol}", it.open.toString()))
+        if (it.high != null) entries.add(Entry(it.time, "high_${it.symbol}", it.high.toString()))
+        if (it.low != null) entries.add(Entry(it.time, "low_${it.symbol}", it.low.toString()))
+        if (it.close != null) entries.add(Entry(it.time, "close_${it.symbol}", it.close.toString()))
+        if (it.adjClose != null) entries.add(Entry(it.time, "adjClose_${it.symbol}", it.adjClose.toString()))
+        if (it.volume != null) entries.add(Entry(it.time, "volume_${it.symbol}", it.volume.toString()))
     }
-    return toCSVBody(columns)
+    return toCSVBody(entries)
 }
 
 /**
@@ -56,18 +56,25 @@ fun aggregatedPriceInformationResponseToCSV(
  * @return Pair containing the CSV Header row and the CSV Body
  */
 fun precisePriceInformationResponseToCSV(data: List<PrecisePriceInformationResponse>): Pair<Array<String>, Array<Array<String>>> =
-    toCSVBody(data.map { Column(it.time, it.symbol, it.price.toString()) })
+    toCSVBody(data.map { Entry(it.time, it.symbol, it.price.toString()) })
 
-data class Column(val time: Instant, val name: String, val value: String?)
+/**
+ * Represents an entry of a csv file.
+ * @property time The csv produced here is always indexed by time. The instant hence influences in which row the entry will be placed.
+ * @property columnName The name is used to place entries in the correct column.
+ * @param value The value of the entry to be placed in a column.
+ */
+data class Entry(val time: Instant, val columnName: String, val value: String?)
 
 /**
  * Builds a time-indexed csv based on provided data.
  * @param data Data of the csv file.
  * @return Pair containing the header and the body of the csv.
  */
-fun toCSVBody(data: List<Column>): Pair<Array<String>, Array<Array<String>>> {
+fun toCSVBody(data: List<Entry>): Pair<Array<String>, Array<Array<String>>> {
     val timeColumn: List<Instant> = data.distinctBy { it.time }.map { it.time }.sortedDescending()
-    val columnNames: List<String> = data.distinctBy { it.name }.map { it.name }.sorted()
+    // Build header based on the column names of the entries and "timestamp" as first column
+    val columnNames: List<String> = data.distinctBy { it.columnName }.map { it.columnName }.sorted()
     val csvHeader: Array<String> = arrayOf("timestamp") + columnNames.toTypedArray()
 
     // Amount of distinct time stamps = length of time column = max amount of rows
@@ -76,11 +83,11 @@ fun toCSVBody(data: List<Column>): Pair<Array<String>, Array<Array<String>>> {
 
     for ((rowIndex, time) in timeColumn.withIndex()) {
         csvBody[rowIndex][0] = time.toString()
-
+        // Filter for all entries to be placed in this row
         val matchingPriceInfo = data.filter { it.time == time }
 
         for (priceInfo in matchingPriceInfo) {
-            val columnIndex = columnNames.indexOf(priceInfo.name) + 1
+            val columnIndex = columnNames.indexOf(priceInfo.columnName) + 1
             csvBody[rowIndex][columnIndex] = priceInfo.value.toString()
         }
     }
