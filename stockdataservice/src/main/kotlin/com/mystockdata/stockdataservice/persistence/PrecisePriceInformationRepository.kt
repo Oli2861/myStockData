@@ -36,7 +36,7 @@ class PrecisePriceInformationRepository(
             val writeApi = client.getWriteKotlinApi()
 
             precisePriceInformation.collect { precisePriceInformation ->
-                logger.debug("Writing $precisePriceInformation")
+                logger.trace("Writing $precisePriceInformation")
                 writeApi.writeMeasurement(precisePriceInformation, WritePrecision.NS)
             }
 

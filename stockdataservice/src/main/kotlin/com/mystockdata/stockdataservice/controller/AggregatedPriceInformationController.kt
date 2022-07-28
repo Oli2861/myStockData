@@ -57,13 +57,15 @@ class AggregatedPriceInformationController(
     suspend fun getAggregatedPriceInformationCSV(
         @RequestParam symbols: List<String>,
         @RequestParam(required = false) start: Instant?,
-        @RequestParam(required = false) end: Instant?
+        @RequestParam(required = false) end: Instant?,
+        @RequestParam(required = false) indicators: List<String>?
     ): ResponseEntity<InputStreamResource> {
 
         val stream = stockDataService.getAggregatedPriceInformationCSV(
             symbols = symbols,
             start = start ?: Instant.now().minus(30, ChronoUnit.DAYS),
-            end = end ?: Instant.now()
+            end = end ?: Instant.now(),
+            indicatorNames = indicators ?: listOf()
         )
 
         val headers = HttpHeaders()

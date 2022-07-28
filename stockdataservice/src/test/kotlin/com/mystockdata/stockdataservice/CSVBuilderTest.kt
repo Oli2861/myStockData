@@ -33,7 +33,7 @@ class CSVBuilderTest {
         )
 
         val dataShuffled = data.shuffled()
-        val (actualHeader, actualBody) = aggregatedPriceInformationResponseToCSV(dataShuffled)
+        val (actualHeader, actualBody) = toCSVBody(aggregatedPriceInformationResponseToCSVColumns(dataShuffled))
 
         if(false){
             println("actualBody:")

@@ -35,19 +35,19 @@ fun toCSVFile(csvHeader: Array<String>, csvBody: Array<Array<String>>): InputStr
  * @param data List of InfluxAggregatedPriceInformationResponse. Should be down sampled in order to produce a useful CSV Body.
  * @return Pair containing the CSV Header row and the CSV Body
  */
-fun aggregatedPriceInformationResponseToCSV(
+fun aggregatedPriceInformationResponseToCSVColumns(
     data: List<AggregatedPriceInformationResponse>
-): Pair<Array<String>, Array<Array<String>>> {
-    val entries: MutableList<Entry> = mutableListOf()
+): List<CsvEntry> {
+    val entries: MutableList<CsvEntry> = mutableListOf()
     data.forEach {
-        if (it.open != null) entries.add(Entry(it.time, "open_${it.symbol}", it.open.toString()))
-        if (it.high != null) entries.add(Entry(it.time, "high_${it.symbol}", it.high.toString()))
-        if (it.low != null) entries.add(Entry(it.time, "low_${it.symbol}", it.low.toString()))
-        if (it.close != null) entries.add(Entry(it.time, "close_${it.symbol}", it.close.toString()))
-        if (it.adjClose != null) entries.add(Entry(it.time, "adjClose_${it.symbol}", it.adjClose.toString()))
-        if (it.volume != null) entries.add(Entry(it.time, "volume_${it.symbol}", it.volume.toString()))
+        if (it.open != null) entries.add(CsvEntry(it.time, "open_${it.symbol}", it.open.toString()))
+        if (it.high != null) entries.add(CsvEntry(it.time, "high_${it.symbol}", it.high.toString()))
+        if (it.low != null) entries.add(CsvEntry(it.time, "low_${it.symbol}", it.low.toString()))
+        if (it.close != null) entries.add(CsvEntry(it.time, "close_${it.symbol}", it.close.toString()))
+        if (it.adjClose != null) entries.add(CsvEntry(it.time, "adjClose_${it.symbol}", it.adjClose.toString()))
+        if (it.volume != null) entries.add(CsvEntry(it.time, "volume_${it.symbol}", it.volume.toString()))
     }
-    return toCSVBody(entries)
+    return entries
 }
 
 /**
@@ -56,7 +56,7 @@ fun aggregatedPriceInformationResponseToCSV(
  * @return Pair containing the CSV Header row and the CSV Body
  */
 fun precisePriceInformationResponseToCSV(data: List<PrecisePriceInformationResponse>): Pair<Array<String>, Array<Array<String>>> =
-    toCSVBody(data.map { Entry(it.time, it.symbol, it.price.toString()) })
+    toCSVBody(data.map { CsvEntry(it.time, it.symbol, it.price.toString()) })
 
 /**
  * Represents an entry of a csv file.
@@ -64,14 +64,14 @@ fun precisePriceInformationResponseToCSV(data: List<PrecisePriceInformationRespo
  * @property columnName The name is used to place entries in the correct column.
  * @param value The value of the entry to be placed in a column.
  */
-data class Entry(val time: Instant, val columnName: String, val value: String?)
+data class CsvEntry(val time: Instant, val columnName: String, val value: String?)
 
 /**
  * Builds a time-indexed csv based on provided data.
  * @param data Data of the csv file.
  * @return Pair containing the header and the body of the csv.
  */
-fun toCSVBody(data: List<Entry>): Pair<Array<String>, Array<Array<String>>> {
+fun toCSVBody(data: List<CsvEntry>): Pair<Array<String>, Array<Array<String>>> {
     val timeColumn: List<Instant> = data.distinctBy { it.time }.map { it.time }.sortedDescending()
     // Build header based on the column names of the entries and "timestamp" as first column
     val columnNames: List<String> = data.distinctBy { it.columnName }.map { it.columnName }.sorted()
