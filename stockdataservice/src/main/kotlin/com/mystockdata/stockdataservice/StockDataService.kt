@@ -76,6 +76,19 @@ class StockDataService(
     }
 
     /**
+     * Get a List containing aggregated Stock Price Information of given symbols and a given time window.
+     * @param symbols Stock symbols of interest.
+     * @param start Start of the time window.
+     * @param end End of the time window.
+     * @return List containing the aggregated price information.
+     */
+    suspend fun getAggregatedPriceInformation(
+        symbols: List<String>,
+        start: Instant,
+        end: Instant
+    ) = aggregatedPriceInformationRepository.readAggregatedPriceInformation(symbols, start, end)
+
+    /**
      * Get a CSV containing aggregated Stock Price Information of given symbols and a given time window.
      * @param symbols Stock symbols of interest.
      * @param start Start of the time window.
@@ -87,7 +100,7 @@ class StockDataService(
         start: Instant,
         end: Instant
     ): InputStreamResource {
-        val data = aggregatedPriceInformationRepository.readAggregatedPriceInformation(symbols, start, end)
+        val data = getAggregatedPriceInformation(symbols, start, end)
         val (csvHeader, csvBody) = aggregatedPriceInformationResponseToCSV(data)
         return toCSVFile(csvHeader, csvBody)
     }

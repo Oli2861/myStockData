@@ -47,7 +47,7 @@ class YahooFinanceScraper(
             }.retrieve()
             .awaitBody<String>()
 
-        val list = retrieveDataFromCSV(csvResponse, stockSymbol)
+        val list = parseCSVString(csvResponse, stockSymbol)
         logger.trace("Retrieved stock data $list")
 
         return list
@@ -59,7 +59,7 @@ class YahooFinanceScraper(
      * @param stockSymbol Symbol of the associated stock.
      * @return List of the retrieved stock data.
      */
-    private fun retrieveDataFromCSV(csvString: String, stockSymbol: String): List<AggregatedPriceInformation>? {
+    private fun parseCSVString(csvString: String, stockSymbol: String): List<AggregatedPriceInformation>? {
 
         val responseSplitByLines = csvString.lines()
         if (responseSplitByLines.isEmpty()) return null

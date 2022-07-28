@@ -1,7 +1,6 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import java.time.Instant
-import java.time.LocalDate
 
 abstract class AggregatedInformationProvider {
     /**
