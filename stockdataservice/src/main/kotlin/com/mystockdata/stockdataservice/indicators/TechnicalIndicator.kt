@@ -17,8 +17,6 @@ enum class TechnicalIndicatorName(val indicatorName: String) {
     MACD("macd")
 }
 
-
-
 /**
  * Splits a list of AggregatedPriceInformationResponse into multiple lists which contain all AggregatedPriceInformationResponses of a symbol.
  * @param data AggregatedPriceInformationResponses

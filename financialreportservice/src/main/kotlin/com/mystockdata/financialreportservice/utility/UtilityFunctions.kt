@@ -12,3 +12,11 @@ fun isDateInYear(year: Int, date: Date): Boolean {
     calendar.time = date
    return year == calendar.get(Calendar.YEAR)
 }
+fun Date.sameDay(other: Date): Boolean{
+    val calendar = Calendar.getInstance()
+    val otherCalendar = Calendar.getInstance()
+    calendar.time = this
+    otherCalendar.time = other
+
+    return calendar.get(Calendar.DAY_OF_YEAR) == otherCalendar.get(Calendar.DAY_OF_YEAR) && calendar.get(Calendar.YEAR) == otherCalendar.get(Calendar.YEAR)
+}

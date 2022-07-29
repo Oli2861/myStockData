@@ -1,6 +1,6 @@
-package com.mystockdata.financialreportservice.financialreports
+package com.mystockdata.financialreportservice.ifrsreports
 
-import com.mystockdata.financialreportservice.arelle.Item
+import com.mystockdata.financialreportservice.financialreportdatasource.Item
 import java.math.BigDecimal
 
 data class IFRSStatementOfComprehensiveIncomeByFunctionOfExpense(

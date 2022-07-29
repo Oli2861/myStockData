@@ -10,6 +10,7 @@ services:
       - "8081"
     volumes:
       - ./volumes/taxonomies:/var/lib/taxonomies
+      - ./volumes/financial_reports:/var/lib/financial-reports
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -51,14 +52,34 @@ services:
     depends_on:
       rabbitmq:
         condition: service_started
+      mongodb:
+        condition: service_started
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
       SPRING_RABBITMQ_USERNAME: "guest"
       SPRING_RABBITMQ_PASSWORD: "guest"
       ARELLE_URL: arelle
-      ARELLE_PORT: 8080
-      XBRLFILINGS_URL: "https://filings.xbrl.org/"
+      ARELLE_PORT: "8080"
+      SPRING_DATA_MONGODB_HOST: mongodb
+      SPRING_DATA_MONGODB_PORT: "8087"
+      SPRING_DATA_MONGODB_USERNAME: "mongoUsername"
+      SPRING_DATA_MONGODB_PASSWORD: "mongoPassword"
+      SPRING_DATA_MONGODB_DATABASE: "financialreportdatabase"
+
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    ports:
+      - "8087:27017"
+    expose:
+      - "8087"
+    volumes:
+      - ./volumes/mongodb/data:/data/db
+      - ./volumes/mongodb/config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "mongoUsername"
+      MONGO_INITDB_ROOT_PASSWORD: "mongoPassword"
 
   stockdataservice:
     build:

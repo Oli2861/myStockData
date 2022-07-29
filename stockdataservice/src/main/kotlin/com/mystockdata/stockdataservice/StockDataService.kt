@@ -69,9 +69,7 @@ class StockDataService(
     suspend fun retrieveAggregatedPriceInformation(start: Instant, end: Instant): Flow<AggregatedPriceInformation> {
         val list = listOf("VOW3.DE", "SOW.DE", "SAP.DE", "AMC", "TSLA")
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
-            aggregatedInformationProvider.retrieveHistoricalStockData(list, start, end)
-                .flatten()
-                .asFlow()
+            aggregatedInformationProvider.retrieveHistoricalStockData(list, start, end).flatten().asFlow()
         aggregatedPriceInformationRepository.writeAggregatedPriceInformation(priceInformationFlow)
         return priceInformationFlow
     }
@@ -84,9 +82,7 @@ class StockDataService(
      * @return List containing the aggregated price information.
      */
     suspend fun getAggregatedPriceInformation(
-        symbols: List<String>,
-        start: Instant,
-        end: Instant
+        symbols: List<String>, start: Instant, end: Instant
     ) = aggregatedPriceInformationRepository.readAggregatedPriceInformation(symbols, start, end)
 
     /**
@@ -98,10 +94,7 @@ class StockDataService(
      * @return InputStreamResource to produce the CSV File.
      */
     suspend fun getAggregatedPriceInformationCSV(
-        symbols: List<String>,
-        start: Instant,
-        end: Instant,
-        indicatorNames: List<String>
+        symbols: List<String>, start: Instant, end: Instant, indicatorNames: List<String>
     ): InputStreamResource {
         val data = getAggregatedPriceInformation(symbols, start, end)
         val allEntries = mutableListOf<CsvEntry>()
@@ -110,11 +103,10 @@ class StockDataService(
 
         indicatorNames.forEach { indicatorName ->
             when (indicatorName) {
-                TechnicalIndicatorName.RSI.indicatorName -> {}
-                TechnicalIndicatorName.SMA.indicatorName -> allEntries.addAll(smaForMultipleSymbols(data)
-                    .flatten()
+                TechnicalIndicatorName.RSI.indicatorName -> { /* TODO */ }
+                TechnicalIndicatorName.SMA.indicatorName -> allEntries.addAll(smaForMultipleSymbols(data).flatten()
                     .map { CsvEntry(it.time, "${it.type.indicatorName}_${it.symbol}", it.value.toString()) })
-                TechnicalIndicatorName.MACD.indicatorName -> {}
+                TechnicalIndicatorName.MACD.indicatorName -> { /* TODO */ }
                 else -> logger.debug("Unknown indicator: $indicatorName")
             }
         }
@@ -145,9 +137,7 @@ class StockDataService(
      * @return InputStreamResource to produce the CSV File.
      */
     suspend fun getPrecisePriceInformationCSV(
-        symbols: List<String>,
-        start: Instant,
-        end: Instant
+        symbols: List<String>, start: Instant, end: Instant
     ): InputStreamResource {
         val data = getPrecisePriceInformation(symbols, start, end)
         val (csvHeader, csvBody) = precisePriceInformationResponseToCSV(data)
@@ -162,9 +152,7 @@ class StockDataService(
      * @return List containing the desired price information.
      */
     suspend fun getPrecisePriceInformation(
-        symbols: List<String>,
-        start: Instant,
-        end: Instant
+        symbols: List<String>, start: Instant, end: Instant
     ): List<PrecisePriceInformationResponse> =
         precisePriceInformationRepository.readPrecisePriceInformation(symbols, start, end)
 

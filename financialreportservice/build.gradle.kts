@@ -42,6 +42,8 @@ dependencies {
     implementation("javax.activation:activation:1.1.1")
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
 
+    // MongoDB
+    implementation("org.springframework.data:spring-data-mongodb:3.4.2")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")

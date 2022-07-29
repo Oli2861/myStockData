@@ -2,6 +2,14 @@
 GET http://localhost:8083/v1/loadReports
 Accept: application/stream+json
 
-### Load taxonomy
-GET http://localhost:8083/v1/loadTaxonomy
-Accept: application/json
+
+
+
+
+### Load reports
+GET http://localhost:8080/v1/loadReports
+Accept: application/stream+json
+
+### Load reports
+GET http://localhost:8080/v1/loadReports?lei=549300CSLHPO6Y1AZN37&lei=529900D6BF99LW9R2E68
+Accept: application/stream+json

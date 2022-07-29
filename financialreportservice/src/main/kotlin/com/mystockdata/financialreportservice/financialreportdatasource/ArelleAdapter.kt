@@ -1,4 +1,4 @@
-package com.mystockdata.financialreportservice.arelle
+package com.mystockdata.financialreportservice.financialreportdatasource
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -15,11 +15,11 @@ import org.springframework.web.reactive.function.client.awaitBody
 @Component
 class ArelleAdapter(
     @Autowired val arelleWebClient: WebClient
-) {
+): FinancialReportDataSource {
     /**
      * Calls the local Arelle webservice and asks for a xml representation of the financial report which can be found at the provided path.
      * @param fileName Path to the financial report to be read. (Local path or from Web (URL))
-     * @return Flow containing the retrieved items.
+     * @return List containing the retrieved items.
      */
     suspend fun retrieveFactsFromLocalFile(fileName: String) = retrieveFacts("/var/lib/financial-reports/$fileName")
 
@@ -28,7 +28,7 @@ class ArelleAdapter(
      * @param path Path to the financial report to be read. (Local path or from Web (URL))
      * @return Flow containing the retrieved items.
      */
-    suspend fun retrieveFacts(path: String): List<Item>? {
+    override suspend fun retrieveFacts(path: String): List<Item>? {
         return arelleWebClient.get()
             .uri("rest/xbrl/view?file=$path&view=facts&factListCols=Concept,Name,Label,LocalName,Namespace,contextRef,unitRef,Dec,Prec,Lang,Value,EntityScheme,EntityIdentifier,Period,ID,Type,PeriodType,Balance,Documentation,Dimension&media=xml")
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_XML_VALUE)
@@ -42,7 +42,8 @@ class ArelleAdapter(
      * @param taxonomy Taxonomy to search for.
      * @return Whether the taxonomy is included (true) or not (false).
      */
-    suspend fun checkTaxonomyLoaded(taxonomy: String) = checkTaxonomiesLoaded(setOf(taxonomy))[taxonomy]
+    suspend fun checkTaxonomyLoaded(taxonomy: String): Boolean = checkTaxonomiesLoaded(setOf(taxonomy))[taxonomy] ?: false
+
 
     /**
      * Check whether the strings are included in the response listing the loaded packages.

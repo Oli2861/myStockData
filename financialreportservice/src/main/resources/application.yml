@@ -10,4 +10,14 @@ spring:
         bindings:
           financialReportEventConsumer-in-0:
             destination: financialReportEvent
+  data:
+    mongodb:
+      host: localhost
+      port: 8087
+      username: "mongoUsername"
+      password: "mongoPassword"
+      database: "financialreportdatabase"
+arelle:
+  url: localhost
+  port: 8081
 logging.level.com.mystockdata: DEBUG

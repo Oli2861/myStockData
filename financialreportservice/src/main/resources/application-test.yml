@@ -1,8 +1,21 @@
 spring:
   application:
     name: financialreportservice
+  cloud:
+    function:
+      definition: financialReportEventConsumer
+    stream:
+      bindings:
+        financialReportEventConsumer-in-0:
+          destination: financialReportEvent
+  data:
+    mongodb:
+      host: localhost
+      port: 8087
+      username: "mongoUsername"
+      password: "mongoPassword"
+      database: "financialreportdatabase"
 arelle:
   url: arelle
-  port: "8081"
-xbrlfilings:
-  url: "https://filings.xbrl.org/"
+  port: 8081
+

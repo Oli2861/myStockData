@@ -1,6 +1,6 @@
-package com.mystockdata.financialreportservice.arelle
+package com.mystockdata.financialreportservice.financialreportdatasource
 
-import com.mystockdata.financialreportservice.arelle.Type.*
+import com.mystockdata.financialreportservice.financialreportdatasource.ItemType.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.math.BigDecimal
@@ -21,14 +21,15 @@ data class FactList(
  * @property STRING_ITEM The value is a string.
  * @property DATE_ITEM The value is a date.
  */
-enum class Type(val str: String) {
+enum class ItemType(val typeName: String) {
     MONETARY_ITEM("xbrli:monetaryItemType"),
-    PER_SHARE_ITEM("num:perShareItemType"),
+    PER_SHARE_ITEM("xbrli:sharesItemType"),
+    PER_SHARE_ITEM_NON_XBRLI("num:perShareItemType"),
     STRING_ITEM("xbrli:stringItemType"),
     DATE_ITEM("xbrli:dateItemType")
 }
 
-enum class BalanceType(val str: String) {
+enum class BalanceType(val typeName: String) {
     CREDIT("credit"),
     DEBIT("debit")
 }
@@ -99,14 +100,13 @@ data class Item(
                 null
             } else {
                 // Make debit values negative.
-                if (balance == BalanceType.DEBIT.str) {
+                if (balance == BalanceType.DEBIT.typeName) {
                     (value?.toBigDecimal()?.multiply(BigDecimal(-1)))
                 } else {
                     value?.toBigDecimal()
                 }
             }
         } catch (e: NumberFormatException) {
-            logger.error("tried to convert $value of type $type with tag $name into a BigDecimal, ${e.stackTraceToString()}")
             null
         }
 
@@ -117,4 +117,6 @@ data class Item(
             logger.error("tried to convert $value of type $type tag $name into a date", e.stackTraceToString())
             null
         }
+
+
 }
