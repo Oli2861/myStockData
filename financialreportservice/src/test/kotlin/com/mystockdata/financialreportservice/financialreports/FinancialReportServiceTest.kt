@@ -14,15 +14,16 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.fail
 import org.mockito.Mockito.times
 import java.math.BigDecimal
+import java.time.Instant
 
 class FinancialReportServiceTest {
 
-    private val financialReportDataSource: FinancialReportDataSource =
-        Mockito.mock(FinancialReportDataSource::class.java)
+    private val financialReportDataSource: FinancialReportDataSource = Mockito.mock(FinancialReportDataSource::class.java)
     private val reportInfoDataSource: ReportInfoDataSource = Mockito.mock(ReportInfoDataSource::class.java)
+    private val financialReportRepository: FinancialReportRepository = Mockito.mock(FinancialReportRepository::class.java)
 
     private val subject: FinancialReportService =
-        FinancialReportService(financialReportDataSource, reportInfoDataSource)
+        FinancialReportService(financialReportDataSource, reportInfoDataSource, financialReportRepository)
 
     @Test
     fun testRetrieveReportByReportInfo(): Unit = runBlocking {
@@ -45,6 +46,7 @@ class FinancialReportServiceTest {
 
         val expected = listOf(
             FinancialReport(
+                null,
                 endDate,
                 entityIdentifier,
                 "unknown",
@@ -55,6 +57,7 @@ class FinancialReportServiceTest {
                 )
             ),
             FinancialReport(
+                null,
                 startDate,
                 entityIdentifier,
                 "unknown",
@@ -109,6 +112,17 @@ class FinancialReportServiceTest {
         expectedMap.keys.forEach { date ->
             Assertions.assertTrue(actualMap[date]!!.containsAll(expectedMap[date]!!))
         }
+    }
+
+    @Test
+    fun testCheckMainReportExists(){
+        val retrievedReportInfo = RetrievedReportInfo(date = Date(), lei = "lei")
+        val reports = listOf(
+            FinancialReport(null, Date.from(Instant.now().minusSeconds(500)), "lei", "scheme", listOf<Fact>()),
+            FinancialReport(null, Date.from(Instant.now().minusSeconds(5_000_000_000)), "lei", "scheme", listOf<Fact>())
+        )
+        val actual = subject.checkMainReportExists(retrievedReportInfo, reports)
+        Assertions.assertTrue(actual)
     }
 
 }

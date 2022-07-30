@@ -43,12 +43,17 @@ dependencies {
     implementation("org.glassfish.jaxb:jaxb-runtime:2.3.1")
 
     // MongoDB
-    implementation("org.springframework.data:spring-data-mongodb:3.4.2")
+    implementation("org.springframework.data:spring-data-mongodb")
+    implementation("org.mongodb:mongodb-driver-sync")
+    implementation("org.mongodb:mongodb-driver-reactivestreams")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("junit:junit:4.13.2")
+
+    // Flapdoodle as embedded MongoDB for testing purposes
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.6")
 }
 
 extra["springCloudVersion"] = "2020.0.4"

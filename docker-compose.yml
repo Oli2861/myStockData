@@ -62,18 +62,19 @@ services:
       ARELLE_URL: arelle
       ARELLE_PORT: "8080"
       SPRING_DATA_MONGODB_HOST: mongodb
-      SPRING_DATA_MONGODB_PORT: "8087"
+      SPRING_DATA_MONGODB_PORT: "27017"
       SPRING_DATA_MONGODB_USERNAME: "mongoUsername"
       SPRING_DATA_MONGODB_PASSWORD: "mongoPassword"
       SPRING_DATA_MONGODB_DATABASE: "financialreportdatabase"
+      SPRING_DATA_MONGODB_DATABASE_AUTHENITCATION-DATABASE: admin
 
   mongodb:
     image: mongo:5.0
     container_name: mongodb
     ports:
-      - "8087:27017"
+      - "27017:27017"
     expose:
-      - "8087"
+      - "27017"
     volumes:
       - ./volumes/mongodb/data:/data/db
       - ./volumes/mongodb/config:/data/configdb

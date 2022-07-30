@@ -1,18 +1,15 @@
 package com.mystockdata.financialreportservice.financialreports
 
+import com.mystockdata.financialreportservice.financialreportdatasource.FinancialReportDataSource
 import com.mystockdata.financialreportservice.financialreportdatasource.Item
 import com.mystockdata.financialreportservice.financialreportdatasource.ItemType
-import com.mystockdata.financialreportservice.financialreportdatasource.FinancialReportDataSource
 import com.mystockdata.financialreportservice.financialreportevent.FinancialReportEvent
 import com.mystockdata.financialreportservice.financialreportevent.FinancialReportEventType
 import com.mystockdata.financialreportservice.financialreportinformation.ReportInfoDataSource
+import com.mystockdata.financialreportservice.financialreportinformation.RetrievedReportInfo
 import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
 import com.mystockdata.financialreportservice.utility.sameDay
-import com.mystockdata.financialreportservice.financialreportinformation.RetrievedReportInfo
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,12 +23,17 @@ object FinancialReportServiceConstants {
 @Service
 class FinancialReportService(
     @Autowired val financialReportDataSource: FinancialReportDataSource,
-    @Autowired val reportInfoDataSource: ReportInfoDataSource
+    @Autowired val reportInfoDataSource: ReportInfoDataSource,
+    @Autowired val financialReportRepository: FinancialReportRepository
 ) {
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
     }
 
+    /**
+     * Handles incoming RabbitMQ Events.
+     * @param financialReportEvent Incoming event.
+     */
     suspend fun handleEvent(financialReportEvent: FinancialReportEvent) {
         when (financialReportEvent.financialReportEventType) {
             FinancialReportEventType.REFRESH_DATA -> retrieveAvailableFinancialReports().collect()
@@ -39,12 +41,29 @@ class FinancialReportService(
         }
     }
 
+    suspend fun getReports(lei: List<String>, start: Date?, end: Date?): Flow<FinancialReport> {
+        return if(lei.isEmpty()){
+            if (start == null || end == null){
+                financialReportRepository.findAll()
+            }else{
+                financialReportRepository.findFinancialReportByEndOfReportingPeriodBetween(start, end)
+            }
+        }else{
+            if (start == null || end == null) {
+                financialReportRepository.findFinancialReportByEntityIdentifierIn(lei)
+            } else {
+                financialReportRepository.getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(lei, start, end)
+            }
+        }
+    }
+
     /**
      * Retrieves Financial reports from a remote data source.
      * @param relevantLEI LEI of the reports to retrieve. If none are specified all available reports will be retrieved.
-     * @return Flow emitting lists of the retrieved financial reports.
+     * @return Flow emitting collected and stored financial reports.
      */
-    suspend fun retrieveAvailableFinancialReports(relevantLEI: List<String> = listOf()): Flow<List<FinancialReport>> {
+    suspend fun retrieveAvailableFinancialReports(relevantLEI: List<String> = listOf()): Flow<FinancialReport> {
+        // If there are specific lei specified only retrieve those.
         val eligibleReportInfoFlow = if (relevantLEI.isEmpty()) {
             reportInfoDataSource.getAvailableFinancialReports()
                 .filter { checkEligibility(it) }
@@ -53,10 +72,15 @@ class FinancialReportService(
                 .filter { checkEligibility(it) }
                 .filter { retrievedReportInfo -> relevantLEI.contains(retrievedReportInfo.lei) }
         }
-
-        val retrievedReportFlow = getFinancialReports(eligibleReportInfoFlow)
-        // TODO Save reports to database
-        return retrievedReportFlow
+        // Retrieve financial reports.
+        val reportListFlow: Flow<List<FinancialReport>> = getFinancialReports(eligibleReportInfoFlow)
+        val reportFlow: Flow<FinancialReport> = reportListFlow.transform { list ->
+            list.forEach { financialReport ->
+                emit(financialReport)
+            }
+        }
+        // Save reports to database and return the flow of saved reports.
+        return financialReportRepository.saveAll(reportFlow)
     }
 
     /**
@@ -70,9 +94,9 @@ class FinancialReportService(
             kotlinx.coroutines.delay(DELAY_TIME)
 
             val financialReportList = retrieveReportByReportInfo(retrievedReportInfo)
-            if (financialReportList != null) {
+            if (!financialReportList.isNullOrEmpty()) {
                 emit(financialReportList)
-                logger.debug("Retrieved financial report ${financialReportList[0].entityIdentifier} for reporting Period ${financialReportList[0].endOfReportingPeriod}")
+                // logger.debug("Retrieved financial reports ${financialReportList[0].entityIdentifier} for reporting Period ${financialReportList[0].endOfReportingPeriod}")
                 // financialReportList.forEach { report -> report.factList.forEach { fact -> logger.debug("$fact") } }
             }
         }
@@ -138,11 +162,14 @@ class FinancialReportService(
      */
     fun splitByPeriodEnd(list: List<Item>): Map<Date, List<Item>> {
         val map = HashMap<Date, List<Item>>()
-        val endDate = list.distinctBy { it.endInstant }.mapNotNull { it.endInstant }
+        val endDate = list.mapNotNull { it.endInstant }.distinct()
         endDate.forEach { date ->
             map[date] = list.filter { it.endInstant == date }
         }
-
+        logger.debug("Period end dates ${map.keys} of ${list.size} facts where identified.")
+        map.keys.forEach {
+            logger.debug("For period $it ${map[it]?.size ?: 0} facts where identified")
+        }
         return map
     }
 
@@ -153,17 +180,20 @@ class FinancialReportService(
      * @return Financial report or null if there was no entityIdentifier found.
      */
     private suspend fun createFinancialReportFromList(endOfPeriod: Date, list: List<Item>): FinancialReport? {
-        val entityIdentifier: String = list.firstNotNullOfOrNull { it.entityIdentifier } ?: return null
+        val entityIdentifier: String? = list.firstNotNullOfOrNull { it.entityIdentifier }
+        if (entityIdentifier == null) {
+            logger.debug("Cannot parse report for $endOfPeriod due to missing entityIdentifier ${list.toString()}")
+            return null
+        }
         val entityScheme: String? = list.firstNotNullOfOrNull { it.entityScheme }
-
         val factList: List<Fact> = list.mapNotNull { item -> itemToFact(item) }
 
-        return FinancialReport(endOfPeriod, entityIdentifier, entityScheme ?: "unknown", factList)
+        return FinancialReport(null, endOfPeriod, entityIdentifier, entityScheme ?: "unknown", factList)
     }
 
     private fun itemToFact(item: Item): Fact? {
-        return if (item.value == null || item.name == null) {
-            logger.trace("${if (item.value == null) "Item Value is null" else "Item name is null"} item retrieved: $item")
+        return if (item.name == null || item.value == null) {
+            logger.trace("Unable to parse due to null ${if (item.name == null) "name" else "value"} $item")
             null
         } else {
             return when (item.type) {
@@ -180,29 +210,25 @@ class FinancialReportService(
         }
     }
 
-    private fun parseNumeric(item: Item): NumericFact? {
-        return if (item.name == null || item.start == null || item.endInstant == null || item.valueNumeric == null) null
-        else NumericFact(item.name!!, item.start!!, item.endInstant!!, item.valueNumeric!!)
+    private fun parseNumeric(item: Item): Fact {
+        return if (item.valueNumeric == null) return parseTextual(item)
+        else NumericFact(item.name!!, item.start, item.endInstant, item.valueNumeric!!)
     }
 
-    private fun parseMonetary(item: Item): Fact? {
-        return if (item.name == null || item.start == null || item.endInstant == null || item.valueNumeric == null || item.unitRef == null || item.balance == null) null
-        else if (item.value == "(nil)") return parseTextual(item)
-        else MonetaryFact(
-            item.name!!, item.start!!, item.endInstant!!, item.valueNumeric!!, item.unitRef!!, item.balance!!
-        )
+    private fun parseMonetary(item: Item): Fact {
+        return if (item.valueNumeric == null) return parseTextual(item)
+        else MonetaryFact(item.name!!, item.start, item.endInstant, item.valueNumeric!!, item.unitRef, item.balance)
     }
 
-    private fun parseTextual(item: Item): TextualFact? {
-        return if (item.name == null || item.start == null || item.endInstant == null || item.value == null) null
-        else TextualFact(item.name!!, item.start!!, item.endInstant!!, item.value!!)
-    }
+    private fun parseTextual(item: Item): TextualFact =
+        TextualFact(item.name!!, item.start, item.endInstant, item.value!!)
+
 
     /**
      * For debugging purposes:
      * Checks whether the main report (matches year with RetrievedReportInfo) could be identified.
      */
-    private fun checkMainReportExists(retrievedReportInfo: RetrievedReportInfo, reports: List<FinancialReport>) {
+    fun checkMainReportExists(retrievedReportInfo: RetrievedReportInfo, reports: List<FinancialReport>): Boolean {
         if (retrievedReportInfo.date == null) {
             logger.debug("No date retrieved. RetrievedReportInfo: $retrievedReportInfo.")
         }
@@ -211,16 +237,22 @@ class FinancialReportService(
             if (mainReport != null) {
                 // Log if the lei and date in the report does not match the lei and date from the location the report was retrieved from ("https://filings.xbrl.org/)
                 if (mainReport.entityIdentifier == retrievedReportInfo.lei) {
-                    logger.debug("Successfully retrieved financial report for ${mainReport.endOfReportingPeriod} of company ${mainReport.entityIdentifier}")
+                    logger.debug("Successfully retrieved financial report of company ${mainReport.entityIdentifier} for reporting period ${mainReport.endOfReportingPeriod} (end).")
+                    return true
                 } else {
                     // No report was generated whose year matches the year specified in the data source
                     logger.debug("Mismatch: Entity identifier of the generated report: ${mainReport.entityIdentifier}\tEntity identifier provided by data source: ${retrievedReportInfo.lei}")
+                    return false
                 }
             } else {
                 logger.debug("Main report could not be identified. RetrievedReportInfo: $retrievedReportInfo\nRetrieved Reports: $reports")
+                return false
             }
         }
+        return false
     }
+
+
     /**
      * Tells arelle to load a taxonomy.
      * @param fileName Name of the taxonomy file to be loaded. File has to be placed within the taxonomies (docker) volume. By default, loads the esef taxonomy.

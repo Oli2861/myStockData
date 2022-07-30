@@ -8,14 +8,9 @@ spring:
       bindings:
         financialReportEventConsumer-in-0:
           destination: financialReportEvent
-  data:
-    mongodb:
-      host: localhost
-      port: 8087
-      username: "mongoUsername"
-      password: "mongoPassword"
-      database: "financialreportdatabase"
+  mongodb:
+    embedded:
+      version: 4.4.9
 arelle:
   url: arelle
   port: 8081
-

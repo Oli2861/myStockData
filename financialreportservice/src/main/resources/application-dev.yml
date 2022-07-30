@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: financialreportservice
+  cloud:
+    function:
+      definition: financialReportEventConsumer
+    stream:
+      bindings:
+        financialReportEventConsumer-in-0:
+          destination: financialReportEvent
+  data:
+    mongodb:
+      host: "localhost"
+      port: 27017
+      username: "mongoUsername"
+      password: "mongoPassword"
+      database: "financialreportdatabase"
+      authentication-database: admin
+arelle:
+  url: localhost
+  port: 8081
+logging.level.com.mystockdata: DEBUG
+logging.level.org.springframework.data.mongodb.repository.query: DEBUG
