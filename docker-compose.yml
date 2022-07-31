@@ -124,3 +124,18 @@ services:
       DOCKER_INFLUXDB_INIT_BUCKET: "stockdata"
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: "adminToken"
       DOCKER_INFLUXDB_INIT_RETENTION: "0"
+
+  composerservice:
+    build:
+      context: ./composerservice
+    image: composerservice
+    container_name: composerservice
+    ports:
+      - "8085:8080"
+    expose:
+      - "8085"
+    environment:
+      FINANCIALREPORTSERVICE_HOST: financialreportservice
+      FINANCIALREPORTSERVICE_PORT: 8083
+      STOCKDATASERVICE_HOST: stockdataservice
+      STOCKDATASERVICE_PORT: 8084

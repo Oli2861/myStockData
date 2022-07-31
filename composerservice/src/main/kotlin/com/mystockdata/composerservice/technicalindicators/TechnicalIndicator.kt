@@ -1,6 +1,6 @@
-package com.mystockdata.stockdataservice.indicators
+package com.mystockdata.composerservice.technicalindicators
 
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationResponse
+import com.mystockdata.composerservice.stockdata.AggregatedPriceInformation
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -22,11 +22,11 @@ enum class TechnicalIndicatorName(val indicatorName: String) {
  * @param data AggregatedPriceInformationResponses
  * @return List containing lists of AggregatedPriceInformationResponses for each symbol.
  */
-fun splitBySymbol(data: List<AggregatedPriceInformationResponse>): List<List<AggregatedPriceInformationResponse>> {
+fun splitBySymbol(data: List<AggregatedPriceInformation>): List<List<AggregatedPriceInformation>> {
     val symbols: List<String> = data.distinctBy { it.symbol }.map { it.symbol }
-    val splitData: MutableList<List<AggregatedPriceInformationResponse>> = mutableListOf()
+    val splitData: MutableList<List<AggregatedPriceInformation>> = mutableListOf()
     for (symbol in symbols) {
-        val curr = mutableListOf<AggregatedPriceInformationResponse>()
+        val curr = mutableListOf<AggregatedPriceInformation>()
         data.filter { symbol == it.symbol }.forEach {
             curr.add(it)
         }
@@ -34,4 +34,3 @@ fun splitBySymbol(data: List<AggregatedPriceInformationResponse>): List<List<Agg
     }
     return splitData
 }
-

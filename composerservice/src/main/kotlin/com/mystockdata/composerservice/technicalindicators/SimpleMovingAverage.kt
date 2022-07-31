@@ -1,6 +1,6 @@
-package com.mystockdata.stockdataservice.indicators
+package com.mystockdata.composerservice.technicalindicators
 
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationResponse
+import com.mystockdata.composerservice.stockdata.AggregatedPriceInformation
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -11,7 +11,7 @@ import java.time.Instant
  * @param windowSize Size of the SAM-window.
  * @return List containing lists of the calculated SMA for each symbol. Rounded to two decimal points.
  */
-fun smaForMultipleSymbols(data: List<AggregatedPriceInformationResponse>, windowSize: Int = 14): List<List<TechnicalIndicator>>{
+fun smaForMultipleSymbols(data: List<AggregatedPriceInformation>, windowSize: Int = 14): List<List<TechnicalIndicator>>{
     val sorted = splitBySymbol(data)
     return sorted.map { listForASymbol -> smaForAllOfASymbol(listForASymbol, windowSize) }
 }
@@ -23,7 +23,7 @@ fun smaForMultipleSymbols(data: List<AggregatedPriceInformationResponse>, window
  * @return list of the calculated SMA. Rounded to two decimal points.
  */
 fun smaForAllOfASymbol(
-    data: List<AggregatedPriceInformationResponse>,
+    data: List<AggregatedPriceInformation>,
     windowSize: Int = 14
 ): List<TechnicalIndicator> {
     val smaList = mutableListOf<TechnicalIndicator>()
@@ -41,7 +41,7 @@ fun smaForAllOfASymbol(
  * @return SMA rounded to two decimal points.
  */
 fun calculateSMA(
-    data: List<AggregatedPriceInformationResponse>,
+    data: List<AggregatedPriceInformation>,
     start: Instant,
     windowSize: Int = 14
 ): TechnicalIndicator {
@@ -64,10 +64,10 @@ fun calculateSMA(
  * @return Sublist starting at the element which matches the start instant and stops windowSize-elements later.
  */
 fun reduceToRelevantData(
-    data: List<AggregatedPriceInformationResponse>,
+    data: List<AggregatedPriceInformation>,
     start: Instant,
     windowSize: Int
-): List<AggregatedPriceInformationResponse>? {
+): List<AggregatedPriceInformation>? {
     if (data.size < windowSize) return null
 
     val sorted = data.sortedByDescending { it.time }

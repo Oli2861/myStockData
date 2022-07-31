@@ -1,5 +1,6 @@
 package com.mystockdata.financialreportservice.financialreports
 
+import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,13 +18,13 @@ class FinancialReportController(
     @GetMapping("loadReports")
     suspend fun loadReports(
         @RequestParam(required = false) lei: List<String>?
-    ) = financialReportService.retrieveAvailableFinancialReports(lei ?: listOf())
+    ): Flow<FinancialReport> = financialReportService.retrieveAvailableFinancialReports(lei ?: listOf())
 
     @GetMapping
     suspend fun getReports(
         @RequestParam(required = false) lei: List<String>?,
         @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") start: Date?,
         @RequestParam(required = false) @DateTimeFormat(pattern="yyyy-MM-dd") end: Date?
-    ) = financialReportService.getReports(lei ?: listOf(), start, end)
+    ): Flow<FinancialReport> = financialReportService.getReports(lei ?: listOf(), start, end)
 
 }

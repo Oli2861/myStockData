@@ -14,10 +14,6 @@ Accept: application/json
 GET http://localhost:8080/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
 
-###
-# @name AggregatedPriceInformation_csv
-GET http://localhost:8080/v1/aggregatedPriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
-Accept: application/json
 
 ###
 # @name PrecisePriceInformation_start
@@ -28,12 +24,6 @@ Accept: application/stream+json
 # @name PrecisePriceInformation_get
 GET http://localhost:8080/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
-
-###
-# @name PrecisePriceInformation_csv
-GET http://localhost:8080/v1/precisePriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
-Accept: text/csv
-
 
 # Docker
 ###
@@ -53,11 +43,6 @@ GET http://localhost:8084/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=T
 Accept: application/json
 
 ###
-# @name Docker_AggregatedPriceInformation_csv
-GET http://localhost:8084/v1/aggregatedPriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
-Accept: application/json
-
-###
 # @name Docker_PrecisePriceInformation_start
 GET http://localhost:8084/v1/precisePriceInformation/start
 Accept: application/stream+json
@@ -66,8 +51,3 @@ Accept: application/stream+json
 # @name Docker_PrecisePriceInformation_get
 GET http://localhost:8084/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
-
-###
-# @name Docker_PrecisePriceInformation_csv
-GET http://localhost:8084/v1/precisePriceInformation/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC
-Accept: text/csv

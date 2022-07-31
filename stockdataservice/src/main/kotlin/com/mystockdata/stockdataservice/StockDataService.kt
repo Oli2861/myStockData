@@ -2,8 +2,6 @@ package com.mystockdata.stockdataservice
 
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedInformationProvider
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformation
-import com.mystockdata.stockdataservice.indicators.TechnicalIndicatorName
-import com.mystockdata.stockdataservice.indicators.smaForMultipleSymbols
 import com.mystockdata.stockdataservice.persistence.AggregatedPriceInformationRepository
 import com.mystockdata.stockdataservice.persistence.PrecisePriceInformationRepository
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformation
@@ -19,7 +17,6 @@ import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.InputStreamResource
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.ZonedDateTime
@@ -85,35 +82,6 @@ class StockDataService(
         symbols: List<String>, start: Instant, end: Instant
     ) = aggregatedPriceInformationRepository.readAggregatedPriceInformation(symbols, start, end)
 
-    /**
-     * Get a CSV containing aggregated Stock Price Information of given symbols and a given time window.
-     * @param symbols Stock symbols of interest.
-     * @param start Start of the time window.
-     * @param end End of the time window.
-     * @param indicatorNames Names of supported indicators. In the current implementation always based on closing prices.
-     * @return InputStreamResource to produce the CSV File.
-     */
-    suspend fun getAggregatedPriceInformationCSV(
-        symbols: List<String>, start: Instant, end: Instant, indicatorNames: List<String>
-    ): InputStreamResource {
-        val data = getAggregatedPriceInformation(symbols, start, end)
-        val allEntries = mutableListOf<CsvEntry>()
-        val ohlcvEntries = aggregatedPriceInformationResponseToCSVColumns(data)
-        allEntries.addAll(ohlcvEntries)
-
-        indicatorNames.forEach { indicatorName ->
-            when (indicatorName) {
-                TechnicalIndicatorName.RSI.indicatorName -> { /* TODO */ }
-                TechnicalIndicatorName.SMA.indicatorName -> allEntries.addAll(smaForMultipleSymbols(data).flatten()
-                    .map { CsvEntry(it.time, "${it.type.indicatorName}_${it.symbol}", it.value.toString()) })
-                TechnicalIndicatorName.MACD.indicatorName -> { /* TODO */ }
-                else -> logger.debug("Unknown indicator: $indicatorName")
-            }
-        }
-
-        val (csvHeader, csvBody) = toCSVBody(allEntries)
-        return toCSVFile(csvHeader, csvBody)
-    }
 
     /**
      * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
@@ -129,20 +97,6 @@ class StockDataService(
         return precisePriceInformationProvider.flow
     }
 
-    /**
-     * Get a CSV containing aggregated Stock Price Information of given symbols and a given time window.
-     * @param symbols Stock symbols of interest.
-     * @param start Start of the time window.
-     * @param end End of the time window.
-     * @return InputStreamResource to produce the CSV File.
-     */
-    suspend fun getPrecisePriceInformationCSV(
-        symbols: List<String>, start: Instant, end: Instant
-    ): InputStreamResource {
-        val data = getPrecisePriceInformation(symbols, start, end)
-        val (csvHeader, csvBody) = precisePriceInformationResponseToCSV(data)
-        return toCSVFile(csvHeader, csvBody)
-    }
 
     /**
      * Get a List of aggregated Stock Price Information of given symbols and a given time window.
