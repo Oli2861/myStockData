@@ -1,0 +1,7 @@
+### Test
+GET http://localhost:8080/v1/test
+Accept: application/json
+
+### CSV
+GET http://localhost:8080/v1/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC&missingValueStrategy=LAST_VALUE
+Accept: text/csv

@@ -3,7 +3,7 @@ package com.mystockdata.composerservice.stockdata
 import java.math.BigDecimal
 import java.time.Instant
 
-data class AggregatedPriceInformation(
+data class AggregatedPriceInformationResponse(
     val time: Instant,
     val symbol: String,
     var open: BigDecimal? = null,

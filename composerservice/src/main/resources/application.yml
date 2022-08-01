@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: composerservice
+  profiles:
+    active: default
+financialreportservice:
+  host: localhost
+  port: "8083"
+stockdataservice:
+  host: localhost
+  port: "8084"
+logging.level.com.mystockdata: DEBUG
+logging.level.reactor.netty.http.client: DEBUG
+

@@ -17,7 +17,9 @@ class PrecisePriceInformationController(
     @Autowired private val stockDataService: StockDataService
 ) {
     @GetMapping("/start")
-    suspend fun start() = stockDataService.startRetrievingPrecisePriceInformation()
+    suspend fun start(
+        @RequestParam symbols: List<String>
+    ) = stockDataService.startRetrievingPrecisePriceInformation(symbols)
 
     @GetMapping
     suspend fun get(

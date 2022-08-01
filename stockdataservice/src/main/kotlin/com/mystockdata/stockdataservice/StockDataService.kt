@@ -43,19 +43,19 @@ class StockDataService(
     suspend fun handleEvent(stockDataEvent: StockDataEvent) {
 
         when (stockDataEvent.stockDataEventType) {
-            StockDataEventType.RETRIEVE_DAILY_OHLCV -> retrieveAggregatedInformationForDays(1)
-            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV -> retrieveAggregatedInformationForMonths(1)
-            StockDataEventType.START_RETRIEVING_LIVE_STOCK_DATA -> startRetrievingPrecisePriceInformation()
+            StockDataEventType.RETRIEVE_DAILY_OHLCV -> retrieveAggregatedInformationForDays(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"), 1)
+            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV -> retrieveAggregatedInformationForMonths(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"), 1)
+            StockDataEventType.START_RETRIEVING_LIVE_STOCK_DATA -> startRetrievingPrecisePriceInformation(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"))
             StockDataEventType.STOP_RETRIEVING_LIVE_STOCK_DATA -> precisePriceInformationProvider.close()
         }
 
     }
 
-    suspend fun retrieveAggregatedInformationForDays(days: Long) =
-        retrieveAggregatedPriceInformation(Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
+    suspend fun retrieveAggregatedInformationForDays(symbols: List<String>, days: Long) =
+        retrieveAggregatedPriceInformation(symbols, Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
 
-    suspend fun retrieveAggregatedInformationForMonths(months: Long) =
-        retrieveAggregatedPriceInformation(ZonedDateTime.now().minusMonths(1).toInstant(), Instant.now())
+    suspend fun retrieveAggregatedInformationForMonths(symbols: List<String>, months: Long) =
+        retrieveAggregatedPriceInformation(symbols, ZonedDateTime.now().minusMonths(months).toInstant(), Instant.now())
 
     /**
      * Retrieves aggregated Price Information for all stocks on the watchlist.
@@ -63,10 +63,13 @@ class StockDataService(
      * @param end End of the time window.
      * @return Flow containing the retrieved aggregated price information.
      */
-    suspend fun retrieveAggregatedPriceInformation(start: Instant, end: Instant): Flow<AggregatedPriceInformation> {
-        val list = listOf("VOW3.DE", "SOW.DE", "SAP.DE", "AMC", "TSLA")
+    suspend fun retrieveAggregatedPriceInformation(
+        symbols: List<String>,
+        start: Instant,
+        end: Instant
+    ): Flow<AggregatedPriceInformation> {
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
-            aggregatedInformationProvider.retrieveHistoricalStockData(list, start, end).flatten().asFlow()
+            aggregatedInformationProvider.retrieveHistoricalStockData(symbols, start, end).flatten().asFlow()
         aggregatedPriceInformationRepository.writeAggregatedPriceInformation(priceInformationFlow)
         return priceInformationFlow
     }
@@ -86,12 +89,10 @@ class StockDataService(
     /**
      * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
      */
-    suspend fun startRetrievingPrecisePriceInformation(): Flow<PrecisePriceInformation> {
+    suspend fun startRetrievingPrecisePriceInformation(symbols: List<String>): Flow<PrecisePriceInformation> {
         // TODO: Retrieve Watchlist
         scope.launch {
-            precisePriceInformationProvider.establishConnection(
-                listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE")
-            )
+            precisePriceInformationProvider.establishConnection(symbols)
             precisePriceInformationRepository.writePrecisePriceInformation(precisePriceInformationProvider.flow)
         }
         return precisePriceInformationProvider.flow

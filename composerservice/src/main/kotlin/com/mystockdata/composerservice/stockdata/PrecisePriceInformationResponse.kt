@@ -3,7 +3,7 @@ package com.mystockdata.composerservice.stockdata
 import java.math.BigDecimal
 import java.time.Instant
 
-data class PrecisePriceInformation(
+data class PrecisePriceInformationResponse(
     val time: Instant,
     val symbol: String,
     val exchange: String,

@@ -1,6 +1,7 @@
 package com.mystockdata.composerservice.technicalindicators
 
-import com.mystockdata.composerservice.stockdata.AggregatedPriceInformation
+import com.mystockdata.composerservice.IndicatorName
+import com.mystockdata.composerservice.csv.CsvEntry
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -9,11 +10,12 @@ import java.time.Instant
  * Calculates simple moving average for all values of a given list of AggregatedPriceInformationResponses as far as possible.
  * @param data The AggregatedPriceInformationResponses. Can contain data for different symbols.
  * @param windowSize Size of the SAM-window.
+ * @param fillMissingValue whether missing values should be filled with the previous one.
  * @return List containing lists of the calculated SMA for each symbol. Rounded to two decimal points.
  */
-fun smaForMultipleSymbols(data: List<AggregatedPriceInformation>, windowSize: Int = 14): List<List<TechnicalIndicator>>{
-    val sorted = splitBySymbol(data)
-    return sorted.map { listForASymbol -> smaForAllOfASymbol(listForASymbol, windowSize) }
+fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissingValue: Boolean = false): List<List<TechnicalIndicator>>{
+    val preparedData = if(fillMissingValue) TimeSeriesOperator.splitBySymbolAndFillMissingValues(data) else TimeSeriesOperator.splitBySymbol(data)
+    return preparedData.map { listForASymbol -> smaForAllOfASymbol(listForASymbol, windowSize) }
 }
 
 /**
@@ -23,7 +25,7 @@ fun smaForMultipleSymbols(data: List<AggregatedPriceInformation>, windowSize: In
  * @return list of the calculated SMA. Rounded to two decimal points.
  */
 fun smaForAllOfASymbol(
-    data: List<AggregatedPriceInformation>,
+    data: List<CsvEntry>,
     windowSize: Int = 14
 ): List<TechnicalIndicator> {
     val smaList = mutableListOf<TechnicalIndicator>()
@@ -41,19 +43,19 @@ fun smaForAllOfASymbol(
  * @return SMA rounded to two decimal points.
  */
 fun calculateSMA(
-    data: List<AggregatedPriceInformation>,
+    data: List<CsvEntry>,
     start: Instant,
     windowSize: Int = 14
 ): TechnicalIndicator {
 
     val relevantData = reduceToRelevantData(data, start, windowSize)
-        ?: return TechnicalIndicator(start, data.first().symbol, TechnicalIndicatorName.SMA, BigDecimal(0))
+        ?: return TechnicalIndicator(start, data.first().columnName, IndicatorName.SMA, BigDecimal(0))
 
-    val result = relevantData.map { it.close ?: BigDecimal(0) }
+    val result = relevantData.map { it.value ?: BigDecimal(0) }
         .reduce { acc, num -> acc + num }
         .divide(windowSize.toBigDecimal(), 2, RoundingMode.HALF_UP)
 
-    return TechnicalIndicator(start, relevantData.last().symbol, TechnicalIndicatorName.SMA, result)
+    return TechnicalIndicator(start, relevantData.last().columnName, IndicatorName.SMA, result)
 }
 
 /**
@@ -64,10 +66,10 @@ fun calculateSMA(
  * @return Sublist starting at the element which matches the start instant and stops windowSize-elements later.
  */
 fun reduceToRelevantData(
-    data: List<AggregatedPriceInformation>,
+    data: List<CsvEntry>,
     start: Instant,
     windowSize: Int
-): List<AggregatedPriceInformation>? {
+): List<CsvEntry>? {
     if (data.size < windowSize) return null
 
     val sorted = data.sortedByDescending { it.time }

@@ -34,7 +34,7 @@ Accept: application/json
 
 ###
 # @name Docker_AggregatedPriceInformation_retrieve
-GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?months=1
+GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?months=12&symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
 
 ###
@@ -51,3 +51,6 @@ Accept: application/stream+json
 # @name Docker_PrecisePriceInformation_get
 GET http://localhost:8084/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=TSLA&symbols=AMC
 Accept: application/json
+
+###
+http://localhost:8084/v1/aggregatedPriceInformation?symbols=SAP.DE&symbols=TSLA&symbols=AMC&start=2021-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
