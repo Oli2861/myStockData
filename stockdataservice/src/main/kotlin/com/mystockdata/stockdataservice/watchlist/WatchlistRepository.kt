@@ -1,9 +1,9 @@
-package com.mystockdata.schedulingservice.watchlist
+package com.mystockdata.stockdataservice.watchlist
 
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CompanyRepository: CoroutineCrudRepository<Company, String> {
+interface WatchlistRepository: CoroutineCrudRepository<Watchlist, String> {
 
 }

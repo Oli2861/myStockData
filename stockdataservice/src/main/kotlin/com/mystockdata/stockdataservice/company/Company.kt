@@ -1,11 +1,11 @@
-package com.mystockdata.schedulingservice.watchlist
+package com.mystockdata.composerservice.company
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document(collection = "Company")
 data class Company(
-     @Id val lei: String,
+    @Id val lei: String,
     val securities: List<Security>,
 )
 

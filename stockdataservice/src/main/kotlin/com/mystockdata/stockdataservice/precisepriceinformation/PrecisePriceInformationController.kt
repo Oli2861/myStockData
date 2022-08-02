@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.controller
+package com.mystockdata.stockdataservice.precisepriceinformation
 
 import com.mystockdata.stockdataservice.StockDataService
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationResponse

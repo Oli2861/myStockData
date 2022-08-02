@@ -1,11 +1,9 @@
-package com.mystockdata.stockdataservice.persistence
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import com.influxdb.client.domain.WritePrecision
 import com.influxdb.client.kotlin.InfluxDBClientKotlin
 import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformation
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationFieldNames
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationResponse
+import com.mystockdata.stockdataservice.persistence.createFilter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.toList

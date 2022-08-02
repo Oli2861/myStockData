@@ -1,8 +1,6 @@
-package com.mystockdata.stockdataservice.controller
+package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import com.mystockdata.stockdataservice.StockDataService
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformation
-import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationResponse
 import kotlinx.coroutines.flow.Flow
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import kotlin.math.log
 
 @RestController
 @RequestMapping("v1/aggregatedPriceInformation")

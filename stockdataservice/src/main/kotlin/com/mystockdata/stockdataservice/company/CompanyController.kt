@@ -1,9 +1,7 @@
-package com.mystockdata.schedulingservice.watchlist
+package com.mystockdata.composerservice.company
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.net.URI
 
 @RestController
 @RequestMapping("v1/company")

@@ -1,6 +1,6 @@
-package com.mystockdata.schedulingservice.watchlist
+package com.mystockdata.stockdataservice.watchlist
 
-import com.mystockdata.schedulingservice.watchlist.WatchlistConstants.watchlistID
+import com.mystockdata.stockdataservice.watchlist.WatchlistConstants.watchlistID
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 

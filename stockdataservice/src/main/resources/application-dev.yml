@@ -1,15 +1,18 @@
 spring:
   application:
-    name: schedulingservice
+    name: stockdataservice
   cloud:
     function:
-      definition: financialReportEventSupplier;stockDataEventSupplier
+      definition: stockDataEventConsumer
     stream:
       bindings:
-        financialReportEventSupplier-out-0:
-          destination: financialReportEvent
-        stockDataEventSupplier-out-0:
+        stockDataEventConsumer-in-0:
           destination: stockDataEvent
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   data:
     mongodb:
       host: "localhost"
@@ -18,5 +21,10 @@ spring:
       password: "mongoPassword"
       database: "schedulingservicedatabase"
       authentication-database: admin
+influx2:
+  host: http://localhost:8086
+  org: mystockdata
+  bucket: stockdata
+  token: adminToken
 logging.level.com.mystockdata: DEBUG
 logging.level.org.springframework.data.mongodb.repository.query: DEBUG
