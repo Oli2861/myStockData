@@ -17,14 +17,14 @@ import java.time.temporal.ChronoUnit
 
 @RestController
 @RequestMapping("v1/")
-class Controller(
+class ComposerController(
     @Autowired val composerservice: Composerservice
 ) {
     companion object {
-        private val logger: Logger = LoggerFactory.getLogger(Controller::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(ComposerController::class.java)
     }
 
-    @GetMapping("aggregatedPriceInfo/csv")
+    @GetMapping("precisePriceInfo/csv")
     suspend fun getPrecisePriceCSV(
         @RequestParam symbols: List<String>,
         @RequestParam(required = false) start: Instant?,

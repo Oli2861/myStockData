@@ -3,5 +3,9 @@ GET http://localhost:8080/v1/test
 Accept: application/json
 
 ### CSV
-GET http://localhost:8080/v1/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC&missingValueStrategy=LAST_VALUE
+GET http://localhost:8085/v1/aggregatedPriceInfo/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC&missingValueStrategy=LAST_VALUE&indicatorNames=SMA
+Accept: text/csv
+
+### CSV
+GET http://localhost:8085/v1/precisePriceInfo/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC&missingValueStrategy=LAST_VALUE&indicatorNames=SMA
 Accept: text/csv

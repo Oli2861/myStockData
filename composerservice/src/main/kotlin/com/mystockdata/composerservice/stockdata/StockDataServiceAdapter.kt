@@ -39,7 +39,7 @@ class StockDataServiceAdapter(
     ): Flow<AggregatedPriceInformationResponse> {
         return stockDataServiceWebClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("v1/aggregatedPriceInformation")
+                uriBuilder.path("/v1/aggregatedPriceInformation")
                     .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
                     .queryParam(START_REQUEST_PARAM, start)
                     .queryParam(END_REQUEST_PARAM, end)
@@ -64,7 +64,7 @@ class StockDataServiceAdapter(
     ): Flow<PrecisePriceInformationResponse> {
         return stockDataServiceWebClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("v1/precisePriceInformation")
+                uriBuilder.path("/v1/precisePriceInformation")
                     .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
                     .queryParam(START_REQUEST_PARAM, start)
                     .queryParam(END_REQUEST_PARAM, end)

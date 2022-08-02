@@ -1,10 +1,10 @@
 package com.mystockdata.composerservice
 
-import com.mystockdata.composerservice.csv.CsvEntry
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilder
 import com.mystockdata.composerservice.financialreport.FinancialReportServiceAdapter
 import com.mystockdata.composerservice.stockdata.StockDataServiceAdapter
+import com.mystockdata.composerservice.stockdata.toCSVEntryList
 import com.mystockdata.composerservice.technicalindicators.smaForAllOfASymbol
 import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
@@ -22,47 +22,75 @@ class Composerservice(
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Composerservice::class.java)
+
     }
 
-    suspend fun test() {
-        val list = listOf("VOW3.DE", "SOW.DE", "SAP.DE", "AMC", "TSLA")
-        val precisePriceInformation = stockDataServiceAdapter.getPrecisePriceInformation(list).toList()
-        logger.debug(precisePriceInformation.toString())
-    }
-
-
-    suspend fun getStockData(
+    suspend fun getPrecisePriceCSV(
         symbols: List<String>,
         start: Instant,
         end: Instant,
-        indicatorName: List<IndicatorName>,
+        indicatorNames: List<IndicatorName>,
         missingValueHandlingStrategy: MissingValueHandlingStrategy
     ): InputStreamResource {
+        val precisePriceInformation = stockDataServiceAdapter.getPrecisePriceInformation(symbols, start, end).toList()
+        val csv = TimeIndexedCSVBuilder(precisePriceInformation.toCSVEntryList(), missingValueHandlingStrategy)
+        val headerWithoutTimeCol = csv.csvHeader.subList(1, csv.csvHeader.size)
+        addIndicatorsToCSV(csv, indicatorNames, headerWithoutTimeCol)
+        return csv.buildCSV()
+    }
+
+    suspend fun getAggregatedPriceCSV(
+        symbols: List<String>,
+        start: Instant,
+        end: Instant,
+        indicatorNames: List<IndicatorName>,
+        missingValueHandlingStrategy: MissingValueHandlingStrategy
+    ): InputStreamResource {
+
         val aggregatedPriceInformation =
             stockDataServiceAdapter.getAggregatedPriceInformation(symbols, start, end).toList()
+
         val csv =
             TimeIndexedCSVBuilder(
-                aggregatedPriceInformation.map { CsvEntry(it.time, it.symbol, it.close) },
+                aggregatedPriceInformation.toCSVEntryList(),
                 missingValueHandlingStrategy
             )
 
-        val closePriceCols = csv.csvHeader.subList(1, csv.csvHeader.size)
-
-        indicatorName.forEach { name ->
-            when (name) {
-                IndicatorName.SMA -> {
-                    csv.addIndicator(name, closePriceCols) { entries ->
-                        return@addIndicator smaForAllOfASymbol(entries)
-                    }
-                }
-                else -> {
-                    logger.debug("Unknown indicator $name")
-                }
-            }
-
-        }
+        val headerWithoutTimeCol = csv.csvHeader.subList(1, csv.csvHeader.size)
+        addIndicatorsToCSV(csv, indicatorNames, headerWithoutTimeCol)
 
         return csv.buildCSV()
     }
+
+    private fun addIndicatorsToCSV(
+        csv: TimeIndexedCSVBuilder,
+        indicatorNames: List<IndicatorName>,
+        relevantCols: List<String>
+    ) {
+        indicatorNames.forEach { name ->
+           when(name){
+               IndicatorName.SMA -> addSMAIndicator(csv, name, relevantCols)
+               IndicatorName.RSI -> addRSIIndicator(csv, name, relevantCols)
+               IndicatorName.MACD -> addMACDIndicator(csv, name, relevantCols)
+               else -> logger.debug("Unknown Indicator ${name.indicatorName}")
+           }
+        }
+    }
+
+    private fun addMACDIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
+        // TODO
+    }
+
+    private fun addRSIIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
+        // TODO
+    }
+
+    private fun addSMAIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
+        csv.addIndicator(name, relevantCols) { entries ->
+            return@addIndicator smaForAllOfASymbol(entries)
+        }
+    }
+
+
 
 }

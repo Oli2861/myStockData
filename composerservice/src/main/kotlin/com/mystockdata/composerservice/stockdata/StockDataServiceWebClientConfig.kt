@@ -7,11 +7,11 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 class StockDataServiceWebClientConfig(
-    @Value("\${stockdataservice.host}") val url: String,
+    @Value("\${stockdataservice.host}") val host: String,
     @Value("\${stockdataservice.port}") val port: Int
 ) {
     @Bean
     fun stockDataServiceWebClient(): WebClient = WebClient.builder()
-        .baseUrl("http://$url:$port/")
+        .baseUrl("http://$host:$port/")
         .build()
 }
