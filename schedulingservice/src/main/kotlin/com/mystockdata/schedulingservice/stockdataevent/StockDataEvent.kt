@@ -9,8 +9,7 @@ data class StockDataEvent(
     val correlationId: String,
     val stockDataEventType: StockDataEventType,
     val start: Instant?,
-    val end: Instant?,
-    val symbols: Set<String>?
+    val end: Instant?
 )
 
 /**

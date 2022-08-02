@@ -1,4 +1,4 @@
-package com.mystockdata.composerservice.company
+package com.mystockdata.stockdataservice.company
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document

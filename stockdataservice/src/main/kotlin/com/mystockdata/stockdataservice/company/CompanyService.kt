@@ -1,4 +1,4 @@
-package com.mystockdata.composerservice.company
+package com.mystockdata.stockdataservice.company
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

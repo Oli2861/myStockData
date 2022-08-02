@@ -2,13 +2,16 @@ package com.mystockdata.stockdataservice
 
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedInformationProvider
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformation
-import com.mystockdata.stockdataservice.persistence.AggregatedPriceInformationRepository
-import com.mystockdata.stockdataservice.persistence.PrecisePriceInformationRepository
+import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationRepository
+import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationRepository
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformation
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationProvider
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationResponse
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEvent
 import com.mystockdata.stockdataservice.stockdataevent.StockDataEventType
+import com.mystockdata.stockdataservice.watchlist.Watchlist
+import com.mystockdata.stockdataservice.watchlist.WatchlistConstants
+import com.mystockdata.stockdataservice.watchlist.WatchlistRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -22,13 +25,13 @@ import java.time.Instant
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-
 @Service
 class StockDataService(
     @Autowired private val aggregatedInformationProvider: AggregatedInformationProvider,
     @Autowired private val precisePriceInformationProvider: PrecisePriceInformationProvider,
     @Autowired private val precisePriceInformationRepository: PrecisePriceInformationRepository,
-    @Autowired private val aggregatedPriceInformationRepository: AggregatedPriceInformationRepository
+    @Autowired private val aggregatedPriceInformationRepository: AggregatedPriceInformationRepository,
+    @Autowired private val watchlistRepository: WatchlistRepository
 ) {
     private val scope = CoroutineScope(Dispatchers.Default)
 
@@ -43,11 +46,40 @@ class StockDataService(
     suspend fun handleEvent(stockDataEvent: StockDataEvent) {
 
         when (stockDataEvent.stockDataEventType) {
-            StockDataEventType.RETRIEVE_AGGREGATED -> if(stockDataEvent.symbols.isNullOrEmpty()) logger.debug("No symbols received to retrieve aggregated price information of $stockDataEvent.") else retrieveAggregatedPriceInformation(stockDataEvent.symbols, Instant.now().minus(1, ChronoUnit.DAYS), Instant.now())
-            StockDataEventType.START_RETRIEVING_PRECISE -> if(stockDataEvent.symbols.isNullOrEmpty()) logger.debug("No symbols received to retrieve precise price information of $stockDataEvent.") else startRetrievingPrecisePriceInformation(stockDataEvent.symbols)
+            StockDataEventType.RETRIEVE_AGGREGATED -> getWatchlist().let {
+                if (it != null) retrieveAggregatedPriceInformation(it)
+                else logger.debug("Cannot retrieve aggregated price information since watchlist is empty.")
+            }
+            StockDataEventType.START_RETRIEVING_PRECISE -> getWatchlist().let {
+                if (it != null) startRetrievingPrecisePriceInformation(it)
+                else logger.debug("Cannot retrieve precise price information since watchlist is empty.")
+            }
             StockDataEventType.STOP_RETRIEVING_PRECISE -> stopRetrievingPrecisePriceInformation()
         }
+    }
 
+    suspend fun getWatchlist(): Set<String>? {
+        return watchlistRepository.findById(WatchlistConstants.watchlistID)?.leis
+    }
+
+    suspend fun removeFromWatchList(lei: String): String? {
+        val watchlist = watchlistRepository.findById(WatchlistConstants.watchlistID)
+        if (watchlist != null) {
+            watchlist.leis.remove(lei)
+            watchlistRepository.save(watchlist)
+            return lei
+        }
+        return null
+    }
+
+    suspend fun addToWatchList(lei: List<String>): List<String> {
+        var watchlist: Watchlist? = watchlistRepository.findById(WatchlistConstants.watchlistID)
+        if (watchlist == null) {
+            logger.debug("No existing watchlist found, creating a new one.")
+            watchlist = Watchlist(WatchlistConstants.watchlistID, mutableSetOf())
+        }
+        watchlist.leis.addAll(lei)
+        return watchlistRepository.save(watchlist).leis.filter { lei.contains(it) }
     }
 
     suspend fun retrieveAggregatedInformationForDays(symbols: Set<String>, days: Long) =
@@ -65,8 +97,8 @@ class StockDataService(
      */
     suspend fun retrieveAggregatedPriceInformation(
         symbols: Set<String>,
-        start: Instant,
-        end: Instant
+        start: Instant = Instant.now().minus(1, ChronoUnit.DAYS),
+        end: Instant = Instant.now()
     ): Flow<AggregatedPriceInformation> {
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
             aggregatedInformationProvider.retrieveHistoricalStockData(symbols.toList(), start, end).flatten().asFlow()
@@ -117,16 +149,3 @@ class StockDataService(
         precisePriceInformationRepository.readPrecisePriceInformation(symbols, start, end)
 
 }
-/*
-For testing purposes:
-suspend fun main() {
-    val yahooFinanceScraper = YahooFinanceScraper(YahooFinanceWebClientConfig().yahooFinanceWebClient())
-    val yahooWebSocketClient = YahooWebSocketClient()
-    val precisePriceInformationRepository = PrecisePriceInformationRepository(InfluxDBClientKotlinFactory.create("influxdb", "token".toCharArray(), "mystockdata", "stockdata"), "stockdata")
-    val stockDataService = StockDataService(yahooFinanceScraper, yahooWebSocketClient, precisePriceInformationRepository)
-    //stockDataService.retrieveAggregatedInformationForYesterday()
-    //stockDataService.retrieveAggregatedInformationForPastMonth()
-    stockDataService.startRetrievingPrecisePriceInformation()
-    delay(100L)
-}
-*/

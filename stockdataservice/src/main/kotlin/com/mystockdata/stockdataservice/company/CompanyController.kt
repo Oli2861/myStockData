@@ -1,4 +1,4 @@
-package com.mystockdata.composerservice.company
+package com.mystockdata.stockdataservice.company
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*

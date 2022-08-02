@@ -12,5 +12,3 @@ spring:
           destination: financialReportEvent
         stockDataEventSupplier-out-0:
           destination: stockDataEvent
-logging.level.com.mystockdata: DEBUG
-logging.level.org.springframework.data.mongodb.repository.query: DEBUG

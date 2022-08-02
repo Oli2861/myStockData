@@ -6,7 +6,6 @@ import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEve
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEvent
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventConsumerConfig
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventType
-import com.mystockdata.schedulingservice.watchlist.CompanyService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,8 +22,7 @@ import java.util.*
 @Component
 class Scheduler(
     @Autowired val financialReportEventConfig: FinancialReportEventConfig,
-    @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig,
-    @Autowired val companyService: CompanyService
+    @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig
 ) {
     val scope = CoroutineScope(Dispatchers.Unconfined)
     val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> =
@@ -38,7 +36,10 @@ class Scheduler(
     // Every monday at 8 am: 0 0 8 * * MON
     @Scheduled(cron = "0 0 8 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
-        val event = FinancialReportEvent("${Date().time}_REFRESH_DATA", FinancialReportEventType.REFRESH_DATA)
+        val event = FinancialReportEvent(
+            "${Date().time}_REFRESH_DATA",
+            FinancialReportEventType.REFRESH_DATA
+        )
         logger.debug("Sent event $event")
         financialReportEventFlow.emit(event)
     }
@@ -50,8 +51,7 @@ class Scheduler(
             "${Date().time}_RETRIEVE_AGGREGATED",
             StockDataEventType.RETRIEVE_AGGREGATED,
             Instant.now().minus(1, ChronoUnit.DAYS),
-            Instant.now(),
-            companyService.getWatchlist()
+            Instant.now()
         )
         logger.debug("Sent event $event")
         stockDataEventConsumerFlow.emit(event)
