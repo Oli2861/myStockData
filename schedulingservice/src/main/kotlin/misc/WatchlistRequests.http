@@ -1,0 +1,10 @@
+GET http://localhost:8080/v1/watchlist
+Content-Type: application/json
+
+###
+PUT http://localhost:8080/v1/watchlist?lei=test
+Content-Type: application/json
+
+###
+DELETE http://localhost:8080/v1/watchlist?lei=test
+Content-Type: application/json

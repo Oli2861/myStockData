@@ -45,10 +45,19 @@ dependencies {
     // Awaitility for scheduling tasks
     implementation("org.awaitility:awaitility:3.1.2")
 
+    // MongoDB
+    implementation("org.springframework.data:spring-data-mongodb")
+    implementation("org.mongodb:mongodb-driver-sync")
+    implementation("org.mongodb:mongodb-driver-reactivestreams")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
+    testImplementation("junit:junit:4.13.2")
+
+    // Flapdoodle as embedded MongoDB for testing purposes
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:3.4.6")
 }
 
 dependencyManagement {

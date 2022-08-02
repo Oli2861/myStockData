@@ -43,33 +43,33 @@ class StockDataService(
     suspend fun handleEvent(stockDataEvent: StockDataEvent) {
 
         when (stockDataEvent.stockDataEventType) {
-            StockDataEventType.RETRIEVE_DAILY_OHLCV -> retrieveAggregatedInformationForDays(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"), 1)
-            StockDataEventType.RETRIEVE_HISTORIC_AGGREGATED_OHLCV -> retrieveAggregatedInformationForMonths(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"), 1)
-            StockDataEventType.START_RETRIEVING_LIVE_STOCK_DATA -> startRetrievingPrecisePriceInformation(listOf("SAP.DE", "TSLA", "AMC", "GE", "ADS.DE", "ALV.DE", "BMW.DE", "SIE.DE", "PAH3.DE"))
-            StockDataEventType.STOP_RETRIEVING_LIVE_STOCK_DATA -> precisePriceInformationProvider.close()
+            StockDataEventType.RETRIEVE_AGGREGATED -> if(stockDataEvent.symbols.isNullOrEmpty()) logger.debug("No symbols received to retrieve aggregated price information of $stockDataEvent.") else retrieveAggregatedPriceInformation(stockDataEvent.symbols, Instant.now().minus(1, ChronoUnit.DAYS), Instant.now())
+            StockDataEventType.START_RETRIEVING_PRECISE -> if(stockDataEvent.symbols.isNullOrEmpty()) logger.debug("No symbols received to retrieve precise price information of $stockDataEvent.") else startRetrievingPrecisePriceInformation(stockDataEvent.symbols)
+            StockDataEventType.STOP_RETRIEVING_PRECISE -> stopRetrievingPrecisePriceInformation()
         }
 
     }
 
-    suspend fun retrieveAggregatedInformationForDays(symbols: List<String>, days: Long) =
+    suspend fun retrieveAggregatedInformationForDays(symbols: Set<String>, days: Long) =
         retrieveAggregatedPriceInformation(symbols, Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
 
-    suspend fun retrieveAggregatedInformationForMonths(symbols: List<String>, months: Long) =
+    suspend fun retrieveAggregatedInformationForMonths(symbols: Set<String>, months: Long) =
         retrieveAggregatedPriceInformation(symbols, ZonedDateTime.now().minusMonths(months).toInstant(), Instant.now())
 
     /**
-     * Retrieves aggregated Price Information for all stocks on the watchlist.
+     * Retrieves aggregated Price Information.
+     * @param symbols The symbols to retrieve stock data for. If left empty stocks from the watchlist are retrieved.
      * @param start Start of the time window.
      * @param end End of the time window.
      * @return Flow containing the retrieved aggregated price information.
      */
     suspend fun retrieveAggregatedPriceInformation(
-        symbols: List<String>,
+        symbols: Set<String>,
         start: Instant,
         end: Instant
     ): Flow<AggregatedPriceInformation> {
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
-            aggregatedInformationProvider.retrieveHistoricalStockData(symbols, start, end).flatten().asFlow()
+            aggregatedInformationProvider.retrieveHistoricalStockData(symbols.toList(), start, end).flatten().asFlow()
         aggregatedPriceInformationRepository.writeAggregatedPriceInformation(priceInformationFlow)
         return priceInformationFlow
     }
@@ -82,22 +82,27 @@ class StockDataService(
      * @return List containing the aggregated price information.
      */
     suspend fun getAggregatedPriceInformation(
-        symbols: List<String>, start: Instant, end: Instant
+        symbols: Set<String>, start: Instant, end: Instant
     ) = aggregatedPriceInformationRepository.readAggregatedPriceInformation(symbols, start, end)
 
 
     /**
      * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
      */
-    suspend fun startRetrievingPrecisePriceInformation(symbols: List<String>): Flow<PrecisePriceInformation> {
-        // TODO: Retrieve Watchlist
+    suspend fun startRetrievingPrecisePriceInformation(symbols: Set<String>): Flow<PrecisePriceInformation> {
         scope.launch {
-            precisePriceInformationProvider.establishConnection(symbols)
+            precisePriceInformationProvider.establishConnection(symbols.toList())
             precisePriceInformationRepository.writePrecisePriceInformation(precisePriceInformationProvider.flow)
         }
         return precisePriceInformationProvider.flow
     }
 
+    /**
+     * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
+     */
+    suspend fun stopRetrievingPrecisePriceInformation() {
+        precisePriceInformationProvider.close()
+    }
 
     /**
      * Get a List of aggregated Stock Price Information of given symbols and a given time window.

@@ -69,7 +69,7 @@ class AggregatedPriceInformationRepository(
      * @return List of the retrieved AggregatedPriceInformationResponse.
      */
     suspend fun readAggregatedPriceInformation(
-        symbols: List<String>,
+        symbols: Set<String>,
         start: Instant,
         stop: Instant = Instant.now(),
         openColumn: Boolean = true,
@@ -95,7 +95,7 @@ class AggregatedPriceInformationRepository(
                 "|> range(start: $start, stop: $stop) " +
                 createFilter("_measurement", listOf("AggregatedPriceInformation")) +
                 createFilter("_field", fields) +
-                createFilter("symbol", symbols) +
+                createFilter("symbol", symbols.toList()) +
                 // Last value in every 5 min step, creates empty entries if there is no value
                 "|> aggregateWindow(every: ${aggregateWindow}h, fn: last, createEmpty: true)" +
                 "|> yield()"

@@ -28,7 +28,7 @@ class AggregatedPriceInformationController(
 
     @GetMapping("/retrieve")
     suspend fun retrieve(
-        @RequestParam symbols: List<String>,
+        @RequestParam symbols: Set<String>,
         @RequestParam(required = false) days: Long?,
         @RequestParam(required = false) months: Long?
     ): Flow<AggregatedPriceInformation> {
@@ -45,7 +45,7 @@ class AggregatedPriceInformationController(
 
     @GetMapping
     suspend fun get(
-        @RequestParam symbols: List<String>,
+        @RequestParam symbols: Set<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<List<AggregatedPriceInformationResponse>> {

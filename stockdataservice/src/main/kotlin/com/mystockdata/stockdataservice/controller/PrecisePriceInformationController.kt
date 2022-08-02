@@ -18,8 +18,11 @@ class PrecisePriceInformationController(
 ) {
     @GetMapping("/start")
     suspend fun start(
-        @RequestParam symbols: List<String>
+        @RequestParam symbols: Set<String>
     ) = stockDataService.startRetrievingPrecisePriceInformation(symbols)
+
+    @GetMapping("/stop")
+    suspend fun stop() = stockDataService.stopRetrievingPrecisePriceInformation()
 
     @GetMapping
     suspend fun get(

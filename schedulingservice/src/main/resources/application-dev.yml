@@ -1,8 +1,6 @@
 spring:
   application:
     name: schedulingservice
-  profiles:
-    active: default
   cloud:
     function:
       definition: financialReportEventSupplier;stockDataEventSupplier
@@ -12,5 +10,13 @@ spring:
           destination: financialReportEvent
         stockDataEventSupplier-out-0:
           destination: stockDataEvent
+  data:
+    mongodb:
+      host: "localhost"
+      port: 27017
+      username: "mongoUsername"
+      password: "mongoPassword"
+      database: "schedulingservicedatabase"
+      authentication-database: admin
 logging.level.com.mystockdata: DEBUG
 logging.level.org.springframework.data.mongodb.repository.query: DEBUG

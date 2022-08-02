@@ -6,6 +6,7 @@ import com.mystockdata.schedulingservice.financialreportevent.FinancialReportEve
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEvent
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventConsumerConfig
 import com.mystockdata.schedulingservice.stockdataevent.StockDataEventType
+import com.mystockdata.schedulingservice.watchlist.CompanyService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,12 +16,15 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Component
 class Scheduler(
     @Autowired val financialReportEventConfig: FinancialReportEventConfig,
-    @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig
+    @Autowired val stockDataEventConsumerConfig: StockDataEventConsumerConfig,
+    @Autowired val companyService: CompanyService
 ) {
     val scope = CoroutineScope(Dispatchers.Unconfined)
     val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> =
@@ -30,7 +34,7 @@ class Scheduler(
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
     }
-/*
+
     // Every monday at 8 am: 0 0 8 * * MON
     @Scheduled(cron = "0 0 8 * * MON")
     fun triggerCollectFinancialReportsEvent() = scope.launch {
@@ -39,6 +43,21 @@ class Scheduler(
         financialReportEventFlow.emit(event)
     }
 
+    // Every day 10 pm
+    @Scheduled(cron = "0 0 22 * * *")
+    fun triggerStockDataTest() = scope.launch {
+        val event = StockDataEvent(
+            "${Date().time}_RETRIEVE_AGGREGATED",
+            StockDataEventType.RETRIEVE_AGGREGATED,
+            Instant.now().minus(1, ChronoUnit.DAYS),
+            Instant.now(),
+            companyService.getWatchlist()
+        )
+        logger.debug("Sent event $event")
+        stockDataEventConsumerFlow.emit(event)
+    }
+
+/*
     // Once per Month
     @Scheduled(cron = "0 1 0 1 * *")
     fun triggerAggregatedHistoricalStockDataTest() = scope.launch {
@@ -50,15 +69,7 @@ class Scheduler(
         stockDataEventConsumerFlow.emit(event)
     }
 */
-    /*
-    // Working days 8pm: 0 0 20 * * MON-FRI
-    @Scheduled(cron = "0 0 20 * * MON-FRI")
-    fun triggerStockDataTest() = scope.launch {
-        val event = StockDataEvent("${Date().time}_RETRIEVE_DAILY_OHLCV", StockDataEventType.RETRIEVE_DAILY_OHLCV)
-        logger.debug("Sent event $event")
-        stockDataEventConsumerFlow.emit(event)
-    }
-    */
+
 }
 /*
     Spring Scheduled (https://stackoverflow.com/questions/30887822/spring-cron-vs-normal-cron):

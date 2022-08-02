@@ -1,0 +1,42 @@
+GET http://localhost:8082/v1/company/lei
+Content-Type: application/json
+
+
+###
+PUT http://localhost:8082/v1/company
+Content-Type: application/json
+
+[
+  {
+    "lei": "lei",
+    "securities": [
+      {
+        "isin": "isin",
+        "companyId": "companyId",
+        "symbols": [
+          {
+            "symbol": "symbol",
+            "exchange": "exchange",
+            "isin": "isin"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lei": "lei1",
+    "securities": [
+      {
+        "isin": "isin1",
+        "companyId": "companyId1",
+        "symbols": [
+          {
+            "symbol": "symbol1",
+            "exchange": "exchange",
+            "isin": "isin1"
+          }
+        ]
+      }
+    ]
+  }
+]
