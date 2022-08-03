@@ -1,5 +1,6 @@
-package com.mystockdata.stockdataservice.company
+package com.mystockdata.composerservice.company
 
+import kotlinx.coroutines.flow.Flow
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,4 +28,9 @@ class CompanyService(
     suspend fun getCompany(lei: String): Company? {
         return companyRepository.findById(lei)
     }
+
+    suspend fun getCompanies(leis: List<String>): Flow<Company>{
+        return companyRepository.findAllById(leis)
+    }
+
 }

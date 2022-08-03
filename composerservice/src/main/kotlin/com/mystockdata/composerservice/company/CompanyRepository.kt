@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.company
+package com.mystockdata.composerservice.company
 
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository

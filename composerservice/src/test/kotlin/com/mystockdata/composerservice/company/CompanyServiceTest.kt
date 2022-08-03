@@ -1,4 +1,4 @@
-package com.mystockdata.stockdataservice.company
+package com.mystockdata.composerservice.company
 
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -18,9 +18,9 @@ class CompanyServiceTest(
     @Autowired val companyRepository: CompanyRepository
 ) {
     private val subject = CompanyService(companyRepository)
-    val companies = listOf(
-        Company("lei", listOf(Security("isin", "companyId", listOf(Symbol("symbol", "exchange", "isin"))))),
-        Company("lei1", listOf(Security("isin1", "companyId1", listOf(Symbol("symbol1", "exchange", "isin1")))))
+    private val companies = listOf(
+        Company("lei", setOf(Security("isin", "companyId", setOf(Symbol("symbol", "exchange", "isin"))))),
+        Company("lei1", setOf(Security("isin1", "companyId1", setOf(Symbol("symbol1", "exchange", "isin1")))))
     )
 
     @BeforeEach
