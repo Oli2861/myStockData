@@ -10,4 +10,6 @@ class FinancialReportServiceAdapter(
     @Qualifier("financialReportServiceWebClient") @Autowired private val financialReportServiceWebClient: WebClient
 ) {
 
+
+
 }

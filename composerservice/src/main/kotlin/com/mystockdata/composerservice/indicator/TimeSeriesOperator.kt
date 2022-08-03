@@ -1,4 +1,4 @@
-package com.mystockdata.composerservice.technicalindicators
+package com.mystockdata.composerservice.indicator
 
 import com.mystockdata.composerservice.csv.CsvEntry
 import java.math.BigDecimal

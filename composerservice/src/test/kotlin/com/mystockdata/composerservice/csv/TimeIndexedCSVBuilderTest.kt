@@ -1,13 +1,13 @@
 package com.mystockdata.composerservice.csv
 
-import com.mystockdata.composerservice.IndicatorName
+import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.PLACEHOLDER_VALUE
+import com.mystockdata.composerservice.indicator.Indicator
 import com.mystockdata.composerservice.printMultiDimensionalList
 import com.mystockdata.composerservice.stockdata.AggregatedPriceInformationResponse
 import com.mystockdata.composerservice.stockdata.PrecisePriceInformationResponse
 import com.mystockdata.composerservice.stockdata.toCSVEntryList
-import com.mystockdata.composerservice.technicalindicators.TechnicalIndicator
-import com.mystockdata.composerservice.technicalindicators.smaForAllOfASymbol
+import com.mystockdata.composerservice.indicator.smaForAllOfASymbol
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -444,44 +444,44 @@ class TimeIndexedCSVBuilderTest {
 
         val smaResults = listOf(
             listOf(
-                TechnicalIndicator(data[0].time, symbol, IndicatorName.SMA, BigDecimal(105.36, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[1].time, symbol, IndicatorName.SMA, BigDecimal(106.07, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[2].time, symbol, IndicatorName.SMA, BigDecimal(106.43, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[3].time, symbol, IndicatorName.SMA, BigDecimal(106.43, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[4].time, symbol, IndicatorName.SMA, BigDecimal(106.07, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[5].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[6].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[7].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[8].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[9].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[10].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[11].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[12].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[13].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[14].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[15].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[16].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[17].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros())
+                Indicator(data[0].time, symbol, IndicatorName.SMA, BigDecimal(105.36, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[1].time, symbol, IndicatorName.SMA, BigDecimal(106.07, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[2].time, symbol, IndicatorName.SMA, BigDecimal(106.43, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[3].time, symbol, IndicatorName.SMA, BigDecimal(106.43, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[4].time, symbol, IndicatorName.SMA, BigDecimal(106.07, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[5].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[6].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[7].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[8].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[9].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[10].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[11].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[12].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[13].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[14].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[15].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[16].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[17].time, symbol, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros())
             ),
             listOf(
-                TechnicalIndicator(data[18].time, symbol1, IndicatorName.SMA, BigDecimal(214.64, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[19].time, symbol1, IndicatorName.SMA, BigDecimal(208.93, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[20].time, symbol1, IndicatorName.SMA, BigDecimal(209.29, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[21].time, symbol1, IndicatorName.SMA, BigDecimal(201.43, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[22].time, symbol1, IndicatorName.SMA, BigDecimal(201.07, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[23].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[24].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[25].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[26].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[27].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[28].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[29].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[30].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[31].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[32].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[33].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[34].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
-                TechnicalIndicator(data[35].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros())
+                Indicator(data[18].time, symbol1, IndicatorName.SMA, BigDecimal(214.64, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[19].time, symbol1, IndicatorName.SMA, BigDecimal(208.93, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[20].time, symbol1, IndicatorName.SMA, BigDecimal(209.29, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[21].time, symbol1, IndicatorName.SMA, BigDecimal(201.43, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[22].time, symbol1, IndicatorName.SMA, BigDecimal(201.07, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[23].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[24].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[25].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[26].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[27].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[28].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[29].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[30].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[31].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[32].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[33].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[34].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros()),
+                Indicator(data[35].time, symbol1, IndicatorName.SMA, BigDecimal(0, MathContext.DECIMAL32).stripTrailingZeros())
             )
         )
 

@@ -1,6 +1,7 @@
 package com.mystockdata.composerservice
 
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
+import com.mystockdata.composerservice.indicator.IndicatorName
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -87,7 +88,6 @@ private val missingValueStrategyMap = mapOf<String, MissingValueHandlingStrategy
 )
 
 private val indicatorMap = mapOf<String, IndicatorName>(
-    IndicatorName.RSI.indicatorName to IndicatorName.RSI,
     IndicatorName.SMA.indicatorName to IndicatorName.SMA,
-    IndicatorName.MACD.indicatorName to IndicatorName.MACD
+    IndicatorName.PE_RATIO.indicatorName to IndicatorName.PE_RATIO
 )

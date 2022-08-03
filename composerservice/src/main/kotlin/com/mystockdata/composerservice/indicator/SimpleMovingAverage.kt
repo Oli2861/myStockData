@@ -1,6 +1,5 @@
-package com.mystockdata.composerservice.technicalindicators
+package com.mystockdata.composerservice.indicator
 
-import com.mystockdata.composerservice.IndicatorName
 import com.mystockdata.composerservice.csv.CsvEntry
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -13,7 +12,7 @@ import java.time.Instant
  * @param fillMissingValue whether missing values should be filled with the previous one.
  * @return List containing lists of the calculated SMA for each symbol. Rounded to two decimal points.
  */
-fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissingValue: Boolean = false): List<List<TechnicalIndicator>>{
+fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissingValue: Boolean = false): List<List<Indicator>>{
     val preparedData = if(fillMissingValue) TimeSeriesOperator.splitBySymbolAndFillMissingValues(data) else TimeSeriesOperator.splitBySymbol(data)
     return preparedData.map { listForASymbol -> smaForAllOfASymbol(listForASymbol, windowSize) }
 }
@@ -27,8 +26,8 @@ fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissin
 fun smaForAllOfASymbol(
     data: List<CsvEntry>,
     windowSize: Int = 14
-): List<TechnicalIndicator> {
-    val smaList = mutableListOf<TechnicalIndicator>()
+): List<Indicator> {
+    val smaList = mutableListOf<Indicator>()
     data.sortedByDescending { it.time }.forEach {
         smaList.add(calculateSMA(data, it.time, windowSize))
     }
@@ -46,16 +45,16 @@ fun calculateSMA(
     data: List<CsvEntry>,
     start: Instant,
     windowSize: Int = 14
-): TechnicalIndicator {
+): Indicator {
 
     val relevantData = reduceToRelevantData(data, start, windowSize)
-        ?: return TechnicalIndicator(start, data.first().columnName, IndicatorName.SMA, BigDecimal(0))
+        ?: return Indicator(start, data.first().columnName, IndicatorName.SMA, BigDecimal(0))
 
     val result = relevantData.map { it.value ?: BigDecimal(0) }
         .reduce { acc, num -> acc + num }
         .divide(windowSize.toBigDecimal(), 2, RoundingMode.HALF_UP)
 
-    return TechnicalIndicator(start, relevantData.last().columnName, IndicatorName.SMA, result)
+    return Indicator(start, relevantData.last().columnName, IndicatorName.SMA, result)
 }
 
 /**

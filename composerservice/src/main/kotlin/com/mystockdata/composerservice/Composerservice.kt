@@ -3,9 +3,10 @@ package com.mystockdata.composerservice
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilder
 import com.mystockdata.composerservice.financialreport.FinancialReportServiceAdapter
+import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.stockdata.StockDataServiceAdapter
 import com.mystockdata.composerservice.stockdata.toCSVEntryList
-import com.mystockdata.composerservice.technicalindicators.smaForAllOfASymbol
+import com.mystockdata.composerservice.indicator.smaForAllOfASymbol
 import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -70,20 +71,16 @@ class Composerservice(
         indicatorNames.forEach { name ->
            when(name){
                IndicatorName.SMA -> addSMAIndicator(csv, name, relevantCols)
-               IndicatorName.RSI -> addRSIIndicator(csv, name, relevantCols)
-               IndicatorName.MACD -> addMACDIndicator(csv, name, relevantCols)
+               IndicatorName.PE_RATIO -> addPERationIndicator(csv, name, relevantCols)
                else -> logger.debug("Unknown Indicator ${name.indicatorName}")
            }
         }
     }
 
-    private fun addMACDIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
-        // TODO
+    private fun addPERationIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
+        //TODO
     }
 
-    private fun addRSIIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
-        // TODO
-    }
 
     private fun addSMAIndicator(csv: TimeIndexedCSVBuilder, name: IndicatorName, relevantCols: List<String>) {
         csv.addIndicator(name, relevantCols) { entries ->

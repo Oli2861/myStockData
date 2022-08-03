@@ -1,7 +1,7 @@
 package com.mystockdata.composerservice.csv
 
-import com.mystockdata.composerservice.Indicator
-import com.mystockdata.composerservice.IndicatorName
+import com.mystockdata.composerservice.indicator.Indicator
+import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.PLACEHOLDER_VALUE
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.PLACEHOLDER_VALUE_STRING
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.TIMESTAMP_COLUMN_NAME
@@ -22,12 +22,14 @@ object TimeIndexedCSVBuilderConstants {
     const val PLACEHOLDER_VALUE_STRING: String = "null"
 }
 
-enum class MissingValueHandlingStrategy {
-    IGNORE,
-    LAST_VALUE,
-    NEXT_MATCHING
-}
-
+/**
+ * Class used to build comma separated files.
+ * @param initialData data used as a base of the csv files. The initial data provided is used to define the timeIndex.
+ * @param missingValueHandlingStrategy how missing values should be handled.
+ * @property csvHeader header of the CSV file.
+ * @property csvBody body of the CSV file.
+ * @property timeIndex timestamps in the first column of the csv file.
+ */
 class TimeIndexedCSVBuilder(
     initialData: List<CsvEntry>,
     missingValueHandlingStrategy: MissingValueHandlingStrategy
@@ -284,7 +286,8 @@ class TimeIndexedCSVBuilder(
     }
 
     /**
-     * Transforms the csvBody into a list of strings.
+     * Transforms the csvBody into a list of strings. Replaces placeholder values with the placeholder value string.
+     * @return csv body with strings instead of bigdecimals.
      */
     private fun toStringBody(): List<List<String>> {
         val stringCSVBody = mutableListOf<MutableList<String>>()
