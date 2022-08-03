@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      username: "mongoUsername"
+      password: "mongoPassword"
+      database: "composerservicedatabase"
+      authentication-database: admin
+logging.level.com.mystockdata: DEBUG

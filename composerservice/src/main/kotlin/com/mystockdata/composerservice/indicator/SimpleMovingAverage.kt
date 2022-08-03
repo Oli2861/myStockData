@@ -48,13 +48,13 @@ fun calculateSMA(
 ): Indicator {
 
     val relevantData = reduceToRelevantData(data, start, windowSize)
-        ?: return Indicator(start, data.first().columnName, IndicatorName.SMA, BigDecimal(0))
+        ?: return Indicator(start, data.first().columnName, IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR, BigDecimal(0))
 
     val result = relevantData.map { it.value ?: BigDecimal(0) }
         .reduce { acc, num -> acc + num }
         .divide(windowSize.toBigDecimal(), 2, RoundingMode.HALF_UP)
 
-    return Indicator(start, relevantData.last().columnName, IndicatorName.SMA, result)
+    return Indicator(start, relevantData.last().columnName, IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR, result)
 }
 
 /**

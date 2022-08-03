@@ -3,7 +3,7 @@ GET http://localhost:8080/v1/test
 Accept: application/json
 
 ### CSV
-GET http://localhost:8085/v1/aggregatedPriceInfo/csv?symbols=SAP.DE&symbols=TSLA&symbols=AMC&missingValueStrategy=LAST_VALUE&indicatorNames=SMA
+GET http://localhost:8080/v1/aggregatedPriceInfo/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PE_RATIO&start=2019-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
 Accept: text/csv
 
 ### CSV

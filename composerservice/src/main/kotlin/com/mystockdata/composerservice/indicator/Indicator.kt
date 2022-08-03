@@ -7,6 +7,7 @@ data class Indicator(
     val time: Instant,
     val symbol: String,
     val indicatorName: IndicatorName,
+    val indicatorType: IndicatorType,
     val value: BigDecimal
 )
 
@@ -19,5 +20,10 @@ enum class IndicatorName(
     val indicatorName: String
 )  {
     SMA("SMA"),
-    PE_RATIO("PER")
+    PE_RATIO("PER"),
+    EPS("EPS")
+}
+
+enum class IndicatorType{
+    TECHNICAL_INDICATOR, FUNDAMENTAL_INDICATOR
 }

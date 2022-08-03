@@ -10,7 +10,11 @@ data class PrecisePriceInformationResponse(
     val exchange: String,
     val marketHours: String,
     val price: BigDecimal?
-)
+){
+    fun toCSVEntry(): CsvEntry {
+        return CsvEntry(time, symbol, price)
+    }
+}
 
 /**
  * Produces a List<CsvEntry> for a provided list of PriceInformationResponse.

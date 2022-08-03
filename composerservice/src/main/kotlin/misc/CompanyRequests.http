@@ -1,39 +1,49 @@
-GET http://localhost:8082/v1/company/lei
+GET http://localhost:8080/v1/company/529900NNUPAGGOMPXZ31
 Content-Type: application/json
 
 
 ###
-PUT http://localhost:8082/v1/company
+PUT http://localhost:8080/v1/company
 Content-Type: application/json
 
 [
   {
-    "lei": "lei",
+    "lei": "529900NNUPAGGOMPXZ31",
     "securities": [
       {
-        "isin": "isin",
-        "companyId": "companyId",
+        "isin": "DE0007664039",
         "symbols": [
           {
-            "symbol": "symbol",
-            "exchange": "exchange",
-            "isin": "isin"
+            "symbol": "VOW3.DE",
+            "exchange": "XETRA"
           }
         ]
       }
     ]
   },
   {
-    "lei": "lei1",
+    "lei": "529900D6BF99LW9R2E68",
     "securities": [
       {
-        "isin": "isin1",
-        "companyId": "companyId1",
+        "isin": "DE0007164600",
         "symbols": [
           {
-            "symbol": "symbol1",
-            "exchange": "exchange",
-            "isin": "isin1"
+            "symbol": "SAP.DE",
+            "exchange": "XETRA"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "lei": "549300JSX0Z4CW0V5023",
+    "securities": [
+      {
+        "isin": "DE000A1EWWW0",
+        "symbols": [
+          {
+            "symbol": "ADS.DE",
+            "exchange": "XETRA"
           }
         ]
       }

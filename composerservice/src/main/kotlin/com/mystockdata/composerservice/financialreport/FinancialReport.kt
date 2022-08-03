@@ -1,5 +1,6 @@
 package com.mystockdata.composerservice.financialreport
 
+import com.mystockdata.financialreportservice.financialreports.Fact
 import java.util.*
 
 data class FinancialReport(

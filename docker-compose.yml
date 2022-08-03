@@ -73,6 +73,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: "mongoUsername"
       MONGO_INITDB_ROOT_PASSWORD: "mongoPassword"
+    command:
+      - --quiet
 
   stockdataservice:
     build:
@@ -126,8 +128,13 @@ services:
       - "8085:8080"
     expose:
       - "8085"
+    depends_on:
+      - mongodb
+      - stockdataservice
+      - financialreportservice
     environment:
       FINANCIALREPORTSERVICE_HOST: financialreportservice
       FINANCIALREPORTSERVICE_PORT: "8080"
       STOCKDATASERVICE_HOST: stockdataservice
       STOCKDATASERVICE_PORT: "8080"
+      SPRING_PROFILES_ACTIVE: docker

@@ -21,4 +21,3 @@ influx2:
   bucket: stockdata
   token: adminToken
 logging.level.com.mystockdata: DEBUG
-logging.level.org.springframework.data.mongodb.repository.query: DEBUG

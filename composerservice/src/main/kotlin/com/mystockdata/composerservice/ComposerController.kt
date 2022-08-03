@@ -2,6 +2,7 @@ package com.mystockdata.composerservice
 
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.indicator.IndicatorName
+import com.mystockdata.composerservice.indicator.IndicatorType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +40,7 @@ class ComposerController(
             symbols = symbols,
             start = start ?: Instant.now().minus(14, ChronoUnit.DAYS),
             end = end ?: Instant.now(),
-            indicatorNames = parseIndicatorNames(indicatorNames),
+            indicators = parseIndicatorNames(indicatorNames),
             missingValueHandlingStrategy = parseMissingValueStrategy(missingValueStrategy)
         )
 
@@ -53,7 +54,7 @@ class ComposerController(
 
     @GetMapping("aggregatedPriceInfo/csv")
     suspend fun getAggregatedPriceInfoCSV(
-        @RequestParam symbols: List<String>,
+        @RequestParam lei: List<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?,
         @RequestParam(required = false) indicatorNames: List<String>?,
@@ -62,10 +63,10 @@ class ComposerController(
         if (start == null || end == null) logger.debug("No time range specified / detected while trying to getAggregatedPriceInfoCSV, retrieving for 365 days.")
 
         val stream = composerservice.getAggregatedPriceCSV(
-            symbols = symbols,
+            leis = lei,
             start = start ?: Instant.now().minus(365, ChronoUnit.DAYS),
             end = end ?: Instant.now(),
-            indicatorNames = parseIndicatorNames(indicatorNames),
+            indicators = parseIndicatorNames(indicatorNames),
             missingValueHandlingStrategy = parseMissingValueStrategy(missingValueStrategy)
         )
 
@@ -76,7 +77,7 @@ class ComposerController(
         return ResponseEntity(stream, headers, HttpStatus.OK)
     }
 
-    private fun parseIndicatorNames(indicatorNames: List<String>?): List<IndicatorName> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf()
+    private fun parseIndicatorNames(indicatorNames: List<String>?): List<Pair<IndicatorName, IndicatorType>> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf<Pair<IndicatorName, IndicatorType>>()
     private fun parseMissingValueStrategy(missingValueStrategy: String?): MissingValueHandlingStrategy =  missingValueStrategyMap[missingValueStrategy] ?: MissingValueHandlingStrategy.LAST_VALUE
 
 }
@@ -87,7 +88,7 @@ private val missingValueStrategyMap = mapOf<String, MissingValueHandlingStrategy
     "NEXT_MATCHING" to MissingValueHandlingStrategy.NEXT_MATCHING
 )
 
-private val indicatorMap = mapOf<String, IndicatorName>(
-    IndicatorName.SMA.indicatorName to IndicatorName.SMA,
-    IndicatorName.PE_RATIO.indicatorName to IndicatorName.PE_RATIO
+private val indicatorMap = mapOf<String, Pair<IndicatorName, IndicatorType>>(
+    IndicatorName.SMA.indicatorName to Pair(IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR),
+    IndicatorName.PE_RATIO.indicatorName to Pair(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR)
 )

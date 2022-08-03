@@ -1,8 +1,18 @@
 package com.mystockdata.financialreportservice.financialreports
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.math.BigDecimal
 import java.util.*
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+@JsonSubTypes(
+    value = [
+        JsonSubTypes.Type(value = MonetaryFact::class),
+        JsonSubTypes.Type(value = NumericFact::class),
+        JsonSubTypes.Type(value = TextualFact::class)
+    ]
+)
 abstract class Fact {
     abstract val ifrsTag: String
     abstract val start: Date?

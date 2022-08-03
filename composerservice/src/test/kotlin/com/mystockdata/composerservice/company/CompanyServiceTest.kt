@@ -19,8 +19,8 @@ class CompanyServiceTest(
 ) {
     private val subject = CompanyService(companyRepository)
     private val companies = listOf(
-        Company("lei", setOf(Security("isin", "companyId", setOf(Symbol("symbol", "exchange", "isin"))))),
-        Company("lei1", setOf(Security("isin1", "companyId1", setOf(Symbol("symbol1", "exchange", "isin1")))))
+        Company("lei", setOf(Security("isin", setOf(Symbol("symbol", "exchange", ))))),
+        Company("lei1", setOf(Security("isin1", setOf(Symbol("symbol1", "exchange", )))))
     )
 
     @BeforeEach
@@ -54,7 +54,8 @@ class CompanyServiceTest(
     fun getCompaniesTest() = runBlocking {
         subject.addCompanies(companies)
         val actual = subject.getCompany(companies[0].lei)
-        Assertions.assertEquals(companies[0], actual)
+        Assertions.assertEquals(1, actual.size)
+        Assertions.assertEquals(companies[0].lei, actual.first().lei)
     }
 
 

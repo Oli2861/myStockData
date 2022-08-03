@@ -23,12 +23,10 @@ data class Company(
 
 data class Security(
     val isin: String,
-    val companyId: String,
     val symbols: Set<Symbol>
 )
 
 data class Symbol(
     val symbol: String,
     val exchange: String,
-    val isin: String
 )

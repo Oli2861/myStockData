@@ -11,12 +11,12 @@ import java.time.Instant
 import java.util.Date
 
 @RestController
-@RequestMapping("v1/financialreports/")
+@RequestMapping("v1/financialreports")
 class FinancialReportController(
     @Autowired val financialReportService: FinancialReportService
 ) {
 
-    @GetMapping("loadReports")
+    @GetMapping("/loadReports")
     suspend fun loadReports(
         @RequestParam(required = false) lei: List<String>?
     ): Flow<FinancialReport> = financialReportService.retrieveAvailableFinancialReports(lei ?: listOf())

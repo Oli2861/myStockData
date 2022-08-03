@@ -10,5 +10,3 @@ stockdataservice:
   host: localhost
   port: "8084"
 logging.level.com.mystockdata: DEBUG
-logging.level.reactor.netty.http.client: DEBUG
-

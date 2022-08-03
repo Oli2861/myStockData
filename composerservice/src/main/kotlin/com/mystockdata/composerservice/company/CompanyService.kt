@@ -1,6 +1,7 @@
 package com.mystockdata.composerservice.company
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +18,7 @@ class CompanyService(
     suspend fun addCompanies(companies: List<Company>): MutableSet<Company> {
         val savedCompanies = mutableSetOf<Company>()
         companies.forEach { company ->
-            if (getCompany(company.lei) == null) {
+            if (getCompany(company.lei).isEmpty()) {
                 val saved = companyRepository.save(company)
                 savedCompanies.add(saved)
             }
@@ -25,8 +26,8 @@ class CompanyService(
         return savedCompanies
     }
 
-    suspend fun getCompany(lei: String): Company? {
-        return companyRepository.findById(lei)
+    suspend fun getCompany(lei: String): List<Company> {
+        return companyRepository.findByLeiIs(lei).toList()
     }
 
     suspend fun getCompanies(leis: List<String>): Flow<Company>{

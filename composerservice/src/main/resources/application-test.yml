@@ -1,6 +1,9 @@
 spring:
   application:
     name: composerservice
+  mongodb:
+    embedded:
+      version: 4.4.9
 financialreportservice:
   host: "financialreportservice"
   port: "8083"
