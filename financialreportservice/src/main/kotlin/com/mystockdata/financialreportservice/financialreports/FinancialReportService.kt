@@ -8,6 +8,7 @@ import com.mystockdata.financialreportservice.financialreportevent.FinancialRepo
 import com.mystockdata.financialreportservice.financialreportinformation.ReportInfoDataSource
 import com.mystockdata.financialreportservice.financialreportinformation.RetrievedReportInfo
 import com.mystockdata.financialreportservice.financialreports.FinancialReportServiceConstants.DELAY_TIME
+import com.mystockdata.financialreportservice.utility.addDays
 import com.mystockdata.financialreportservice.utility.sameDay
 import kotlinx.coroutines.flow.*
 import org.slf4j.Logger
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 object FinancialReportServiceConstants {
-    const val DELAY_TIME: Long = 30_000L
+    const val DELAY_TIME: Long = 20_000L
 }
 
 @Service
@@ -26,6 +27,7 @@ class FinancialReportService(
     @Autowired val reportInfoDataSource: ReportInfoDataSource,
     @Autowired val financialReportRepository: FinancialReportRepository
 ) {
+
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(FinancialReportService::class.java)
     }
@@ -42,17 +44,21 @@ class FinancialReportService(
     }
 
     suspend fun getReports(lei: List<String>, start: Date?, end: Date?): Flow<FinancialReport> {
-        return if(lei.isEmpty()){
-            if (start == null || end == null){
+        return if (lei.isEmpty()) {
+            if (start == null || end == null) {
                 financialReportRepository.findAll()
-            }else{
+            } else {
                 financialReportRepository.findFinancialReportByEndOfReportingPeriodBetween(start, end)
             }
-        }else{
+        } else {
             if (start == null || end == null) {
                 financialReportRepository.findFinancialReportByEntityIdentifierIn(lei)
             } else {
-                financialReportRepository.getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(lei, start, end)
+                financialReportRepository.getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(
+                    lei,
+                    start,
+                    end
+                )
             }
         }
     }
@@ -69,8 +75,8 @@ class FinancialReportService(
                 .filter { checkEligibility(it) }
         } else {
             reportInfoDataSource.getAvailableFinancialReports()
+                .filter { isDesiredReport(relevantLEI, it) }
                 .filter { checkEligibility(it) }
-                .filter { retrievedReportInfo -> relevantLEI.contains(retrievedReportInfo.lei) }
         }
         // Retrieve financial reports.
         val reportListFlow: Flow<List<FinancialReport>> = getFinancialReports(eligibleReportInfoFlow)
@@ -126,9 +132,34 @@ class FinancialReportService(
      * @return Whether a report should be retrieved.
      */
     private suspend fun checkEligibility(retrievedReportInfo: RetrievedReportInfo): Boolean {
-        return retrievedReportInfo.lei != null
-                && retrievedReportInfo.date != null
-                && !checkReportAlreadyExists(retrievedReportInfo.lei!!, retrievedReportInfo.date!!)
+        return if (retrievedReportInfo.lei != null && retrievedReportInfo.date != null) {
+            val reportExists = checkReportAlreadyExists(retrievedReportInfo.lei!!, retrievedReportInfo.date!!)
+            if (!reportExists) {
+                logger.debug("Report for ${retrievedReportInfo.name} with LEI ${retrievedReportInfo.lei} is eligible for retrieval.")
+                true
+            } else {
+                logger.debug("Report for ${retrievedReportInfo.name} with LEI ${retrievedReportInfo.lei} is not eligible for retrieval because the report already exists.")
+                false
+            }
+        } else {
+            logger.debug("Report for ${retrievedReportInfo.name} with LEI ${retrievedReportInfo.lei} is not eligible for retrieval because ${if (retrievedReportInfo.lei == null) "lei" else "name"}} is null.")
+            false
+        }
+    }
+
+    /**
+     * Checks whether a retrieved report has lei that is among the desired ones.
+     * @param desiredLei list of the desired LEI.
+     * @param retrievedReportInfo retrieved report to check.
+     * @return whether the lei of the retrieved report is among the desired LEI.
+     */
+    private suspend fun isDesiredReport(desiredLei: List<String>, retrievedReportInfo: RetrievedReportInfo): Boolean {
+        return if (desiredLei.contains(retrievedReportInfo.lei)) {
+            true
+        } else {
+            logger.trace("Report for ${retrievedReportInfo.name} with LEI ${retrievedReportInfo.lei} is not among the desired reports.")
+            false
+        }
     }
 
     /**
@@ -137,9 +168,14 @@ class FinancialReportService(
      * @param endDate End of the reporting period.
      * @return whether the report already exists.
      */
-    private suspend fun checkReportAlreadyExists(lei: String, endDate: Date): Boolean {
-        // TODO: Implement function
-        return false
+    suspend fun checkReportAlreadyExists(lei: String, endDate: Date): Boolean {
+        val response: Flow<FinancialReport> =
+            financialReportRepository.getFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodBetween(
+                lei,
+                endDate.addDays(-1)!!,
+                endDate.addDays(1)!!
+            )
+        return if (response.firstOrNull() != null) return true else false
     }
 
 

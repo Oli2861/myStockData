@@ -11,5 +11,5 @@ object WatchlistConstants{
 @Document(collection = "Watchlist")
 data class Watchlist (
     @Id val id: String = watchlistID,
-    val leis: MutableSet<String>
+    val symbols: MutableSet<String>
 )

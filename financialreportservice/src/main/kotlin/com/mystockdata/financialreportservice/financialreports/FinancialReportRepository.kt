@@ -19,6 +19,15 @@ interface FinancialReportRepository: CoroutineCrudRepository<FinancialReport, St
    suspend fun getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(entityIdentifier: List<String>, endOfReportingPeriod: Date, endOfReportingPeriod2: Date): Flow<FinancialReport>
 
     /**
+     * Retrieves financial reports matching the entity identifiers with a endOfReportingPeriod date between the two provided endOfReportingPeriod dates.
+     * @param entityIdentifier Identifier of the entity. LEI
+     * @param endOfReportingPeriod matching financial reports have to be older than this date.
+     * @param endOfReportingPeriod2 matching financial reports have to be younger than this date.
+     * @return Flow emitting the retrieved financial reports.
+     */
+    suspend fun getFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodBetween(entityIdentifier: String, endOfReportingPeriod: Date, endOfReportingPeriod2: Date): Flow<FinancialReport>
+
+    /**
      * Retrieves financial reports matching one of the entity identifiers.
      * @param entityIdentifier Identifier of the entity. LEI
      * @return Flow emitting the retrieved financial reports.

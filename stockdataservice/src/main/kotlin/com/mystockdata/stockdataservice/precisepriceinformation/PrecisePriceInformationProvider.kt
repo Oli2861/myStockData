@@ -12,13 +12,13 @@ interface PrecisePriceInformationProvider {
      * Connect to the datasource and subscribe to the desired symbols.
      * @param symbols List containing symbols of the desired securities on the correct exchange.
      */
-    fun establishConnection(symbols: List<String>)
+    fun establishConnection(symbols: Set<String>)
 
     /**
      * Change the subscribed symbols to the ones provided.
      * @param symbols List containing symbols of the desired securities on the correct exchange.
      */
-    fun setWatchedSecurities(symbols: List<String>)
+    fun setWatchedSecurities(symbols: Set<String>)
 
     /**
      * Closes the connection to the datasource.

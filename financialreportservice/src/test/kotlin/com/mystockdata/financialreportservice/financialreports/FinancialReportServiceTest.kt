@@ -6,15 +6,18 @@ import com.mystockdata.financialreportservice.financialreportdatasource.Item
 import com.mystockdata.financialreportservice.financialreportdatasource.ItemType
 import com.mystockdata.financialreportservice.financialreportinformation.ReportInfoDataSource
 import com.mystockdata.financialreportservice.financialreportinformation.RetrievedReportInfo
+import com.mystockdata.financialreportservice.utility.addDays
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
-import java.util.*
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.fail
+import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.math.BigDecimal
 import java.time.Instant
+import java.util.*
 
 class FinancialReportServiceTest {
 
@@ -85,6 +88,42 @@ class FinancialReportServiceTest {
             }
         }
 
+    }
+
+    @Test
+    fun checkReportAlreadyExistsTest() = runBlocking {
+        val lei = "test"
+        val end = Date()
+        Mockito.`when`(
+            financialReportRepository.getFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodBetween(
+                lei,
+                end.addDays(-1)!!,
+                end.addDays(1)!!
+            )
+        ).thenReturn(
+            flow{}
+        )
+        val actual = subject.checkReportAlreadyExists(lei, end)
+        Assertions.assertEquals(false, actual)
+    }
+
+    @Test
+    fun checkReportAlreadyExistsTrueTest() = runBlocking {
+        val end = Date()
+        val report = FinancialReport("id", end, "identifier", "scheme", listOf(NumericFact("tag", end, end, BigDecimal(0))))
+        Mockito.`when`(
+            financialReportRepository.getFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodBetween(
+                "identifier",
+                end.addDays(-1)!!,
+                end.addDays(1)!!
+            )
+        ).thenReturn(
+            flow {
+                emit(report)
+            }
+        )
+        val actual = subject.checkReportAlreadyExists("identifier", end)
+        Assertions.assertEquals(true, actual)
     }
 
     @Test

@@ -25,18 +25,15 @@ class AggregatedPriceInformationController(
 
     @GetMapping("/retrieve")
     suspend fun retrieve(
-        @RequestParam symbols: Set<String>,
-        @RequestParam(required = false) days: Long?,
-        @RequestParam(required = false) months: Long?
+        @RequestParam symbols: Set<String>?,
+        @RequestParam(required = false) start: Instant?,
+        @RequestParam(required = false) end: Instant?
     ): Flow<AggregatedPriceInformation> {
-        return if (days != null) {
-            stockDataService.retrieveAggregatedInformationForDays(symbols, days)
-        } else if (months != null) {
-            stockDataService.retrieveAggregatedInformationForMonths(symbols, months)
-        } else {
-            // If no time frame is provided, retrieve for 1 month
+        return if(start == null || end == null) {
             logger.debug("No time range specified, retrieving for 1 month")
             stockDataService.retrieveAggregatedInformationForMonths(symbols, 1)
+        }else{
+            stockDataService.retrieveAggregatedPriceInformation(symbols, start, end)
         }
     }
 

@@ -4,7 +4,6 @@ import Yahoo
 import com.google.protobuf.ByteString
 import com.google.protobuf.StringValue.parseFrom
 import com.google.protobuf.kotlin.toByteString
-import com.mystockdata.stockdataservice.utility.epochMilliToLocalDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,16 +33,16 @@ class YahooWebSocketClient(
         private val logger: Logger = LoggerFactory.getLogger(YahooWebSocketClient::class.java)
     }
 
-    override fun establishConnection(symbols: List<String>) {
+    override fun establishConnection(symbols: Set<String>) {
         initialMsg = prepareSymbolString(symbols)
         connect()
     }
 
-    override fun setWatchedSecurities(symbols: List<String>) {
+    override fun setWatchedSecurities(symbols: Set<String>) {
         send(prepareSymbolString(symbols))
     }
 
-    private fun prepareSymbolString(symbols: List<String>): String {
+    private fun prepareSymbolString(symbols: Set<String>): String {
         val symbolString = symbols.foldIndexed("") { idx, acc, str ->
             acc.plus("\"$str\"".plus(if (idx < symbols.size - 1) "," else ""))
         }

@@ -20,3 +20,9 @@ fun Date.sameDay(other: Date): Boolean{
 
     return calendar.get(Calendar.DAY_OF_YEAR) == otherCalendar.get(Calendar.DAY_OF_YEAR) && calendar.get(Calendar.YEAR) == otherCalendar.get(Calendar.YEAR)
 }
+fun Date.addDays(days: Int): Date? {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.add(Calendar.DATE, days)
+    return calendar.time
+}

@@ -3,6 +3,9 @@ package com.mystockdata.financialreportservice.financialreports
 import com.mystockdata.financialreportservice.financialreportdatasource.BalanceType
 import com.mystockdata.financialreportservice.financialreportdatasource.Item
 import com.mystockdata.financialreportservice.financialreportdatasource.ItemType
+import com.mystockdata.financialreportservice.utility.addDays
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -32,11 +35,52 @@ class FinancialReportRepositoryTest(
     private val unknownEntityIdentifier = "unknown"
 
     private val data = listOf(
-        Item(name = "ifrs1", unitRef = "EUR", start = startDate, endInstant = endDate, value = "100000", balance = BalanceType.CREDIT.typeName, type = ItemType.MONETARY_ITEM.typeName, entityIdentifier = entityIdentifier),
-        Item(name = "ifrs2", unitRef = "EUR", start = startDate, endInstant = endDate, value = "500000", balance = BalanceType.CREDIT.typeName, type = ItemType.MONETARY_ITEM.typeName, entityIdentifier = entityIdentifier),
-        Item(name = "ifrsText", start = startDate, endInstant = endDate, value = "text", entityIdentifier = entityIdentifier),
-        Item(name = "ifrs2", unitRef = "EUR", start = previousPeriodStartDate, endInstant = startDate, value = "300000", balance = BalanceType.CREDIT.typeName, entityIdentifier = entityIdentifier),
-        Item(name = "ifrs1", unitRef = "EUR", start = previousPeriodStartDate, endInstant = startDate, value = "200000", balance = BalanceType.CREDIT.typeName, type = ItemType.MONETARY_ITEM.typeName, entityIdentifier = entityIdentifier)
+        Item(
+            name = "ifrs1",
+            unitRef = "EUR",
+            start = startDate,
+            endInstant = endDate,
+            value = "100000",
+            balance = BalanceType.CREDIT.typeName,
+            type = ItemType.MONETARY_ITEM.typeName,
+            entityIdentifier = entityIdentifier
+        ),
+        Item(
+            name = "ifrs2",
+            unitRef = "EUR",
+            start = startDate,
+            endInstant = endDate,
+            value = "500000",
+            balance = BalanceType.CREDIT.typeName,
+            type = ItemType.MONETARY_ITEM.typeName,
+            entityIdentifier = entityIdentifier
+        ),
+        Item(
+            name = "ifrsText",
+            start = startDate,
+            endInstant = endDate,
+            value = "text",
+            entityIdentifier = entityIdentifier
+        ),
+        Item(
+            name = "ifrs2",
+            unitRef = "EUR",
+            start = previousPeriodStartDate,
+            endInstant = startDate,
+            value = "300000",
+            balance = BalanceType.CREDIT.typeName,
+            entityIdentifier = entityIdentifier
+        ),
+        Item(
+            name = "ifrs1",
+            unitRef = "EUR",
+            start = previousPeriodStartDate,
+            endInstant = startDate,
+            value = "200000",
+            balance = BalanceType.CREDIT.typeName,
+            type = ItemType.MONETARY_ITEM.typeName,
+            entityIdentifier = entityIdentifier
+        )
     )
 
     private val financialReports = listOf(
@@ -47,8 +91,22 @@ class FinancialReportRepositoryTest(
             unknownEntityIdentifier,
             listOf(
                 TextualFact(data[2].name!!, startDate, endDate, data[2].value!!),
-                MonetaryFact(data[0].name!!, startDate, endDate, BigDecimal(100000), data[0].unitRef!!, data[0].balance!!),
-                MonetaryFact(data[1].name!!, startDate, endDate, BigDecimal(500000), data[1].unitRef!!, data[1].balance!!)
+                MonetaryFact(
+                    data[0].name!!,
+                    startDate,
+                    endDate,
+                    BigDecimal(100000),
+                    data[0].unitRef!!,
+                    data[0].balance!!
+                ),
+                MonetaryFact(
+                    data[1].name!!,
+                    startDate,
+                    endDate,
+                    BigDecimal(500000),
+                    data[1].unitRef!!,
+                    data[1].balance!!
+                )
             )
         ),
         FinancialReport(
@@ -57,7 +115,14 @@ class FinancialReportRepositoryTest(
             entityIdentifier,
             unknownEntityIdentifier,
             listOf(
-                MonetaryFact(data[4].name!!, previousPeriodStartDate, startDate, BigDecimal(200000), data[4].unitRef!!, data[4].balance!!),
+                MonetaryFact(
+                    data[4].name!!,
+                    previousPeriodStartDate,
+                    startDate,
+                    BigDecimal(200000),
+                    data[4].unitRef!!,
+                    data[4].balance!!
+                ),
                 TextualFact(data[3].name!!, previousPeriodStartDate, startDate, "300000"),
             )
         )
@@ -78,15 +143,16 @@ class FinancialReportRepositoryTest(
     }
 
     @Test
-    fun getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetweenTest() = runBlocking{
+    fun getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetweenTest() = runBlocking {
         val response = financialReportRepository.saveAll(financialReports).toList()
         Assertions.assertTrue(testReportListsEquals(financialReports, response))
 
-        val retrieveByLeiAndDates = financialReportRepository.getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(
-            listOf(entityIdentifier),
-            Date(previousPeriodStartDate.time - 1),
-            Date(endDate.time + 1)
-        ).toList()
+        val retrieveByLeiAndDates =
+            financialReportRepository.getFinancialReportByEntityIdentifierInAndEndOfReportingPeriodBetween(
+                listOf(entityIdentifier),
+                Date(previousPeriodStartDate.time - 1),
+                Date(endDate.time + 1)
+            ).toList()
 
         Assertions.assertTrue(testReportListsEquals(financialReports, retrieveByLeiAndDates))
     }
@@ -96,7 +162,8 @@ class FinancialReportRepositoryTest(
         val response = financialReportRepository.saveAll(financialReports).toList()
         Assertions.assertTrue(testReportListsEquals(financialReports, response))
 
-        val retrieveByLeiAndDates = financialReportRepository.findFinancialReportByEntityIdentifierIn(listOf("sap")).toList()
+        val retrieveByLeiAndDates =
+            financialReportRepository.findFinancialReportByEntityIdentifierIn(listOf("sap")).toList()
         Assertions.assertTrue(testReportListsEquals(financialReports, retrieveByLeiAndDates))
     }
 
@@ -113,20 +180,35 @@ class FinancialReportRepositoryTest(
         Assertions.assertTrue(testReportListsEquals(financialReports, retrieveByLeiAndDates))
     }
 
-    private fun testReportListsEquals(a: List<FinancialReport>, b: List<FinancialReport>): Boolean{
-        if(a.size != b.size) return false
-        for((reportIndex, _) in a.withIndex()){
-            if(a[reportIndex].endOfReportingPeriod != b[reportIndex].endOfReportingPeriod) return false
-            if(a[reportIndex].entityIdentifier != b[reportIndex].entityIdentifier) return false
-            if(a[reportIndex].entityIdentifierScheme != b[reportIndex].entityIdentifierScheme) return false
+    @Test
+    fun findFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodIsTest() = runBlocking {
+        val saved = financialReportRepository.saveAll(financialReports).toList()
+        val response: FinancialReport? = financialReportRepository.getFinancialReportByEntityIdentifierIsAndEndOfReportingPeriodBetween(
+            financialReports[1].entityIdentifier,
+            financialReports[1].endOfReportingPeriod.addDays(-1)!!,
+            financialReports[1].endOfReportingPeriod.addDays(1)!!
+        ).toList().firstOrNull()
+        Assertions.assertEquals(financialReports[1].entityIdentifier, response!!.entityIdentifier)
+        Assertions.assertEquals(financialReports[1].entityIdentifierScheme, response!!.entityIdentifierScheme)
+        Assertions.assertEquals(financialReports[1].factList, response!!.factList)
+        Assertions.assertEquals(financialReports[1].endOfReportingPeriod, response!!.endOfReportingPeriod)
 
-            for(fact in a[reportIndex].factList){
-                if(!b[reportIndex].factList.contains(fact)) return false
+    }
+
+    private fun testReportListsEquals(a: List<FinancialReport>, b: List<FinancialReport>): Boolean {
+        if (a.size != b.size) return false
+        for ((reportIndex, _) in a.withIndex()) {
+            if (a[reportIndex].endOfReportingPeriod != b[reportIndex].endOfReportingPeriod) return false
+            if (a[reportIndex].entityIdentifier != b[reportIndex].entityIdentifier) return false
+            if (a[reportIndex].entityIdentifierScheme != b[reportIndex].entityIdentifierScheme) return false
+
+            for (fact in a[reportIndex].factList) {
+                if (!b[reportIndex].factList.contains(fact)) return false
             }
+
         }
         return true
     }
-
 
 
 }

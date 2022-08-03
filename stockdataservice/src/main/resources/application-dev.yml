@@ -17,9 +17,9 @@ spring:
     mongodb:
       host: "localhost"
       port: 27017
-      username: "mongoUsername"
+      username: "stockdataservice"
       password: "mongoPassword"
-      database: "schedulingservicedatabase"
+      database: "stockdataservice"
       authentication-database: admin
 influx2:
   host: http://localhost:8086

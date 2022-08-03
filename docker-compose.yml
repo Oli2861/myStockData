@@ -32,8 +32,7 @@ services:
     expose:
       - "8082"
     depends_on:
-      rabbitmq:
-        condition: service_started
+      - rabbitmq
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
@@ -50,10 +49,8 @@ services:
     expose:
       - "8083"
     depends_on:
-      rabbitmq:
-        condition: service_started
-      mongodb:
-        condition: service_started
+      - rabbitmq
+      - mongodb
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
@@ -61,12 +58,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: "guest"
       ARELLE_URL: arelle
       ARELLE_PORT: "8080"
-      SPRING_DATA_MONGODB_HOST: mongodb
-      SPRING_DATA_MONGODB_PORT: "27017"
-      SPRING_DATA_MONGODB_USERNAME: "mongoUsername"
-      SPRING_DATA_MONGODB_PASSWORD: "mongoPassword"
-      SPRING_DATA_MONGODB_DATABASE: "financialreportdatabase"
-      SPRING_DATA_MONGODB_DATABASE_AUTHENITCATION-DATABASE: admin
+      SPRING_PROFILES_ACTIVE: docker
 
   mongodb:
     image: mongo:5.0
@@ -92,10 +84,9 @@ services:
     expose:
       - "8084"
     depends_on:
-      rabbitmq:
-        condition: service_started
-      influxdb:
-        condition: service_started
+      - rabbitmq
+      - influxdb
+      - mongodb
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
@@ -105,6 +96,7 @@ services:
       INFLUX2_ORG: "mystockdata"
       INFLUX2_BUCKET: "stockdata"
       INFLUX2_TOKEN: "adminToken"
+      SPRING_PROFILES_ACTIVE: docker
 
   influxdb:
     image: influxdb:2.3.0
@@ -139,9 +131,3 @@ services:
       FINANCIALREPORTSERVICE_PORT: "8080"
       STOCKDATASERVICE_HOST: stockdataservice
       STOCKDATASERVICE_PORT: "8080"
-      SPRING_DATA_MONGODB_HOST: mongodb
-      SPRING_DATA_MONGODB_PORT: "27017"
-      SPRING_DATA_MONGODB_USERNAME: "mongoUsername"
-      SPRING_DATA_MONGODB_PASSWORD: "mongoPassword"
-      SPRING_DATA_MONGODB_DATABASE: "schedulingservicedatabase"
-      SPRING_DATA_MONGODB_DATABASE_AUTHENITCATION-DATABASE: admin

@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -59,13 +60,13 @@ class StockDataService(
     }
 
     suspend fun getWatchlist(): Set<String>? {
-        return watchlistRepository.findById(WatchlistConstants.watchlistID)?.leis
+        return watchlistRepository.findById(WatchlistConstants.watchlistID)?.symbols
     }
 
     suspend fun removeFromWatchList(lei: String): String? {
         val watchlist = watchlistRepository.findById(WatchlistConstants.watchlistID)
         if (watchlist != null) {
-            watchlist.leis.remove(lei)
+            watchlist.symbols.remove(lei)
             watchlistRepository.save(watchlist)
             return lei
         }
@@ -78,14 +79,14 @@ class StockDataService(
             logger.debug("No existing watchlist found, creating a new one.")
             watchlist = Watchlist(WatchlistConstants.watchlistID, mutableSetOf())
         }
-        watchlist.leis.addAll(lei)
-        return watchlistRepository.save(watchlist).leis.filter { lei.contains(it) }
+        watchlist.symbols.addAll(lei)
+        return watchlistRepository.save(watchlist).symbols.filter { lei.contains(it) }
     }
 
-    suspend fun retrieveAggregatedInformationForDays(symbols: Set<String>, days: Long) =
+    suspend fun retrieveAggregatedInformationForDays(symbols: Set<String>?, days: Long) =
         retrieveAggregatedPriceInformation(symbols, Instant.now().minus(days, ChronoUnit.DAYS), Instant.now())
 
-    suspend fun retrieveAggregatedInformationForMonths(symbols: Set<String>, months: Long) =
+    suspend fun retrieveAggregatedInformationForMonths(symbols: Set<String>?, months: Long) =
         retrieveAggregatedPriceInformation(symbols, ZonedDateTime.now().minusMonths(months).toInstant(), Instant.now())
 
     /**
@@ -96,12 +97,13 @@ class StockDataService(
      * @return Flow containing the retrieved aggregated price information.
      */
     suspend fun retrieveAggregatedPriceInformation(
-        symbols: Set<String>,
+        symbols: Set<String>?,
         start: Instant = Instant.now().minus(1, ChronoUnit.DAYS),
         end: Instant = Instant.now()
     ): Flow<AggregatedPriceInformation> {
+        val usedSymbols: Set<String> = if(!symbols.isNullOrEmpty())symbols else getWatchlist() ?: return flowOf()
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
-            aggregatedInformationProvider.retrieveHistoricalStockData(symbols.toList(), start, end).flatten().asFlow()
+            aggregatedInformationProvider.retrieveHistoricalStockData(usedSymbols.toList(), start, end).flatten().asFlow()
         aggregatedPriceInformationRepository.writeAggregatedPriceInformation(priceInformationFlow)
         return priceInformationFlow
     }
@@ -121,9 +123,10 @@ class StockDataService(
     /**
      * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
      */
-    suspend fun startRetrievingPrecisePriceInformation(symbols: Set<String>): Flow<PrecisePriceInformation> {
+    suspend fun startRetrievingPrecisePriceInformation(symbols: Set<String>?): Flow<PrecisePriceInformation> {
+        val usedSymbols = (if(symbols.isNullOrEmpty()) getWatchlist() else symbols) ?: return flowOf()
         scope.launch {
-            precisePriceInformationProvider.establishConnection(symbols.toList())
+            precisePriceInformationProvider.establishConnection(usedSymbols)
             precisePriceInformationRepository.writePrecisePriceInformation(precisePriceInformationProvider.flow)
         }
         return precisePriceInformationProvider.flow

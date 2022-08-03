@@ -1,27 +1,11 @@
-### Load reports
+### Retrieve reports
 GET http://localhost:8083/v1/financialreports/loadReports
 Accept: application/stream+json
 
-
-
-
-
-### Load reports
-GET http://localhost:8080/v1/financialreports/loadReports
+### Retrieve reports
+GET http://localhost:8083/v1/financialreports/loadReports?lei=549300CSLHPO6Y1AZN37&lei=529900D6BF99LW9R2E68
 Accept: application/stream+json
 
-### Load reports
-GET http://localhost:8080/v1/financialreports/loadReports?lei=549300CSLHPO6Y1AZN37&lei=529900D6BF99LW9R2E68
-Accept: application/stream+json
-
-### Load reports
-GET http://localhost:8080/v1/financialreports/loadReports?lei=549300CSLHPO6Y1AZN37
-Accept: application/stream+json
-
-### Read reports
-GET http://localhost:8080/v1/financialreports?lei=549300CSLHPO6Y1AZN37
-Accept: application/stream+json
-
-### Read reports
-GET http://localhost:8080/v1/financialreports?lei=549300CSLHPO6Y1AZN37&start=2019-12-29&end=2022-01-01
+### Get reports
+GET http://localhost:8083/v1/financialreports/?lei=549300CSLHPO6Y1AZN37&start=2019-12-29&end=2022-01-01
 Accept: application/stream+json
