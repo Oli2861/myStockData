@@ -21,6 +21,10 @@ data class Company(
     }
 }
 
+fun Set<Company>.findCompanyBySymbol(symbol: String): Company? {
+    return this.find { it.containsSymbol(symbol) }
+}
+
 data class Security(
     val isin: String,
     val symbols: Set<Symbol>

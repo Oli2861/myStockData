@@ -82,7 +82,7 @@ class ComposerController(
 
 }
 
-private val missingValueStrategyMap = mapOf<String, MissingValueHandlingStrategy>(
+private val missingValueStrategyMap = mapOf(
     "LAST_VALUE" to MissingValueHandlingStrategy.LAST_VALUE,
     "IGNORE" to MissingValueHandlingStrategy.IGNORE,
     "NEXT_MATCHING" to MissingValueHandlingStrategy.NEXT_MATCHING
@@ -90,5 +90,6 @@ private val missingValueStrategyMap = mapOf<String, MissingValueHandlingStrategy
 
 private val indicatorMap = mapOf<String, Pair<IndicatorName, IndicatorType>>(
     IndicatorName.SMA.indicatorName to Pair(IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR),
-    IndicatorName.PE_RATIO.indicatorName to Pair(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR)
+    IndicatorName.PE_RATIO.indicatorName to Pair(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR),
+    IndicatorName.EPS.indicatorName to Pair(IndicatorName.EPS, IndicatorType.FUNDAMENTAL_INDICATOR)
 )

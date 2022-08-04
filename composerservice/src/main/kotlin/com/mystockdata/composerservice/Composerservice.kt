@@ -2,18 +2,19 @@ package com.mystockdata.composerservice
 
 import com.mystockdata.composerservice.company.Company
 import com.mystockdata.composerservice.company.CompanyService
+import com.mystockdata.composerservice.company.findCompanyBySymbol
 import com.mystockdata.composerservice.csv.*
 import com.mystockdata.composerservice.financialreport.FinancialReport
 import com.mystockdata.composerservice.financialreport.FinancialReportServiceAdapter
 import com.mystockdata.composerservice.financialreport.IFRSTAGS
-import com.mystockdata.composerservice.indicator.IndicatorName
-import com.mystockdata.composerservice.indicator.IndicatorType
-import com.mystockdata.composerservice.indicator.smaForAllOfASymbol
+import com.mystockdata.composerservice.financialreport.toFactMap
+import com.mystockdata.composerservice.indicator.*
 import com.mystockdata.composerservice.stockdata.AggregatedPriceInformationResponse
 import com.mystockdata.composerservice.stockdata.StockDataServiceAdapter
 import com.mystockdata.composerservice.stockdata.toCSVEntryList
-import com.mystockdata.financialreportservice.financialreports.MonetaryFact
-import com.mystockdata.financialreportservice.financialreports.NumericFact
+import com.mystockdata.financialreportservice.financialreports.Fact
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import org.slf4j.Logger
@@ -56,7 +57,8 @@ class Composerservice(
         start: Instant,
         end: Instant,
         indicators: List<Pair<IndicatorName, IndicatorType>>,
-        missingValueHandlingStrategy: MissingValueHandlingStrategy
+        missingValueHandlingStrategy: MissingValueHandlingStrategy,
+        refreshData: Boolean = false
     ): InputStreamResource? {
 
         // Get companies of the provided lei.
@@ -64,41 +66,42 @@ class Composerservice(
 
         // Retrieve aggregated price information for the symbols of the lei.
         val symbols: List<String> = companies.map { it.getSymbolNames() }.flatten()
-        val aggregatedPriceInformation: List<AggregatedPriceInformationResponse> =
-            getAggregatedPriceInformation(symbols, start, end) ?: return null
+        val (reports, aggregatedPriceInformation) = retrieveData(leis, symbols, start, end)
 
-        // Create base-csv
+        // Can not build a csv if the required data is not present.
+        if (aggregatedPriceInformation.isNullOrEmpty()) return null
+
+        // Create base-csv.
         val csv = TimeIndexedCSVBuilder(aggregatedPriceInformation.toCSVEntryList(), missingValueHandlingStrategy)
 
-        // Retrieve reports
-        val reports =
-            financialReportServiceAdapter.getFinancialReports(companies.map { it.lei }.toList(), start, end).toList()
-
-
-        val technicalIndicators = indicators.filter { (_, type) -> type == IndicatorType.TECHNICAL_INDICATOR }
-            .map { (name, _) -> name }
-        val fundamentalIndicators = indicators.filter { (_, type) -> type == IndicatorType.FUNDAMENTAL_INDICATOR }
-            .map { (name, _) -> name }
-
-        val priceColNames = csv.csvHeader.subList(1, csv.csvHeader.size)
+        // Calculate indicators based on close price columns.
+        val closePriceColumnNames = csv.csvHeader.subList(1, csv.csvHeader.size)
             .filter { it.contains(CSVEntryConstants.CLOSE_COLUMN_NAME_PREFIX) }
 
-        addTechnicalIndicators(csv, priceColNames, technicalIndicators)
-
-        // Match retrieved price information back to company
-        addFundamentalIndicators(
-            companies,
-            csv,
-            priceColNames,
-            fundamentalIndicators,
-            reports
-        )
-
-        val equityCols = csv.csvHeader.filter { it.contains("equity") }
+        // Add indicators.
+        addIndicators(indicators, csv, closePriceColumnNames, companies, reports)
 
         return csv.buildCSV()
     }
 
+    private suspend fun retrieveData(
+        leis: List<String>,
+        symbols: List<String>,
+        start: Instant,
+        end: Instant
+    ): Pair<List<FinancialReport>?, List<AggregatedPriceInformationResponse>?> = coroutineScope {
+        val financialReports = async { getFinancialReports(leis, start, end) }
+        val aggregatedPriceInformationResponse = async { getAggregatedPriceInformation(symbols, start, end) }
+        return@coroutineScope Pair(financialReports.await(), aggregatedPriceInformationResponse.await())
+    }
+
+    private suspend fun getFinancialReports(leis: List<String>, start: Instant, end: Instant): List<FinancialReport>? {
+        val reports = financialReportServiceAdapter.getFinancialReports(leis, start, end).toList()
+        return reports.ifEmpty {
+            logger.debug("Could not retrieve financial reports.")
+            null
+        }
+    }
 
     private suspend fun getAggregatedPriceInformation(
         symbols: List<String>,
@@ -113,21 +116,96 @@ class Composerservice(
         }
     }
 
+    /**
+     * Adds the requested indicators.
+     * @param indicators a list containing the indicators to be calculated and added.
+     * @param csv the TimeIndexedCSVBuilder to add the indicators to.
+     * @param relevantColumnNames a list containing the name of columns indicators are calculated for.
+     * @param companies set containing the companies of the requested lei.
+     * @param reports a list containing the retrieved financial reports.
+     */
+    private suspend fun addIndicators(
+        indicators: List<Pair<IndicatorName, IndicatorType>>,
+        csv: TimeIndexedCSVBuilder,
+        relevantColumnNames: List<String>,
+        companies: Set<Company>,
+        reports: List<FinancialReport>?
+    ) {
+        // Split by indicator type.
+        val (technicalIndicators, fundamentalIndicators) = indicators.splitByType()
+        // Add technical indicators.
+        addTechnicalIndicators(csv, relevantColumnNames, technicalIndicators)
+        // Add fundamental indicators if reports are present.
+        if (reports != null) {
+            addFundamentalIndicators(companies, csv, relevantColumnNames, fundamentalIndicators, reports)
+        }
+    }
+
     private suspend fun addFundamentalIndicators(
         companies: Set<Company>,
         csv: TimeIndexedCSVBuilder,
-        priceColNames: List<String>,
+        relevantCols: List<String>,
         fundamentalIndicators: List<IndicatorName>,
         reports: List<FinancialReport>,
         useSymbolAsColumnName: Boolean = true
     ) {
-        fundamentalIndicators.forEach { fundamentalIndicators ->
-            when(fundamentalIndicators){
+        fundamentalIndicators.forEach { indicatorName ->
+            when (indicatorName) {
                 IndicatorName.EPS -> addFact(reports, csv, IFRSTAGS.DELUTED_EPS, companies, useSymbolAsColumnName)
-                IndicatorName.PE_RATIO -> addPERatio(reports, csv, companies, priceColNames)
+                IndicatorName.PE_RATIO -> addPERatio(indicatorName, reports, csv, relevantCols, companies)
+                else -> logger.debug("Unknown Indicator ${indicatorName.indicatorName}")
             }
         }
 
+    }
+
+    private fun addPERatio(
+        indicatorName: IndicatorName,
+        reports: List<FinancialReport>,
+        csv: TimeIndexedCSVBuilder,
+        relevantCols: List<String>,
+        companies: Set<Company>
+    ) {
+        // Mapping legal entity identifiers to facts matching the ifrs-full:DilutedEarningsLossPerShare tag.
+        val entityIdentifierEPSMap: Map<String, Set<Fact>> = reports.toFactMap(IFRSTAGS.DELUTED_EPS)
+        // Mapping symbols to legal entity identifiers.
+        val symbolLeiMap = mutableMapOf<String, String>()
+
+        csv.addIndicator(indicatorName, relevantCols, true) { priceEntries ->
+            return@addIndicator priceEntries.map { priceEntry ->
+                val symbol = priceEntry.symbol
+                // Looking up legal entity identifiers in the map is more performant than searching them among all companies every time.
+                val lei = if (symbolLeiMap[symbol] == null) {
+                    val entityIdentifier = companies.findCompanyBySymbol(symbol)?.lei ?: return@map Indicator(
+                        priceEntry.time,
+                        priceEntry.symbol,
+                        IndicatorName.PE_RATIO,
+                        IndicatorType.FUNDAMENTAL_INDICATOR,
+                        null
+                    )
+                    symbolLeiMap[symbol] = entityIdentifier
+                    entityIdentifier
+                } else {
+                    symbolLeiMap[symbol]
+                }
+                // Searching for the ifrs-full:DilutedEarningsLossPerShare fact covering the time of the priceEntry.
+                val facts = entityIdentifierEPSMap[lei]
+                val matchingFact = facts?.firstOrNull { fact ->
+                    fact.start != null &&
+                            fact.end != null &&
+                            priceEntry.time.isAfter(fact.start?.toInstant()) &&
+                            priceEntry.time.isBefore(fact.end?.toInstant())
+                }
+                val eps = matchingFact?.parseValueToBigDecimal()
+                // Price to earnings ratio = share price / earnings per share.
+                val per = if (eps != null) priceEntry.price?.div(eps) else null
+                // Return indicator which will be added by the csv builder.
+                Indicator(
+                    priceEntry.time, priceEntry.symbol, IndicatorName.PE_RATIO,
+                    IndicatorType.FUNDAMENTAL_INDICATOR, per
+                )
+            }
+        }
     }
 
     private fun addFact(
@@ -137,43 +215,24 @@ class Composerservice(
         companies: Set<Company>,
         useSymbolAsColumnName: Boolean
     ) {
-        val epsCols: List<PriceEntry> = reports.mapNotNull { report ->
-            findFactAndParseToCSVEntry(report, tag, companies.firstOrNull { company -> company.lei == report.entityIdentifier }, useSymbolAsColumnName)
-        }
+        val epsCols: List<PriceEntry> = reports.map { report ->
+            val company = companies.firstOrNull { company -> company.lei == report.entityIdentifier }
+            findFactAndParseToCSVEntry(report, tag, company, useSymbolAsColumnName)
+        }.flatten()
+        logger.debug("EPS cols $epsCols")
         csv.addColumns(epsCols)
     }
-
-    private fun findFact(financialReport: FinancialReport, ifrsTag: String) = financialReport.factList.firstOrNull { fact -> fact.ifrsTag == ifrsTag }
 
     private fun findFactAndParseToCSVEntry(
         financialReport: FinancialReport,
         ifrsTag: String,
         company: Company?,
         useSymbolAsColumnName: Boolean
-    ): PriceEntry? {
+    ): List<PriceEntry> {
         // Find fact
-        val fact =  findFact(financialReport, ifrsTag) ?: return null
+        val factList = financialReport.findFacts(ifrsTag)
         val symbolOfCompanyOrLei = company?.getSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier
-        // Parse to CSV entry
-        return if (fact is MonetaryFact && fact.end != null) {
-            PriceEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier}", fact.value, symbolOfCompanyOrLei)
-        } else if (fact is NumericFact && fact.end != null) {
-            PriceEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier}", fact.value, symbolOfCompanyOrLei)
-        } else {
-            logger.debug("Only monetary and numeric facts are supported. $fact")
-            null
-        }
-
-    }
-
-
-    private fun addPERatio(
-        csv: List<FinancialReport>,
-        name: TimeIndexedCSVBuilder,
-        relevantCols: Set<Company>,
-        equityData: List<String>
-    ) {
-
+        return factList.mapNotNull { it.parseToCSVEntry(if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier) }
     }
 
     // Technical indicators

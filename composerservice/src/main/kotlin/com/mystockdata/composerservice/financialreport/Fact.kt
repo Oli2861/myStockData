@@ -2,6 +2,7 @@ package com.mystockdata.financialreportservice.financialreports
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.mystockdata.composerservice.csv.PriceEntry
 import java.math.BigDecimal
 import java.util.*
 
@@ -18,6 +19,25 @@ abstract class Fact {
     abstract val start: Date?
     abstract val end: Date?
     abstract val value: Any
+
+    fun parseToCSVEntry(symbolOfCompanyOrLei: String): PriceEntry? {
+        return if ((this is MonetaryFact) && (this.end != null)) {
+            PriceEntry(end!!.toInstant(), "${ifrsTag}_${symbolOfCompanyOrLei}", value, symbolOfCompanyOrLei)
+        } else if (this is NumericFact && this.end != null) {
+            PriceEntry(end!!.toInstant(), "${ifrsTag}_${symbolOfCompanyOrLei}", value, symbolOfCompanyOrLei)
+        } else {
+            null
+        }
+    }
+
+    fun parseValueToBigDecimal(): BigDecimal? {
+        return when (this) {
+            is MonetaryFact -> value
+            is NumericFact -> value
+            else -> null
+        }
+    }
+
 }
 
 data class NumericFact(

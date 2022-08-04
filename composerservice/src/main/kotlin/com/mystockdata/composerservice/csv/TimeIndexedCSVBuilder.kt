@@ -225,7 +225,8 @@ class TimeIndexedCSVBuilder(
     fun addIndicator(
         indicatorName: IndicatorName,
         colsToCalculateIndicatorsFor: List<String>,
-        calculationFunction: (List<PriceEntry>) -> List<Indicator>
+        ignoreNullColumns: Boolean = false,
+        calculationFunction: (List<PriceEntry>) -> List<Indicator>,
     ) {
         colsToCalculateIndicatorsFor.map {
             getColumn(it)
@@ -235,6 +236,7 @@ class TimeIndexedCSVBuilder(
             val calculatedIndicator = calculationFunction.invoke(column)
             if (calculatedIndicator.isEmpty()) return@forEach
             val header = "${indicatorName.indicatorName}_${calculatedIndicator.firstNotNullOfOrNull { it.symbol }}"
+
             addColumn(calculatedIndicator.map { PriceEntry(it.time, header, it.value, it.symbol) }, header)
         }
     }

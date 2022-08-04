@@ -103,4 +103,4 @@ Accept: application/stream+json
 ```
 
 ## Know issues
-- Teilweise abgefragte Berichte werden nicht ergänzt
+- Partially retrieved reports are not extended.

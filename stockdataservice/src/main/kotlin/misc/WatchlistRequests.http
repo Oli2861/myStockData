@@ -2,7 +2,7 @@ GET http://localhost:8084/v1/watchlist
 Content-Type: application/json
 
 ###
-PUT http://localhost:8084/v1/watchlist?lei=test
+PUT http://localhost:8084/v1/watchlist?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
 Content-Type: application/json
 
 ###

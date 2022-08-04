@@ -8,3 +8,4 @@ spring:
       database: "composerservicedatabase"
       authentication-database: admin
 logging.level.com.mystockdata: DEBUG
+logging.level.reactor.netty.http.client: DEBUG

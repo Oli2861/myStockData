@@ -1,12 +1,5 @@
 package com.mystockdata.composerservice.csv
 
-import com.mystockdata.composerservice.csv.CSVEntryConstants.ADJ_CLOSE_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.csv.CSVEntryConstants.CLOSE_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.csv.CSVEntryConstants.HIGH_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.csv.CSVEntryConstants.LOW_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.csv.CSVEntryConstants.OPEN_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.csv.CSVEntryConstants.VOLUME_COLUMN_NAME_PREFIX
-import com.mystockdata.composerservice.stockdata.AggregatedPriceInformationResponse
 import java.math.BigDecimal
 import java.time.Instant
 
