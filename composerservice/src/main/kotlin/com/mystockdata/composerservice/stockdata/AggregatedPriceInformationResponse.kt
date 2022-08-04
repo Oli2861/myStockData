@@ -1,7 +1,9 @@
 package com.mystockdata.composerservice.stockdata
 
 import com.mystockdata.composerservice.company.Company
+import com.mystockdata.composerservice.csv.CSVEntryConstants
 import com.mystockdata.composerservice.csv.CsvEntry
+import com.mystockdata.composerservice.csv.PriceEntry
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -15,6 +17,23 @@ data class AggregatedPriceInformationResponse(
     var adjClose: BigDecimal? = null,
     var volume: Int? = null
 )
+
+/**
+ * Produces a List<CsvEntry> for a provided list of AggregatedPriceInformation.
+ * @return list of the produced csv entries.
+ */
+fun List<AggregatedPriceInformationResponse>.toCSVEntryList(): List<PriceEntry> {
+    val entries: MutableList<PriceEntry> = mutableListOf()
+    forEach {
+        if (it.open != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.OPEN_COLUMN_NAME_PREFIX}${it.symbol}", it.open, it.symbol))
+        if (it.high != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.HIGH_COLUMN_NAME_PREFIX}${it.symbol}", it.high, it.symbol))
+        if (it.low != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.LOW_COLUMN_NAME_PREFIX}${it.symbol}", it.low, it.symbol))
+        if (it.close != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.CLOSE_COLUMN_NAME_PREFIX}${it.symbol}", it.close, it.symbol))
+        if (it.adjClose != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.ADJ_CLOSE_COLUMN_NAME_PREFIX}${it.symbol}", it.adjClose, it.symbol))
+        if (it.volume != null) entries.add(PriceEntry(it.time, "${CSVEntryConstants.VOLUME_COLUMN_NAME_PREFIX}${it.symbol}", it.volume?.toBigDecimal(), it.symbol))
+    }
+    return entries
+}
 
 
 /**

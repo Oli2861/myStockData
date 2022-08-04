@@ -1,10 +1,11 @@
 package com.mystockdata.composerservice.csv
 
-import com.mystockdata.composerservice.indicator.Indicator
-import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.PLACEHOLDER_VALUE
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.PLACEHOLDER_VALUE_STRING
+import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.SYMBOL_MISSING_STRING
 import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilderConstants.TIMESTAMP_COLUMN_NAME
+import com.mystockdata.composerservice.indicator.Indicator
+import com.mystockdata.composerservice.indicator.IndicatorName
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import org.springframework.core.io.InputStreamResource
@@ -20,6 +21,7 @@ object TimeIndexedCSVBuilderConstants {
     const val TIMESTAMP_COLUMN_NAME: String = "timestamp"
     val PLACEHOLDER_VALUE: BigDecimal? = null
     const val PLACEHOLDER_VALUE_STRING: String = "null"
+    const val SYMBOL_MISSING_STRING: String = "symbol missing"
 }
 
 /**
@@ -31,7 +33,7 @@ object TimeIndexedCSVBuilderConstants {
  * @property timeIndex timestamps in the first column of the csv file.
  */
 class TimeIndexedCSVBuilder(
-    initialData: List<CsvEntry>,
+    initialData: List<PriceEntry>,
     missingValueHandlingStrategy: MissingValueHandlingStrategy
 ) {
     var csvHeader: MutableList<String>
@@ -51,7 +53,7 @@ class TimeIndexedCSVBuilder(
      * @return Triple containing the header & body of the csv and the time index.
      */
     private fun toCSVComponents(
-        data: List<CsvEntry>,
+        data: List<PriceEntry>,
         missingValueHandlingStrategy: MissingValueHandlingStrategy
     ): Triple<MutableList<String>, MutableList<MutableList<CsvEntry>>, MutableList<Instant>> {
 
@@ -69,14 +71,16 @@ class TimeIndexedCSVBuilder(
             // Insert list for the row.
             csvBody.add(mutableListOf())
             // Insert timestamp-index as the first value of the row.
-            csvBody[rowIndex].add(CsvEntry(time, TIMESTAMP_COLUMN_NAME, time.toEpochMilli().toBigDecimal()))
+            csvBody[rowIndex].add(TimeEntry(time, TIMESTAMP_COLUMN_NAME))
             // Place the values of all columns.
             for ((columnIndex, columnName) in csvHeader.withIndex()) {
                 // Search whether there is a value to be inserted in this column or else insert a placeholder value.
                 if (columnName == TIMESTAMP_COLUMN_NAME) continue
-                val entriesMatchingTime: List<CsvEntry>? = columnMap[columnName]?.filter { it.time == time }
+                val entriesMatchingTime: List<PriceEntry>? =
+                    columnMap[columnName]?.filter { it.time == time }
+                val symbol = columnMap[columnName]?.firstOrNull()?.symbol ?: SYMBOL_MISSING_STRING
                 val valueToBePlaced = findValueToBePlaced(
-                    missingValueHandlingStrategy, entriesMatchingTime,
+                    missingValueHandlingStrategy, entriesMatchingTime, symbol,
                     rowIndex, columnIndex, csvBody, time, columnMap, columnName
                 )
                 csvBody[rowIndex].add(valueToBePlaced)
@@ -92,42 +96,43 @@ class TimeIndexedCSVBuilder(
      */
     private fun findValueToBePlaced(
         missingValueHandlingStrategy: MissingValueHandlingStrategy,
-        entriesMatchingTime: List<CsvEntry>?,
+        entriesMatchingTime: List<PriceEntry>?,
+        symbol: String,
         rowIndex: Int,
         columnIndex: Int,
         csvBody: MutableList<MutableList<CsvEntry>>,
         time: Instant,
-        columnMap: Map<String, MutableList<CsvEntry>>,
+        columnMap: Map<String, MutableList<PriceEntry>>,
         columnName: String
-    ): CsvEntry {
+    ): PriceEntry {
 
         return when (missingValueHandlingStrategy) {
 
             MissingValueHandlingStrategy.IGNORE -> {
                 if (entriesMatchingTime.isNullOrEmpty()) {
-                    CsvEntry(time, columnName, PLACEHOLDER_VALUE)
+                    PriceEntry(time, columnName, PLACEHOLDER_VALUE, symbol)
                 } else {
-                    entriesMatchingTime.firstOrNull { it.value != null && it.value != PLACEHOLDER_VALUE } ?: CsvEntry(time, columnName, PLACEHOLDER_VALUE)
+                    entriesMatchingTime.firstOrNull { it.price != null && it.price != PLACEHOLDER_VALUE } ?: PriceEntry(time, columnName, PLACEHOLDER_VALUE, symbol)
                 }
             }
 
             MissingValueHandlingStrategy.LAST_VALUE -> {
                 if (entriesMatchingTime.isNullOrEmpty()) {
-                    findLastEntryMissingValueStrategy(rowIndex, columnIndex, columnName, time, csvBody)
+                    findLastEntryMissingValueStrategy(rowIndex, columnIndex, columnName, time, symbol, csvBody)
                 } else {
-                    entriesMatchingTime.firstOrNull { it.value != null && it.value != PLACEHOLDER_VALUE }
-                        ?: findLastEntryMissingValueStrategy(rowIndex, columnIndex, columnName, time, csvBody)
+                    entriesMatchingTime.firstOrNull { it.price != null && it.price != PLACEHOLDER_VALUE }
+                        ?: findLastEntryMissingValueStrategy(rowIndex, columnIndex, columnName, time, symbol, csvBody)
                 }
             }
 
             MissingValueHandlingStrategy.NEXT_MATCHING -> {
                 // Use the first matching entry which value is not null or "null" or otherwise use the closest entry. If both are null use the PLACEHOLDER_VALUE.
                 if (entriesMatchingTime.isNullOrEmpty()) {
-                    findClosestEntryMissingValueStrategy(time, columnName, columnMap[columnName], false)
+                    findClosestEntryMissingValueStrategy(time, columnName, columnMap[columnName], symbol,false)
                 } else {
                     // Use the first matching entry which value is not null or "null" or otherwise use the closest entry. If both are null use the PLACEHOLDER_VALUE.
-                    entriesMatchingTime.firstOrNull { it.value != null && it.value != PLACEHOLDER_VALUE }
-                        ?: findClosestEntryMissingValueStrategy(time, columnName, columnMap[columnName], false)
+                    entriesMatchingTime.firstOrNull { it.price != null && it.price != PLACEHOLDER_VALUE }
+                        ?: findClosestEntryMissingValueStrategy(time, columnName, columnMap[columnName], symbol, false)
                 }
             }
         }
@@ -145,14 +150,17 @@ class TimeIndexedCSVBuilder(
         columnIndex: Int,
         columnName: String,
         time: Instant,
+        symbol: String,
         csvBody: List<List<CsvEntry>>
-    ): CsvEntry {
+    ): PriceEntry {
         // rowIndex - 1 because the current row is not considered.
         for (rowIdx in rowIndex - 1 downTo 0) {
             val curr = csvBody[rowIdx][columnIndex]
-            if (curr.value != PLACEHOLDER_VALUE) return CsvEntry(time, columnName, curr.value)
+            (curr as? PriceEntry)?.let {
+                if (it.price != PLACEHOLDER_VALUE) return PriceEntry(time, columnName, it.price, symbol)
+            }
         }
-        return CsvEntry(time, columnName, PLACEHOLDER_VALUE)
+        return PriceEntry(time, columnName, PLACEHOLDER_VALUE, symbol)
     }
 
     /**
@@ -164,19 +172,20 @@ class TimeIndexedCSVBuilder(
     fun findClosestEntryMissingValueStrategy(
         time: Instant,
         columnName: String,
-        entries: List<CsvEntry?>?,
+        entries: List<PriceEntry?>?,
+        symbol: String,
         allowNullString: Boolean
-    ): CsvEntry {
-        if (entries.isNullOrEmpty()) return CsvEntry(time, columnName, PLACEHOLDER_VALUE)
-        val closestEntry: CsvEntry? = entries.fold(null) { acc: CsvEntry?, element ->
-            return@fold if (element == null || (!allowNullString && (element.value == null || element.value == PLACEHOLDER_VALUE))) {
+    ): PriceEntry {
+        if (entries.isNullOrEmpty()) return PriceEntry(time, columnName, PLACEHOLDER_VALUE, symbol)
+        val closestEntry: PriceEntry? = entries.fold(null) { acc: PriceEntry?, element ->
+            return@fold if (element == null || (!allowNullString && (element.price == null || element.price == PLACEHOLDER_VALUE))) {
                 acc
             } else {
                 if (acc == null || Duration.between(element.time, time).seconds.absoluteValue < Duration.between(acc.time, time).seconds.absoluteValue)
                     element else acc
             }
         }
-        return CsvEntry(time, columnName, closestEntry?.value ?: PLACEHOLDER_VALUE)
+        return PriceEntry(time, columnName, closestEntry?.price ?: PLACEHOLDER_VALUE, symbol)
     }
 
 
@@ -185,8 +194,8 @@ class TimeIndexedCSVBuilder(
      * @param data list of csv entries to be split.
      * @return Map mapping the column name to a list of corresponding csv entries.
      */
-    private fun splitEntriesByColumnName(data: List<CsvEntry>): Map<String, MutableList<CsvEntry>> {
-        val columnMap = mutableMapOf<String, MutableList<CsvEntry>>()
+    private fun splitEntriesByColumnName(data: List<PriceEntry>): Map<String, MutableList<PriceEntry>> {
+        val columnMap = mutableMapOf<String, MutableList<PriceEntry>>()
         data.forEach {
             if (columnMap[it.columnName] == null) {
                 columnMap[it.columnName] = mutableListOf()
@@ -202,7 +211,7 @@ class TimeIndexedCSVBuilder(
      * Adds one or multiple columns to the csv.
      * @param data list of entries to be added to the csv.
      */
-    fun addColumns(data: List<CsvEntry>) {
+    fun addColumns(data: List<PriceEntry>) {
         val columnMap = splitEntriesByColumnName(data)
         columnMap.keys.forEach { columnName ->
             columnMap[columnName]?.let { it -> addColumn(it, columnName) }
@@ -216,15 +225,17 @@ class TimeIndexedCSVBuilder(
     fun addIndicator(
         indicatorName: IndicatorName,
         colsToCalculateIndicatorsFor: List<String>,
-        calculationFunction: (List<CsvEntry>) -> List<Indicator>
+        calculationFunction: (List<PriceEntry>) -> List<Indicator>
     ) {
         colsToCalculateIndicatorsFor.map {
             getColumn(it)
+        }.map {
+            it.mapNotNull { entry -> entry as? PriceEntry }
         }.forEach { column ->
             val calculatedIndicator = calculationFunction.invoke(column)
             if (calculatedIndicator.isEmpty()) return@forEach
             val header = "${indicatorName.indicatorName}_${calculatedIndicator.firstNotNullOfOrNull { it.symbol }}"
-            addColumn(calculatedIndicator.map { CsvEntry(it.time, header, it.value) }, header)
+            addColumn(calculatedIndicator.map { PriceEntry(it.time, header, it.value, it.symbol) }, header)
         }
     }
 
@@ -240,12 +251,13 @@ class TimeIndexedCSVBuilder(
      * Adds a single column to the csv by matching searching for each existing row the closest matching provided entry.
      * @param csvEntries entries to be added.
      */
-    private fun addColumn(csvEntries: List<CsvEntry>, columnName: String) {
+    private fun addColumn(csvEntries: List<PriceEntry>, columnName: String) {
         csvHeader.add(columnName)
         // Search for each time index the entry that matches best.
         for ((rowIndex, time) in timeIndex.withIndex()) {
             // Next matching entry.
-            val closestEntry = findClosestEntryMissingValueStrategy(time, columnName, csvEntries, false)
+            val closestEntry = findClosestEntryMissingValueStrategy(time, columnName, csvEntries, csvEntries.firstOrNull()?.symbol
+                ?: SYMBOL_MISSING_STRING, false)
             // Set closest entry as value in the current row.
             csvBody[rowIndex].add(closestEntry)
         }
@@ -281,16 +293,12 @@ class TimeIndexedCSVBuilder(
         val stringCSVBody = mutableListOf<MutableList<String>>()
         csvBody.forEach { rowList ->
             val stringRowList = mutableListOf<String>()
-            stringRowList.add(rowList[0].value?.toLong()?.let { Instant.ofEpochMilli(it).toString() }
-                ?: PLACEHOLDER_VALUE_STRING)
-            rowList.forEachIndexed { columnIndex, csvEntry ->
-                if (columnIndex != 0) {
-                    if (csvEntry.value == PLACEHOLDER_VALUE) {
-                        stringRowList.add(PLACEHOLDER_VALUE_STRING)
-                    } else {
-                        stringRowList.add(csvEntry.toString())
-                    }
-                }
+
+            rowList.forEachIndexed { _, csvEntry ->
+               when(csvEntry){
+                   is TimeEntry -> stringRowList.add(csvEntry.time.toString())
+                   is PriceEntry -> stringRowList.add(if (csvEntry.price == null ) PLACEHOLDER_VALUE_STRING else csvEntry.price.toString())
+               }
             }
             stringCSVBody.add(stringRowList)
         }

@@ -1,6 +1,7 @@
 package com.mystockdata.composerservice.indicator
 
 import com.mystockdata.composerservice.csv.CsvEntry
+import com.mystockdata.composerservice.csv.PriceEntry
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
@@ -15,42 +16,42 @@ class IndicatorTest {
         val symbol = "SAP.DE"
         val symbol2 = "VW.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol,BigDecimal(110)),
-            CsvEntry(now, symbol2, BigDecimal(200)),
-            CsvEntry(now.minusSeconds(10), symbol2, BigDecimal(205)),
-            CsvEntry(now.minusSeconds(20), symbol2, BigDecimal(220)),
-            CsvEntry(now.minusSeconds(30), symbol2, BigDecimal(215)),
-            CsvEntry(now.minusSeconds(40), symbol2, BigDecimal(200)),
-            CsvEntry(now.minusSeconds(50), symbol2, BigDecimal(201)),
-            CsvEntry(now.minusSeconds(60), symbol2, BigDecimal(222)),
-            CsvEntry(now.minusSeconds(70), symbol2, BigDecimal(203)),
-            CsvEntry(now.minusSeconds(80), symbol2, BigDecimal(204)),
-            CsvEntry(now.minusSeconds(90), symbol2, BigDecimal(205)),
-            CsvEntry(now.minusSeconds(100), symbol2, BigDecimal(226)),
-            CsvEntry(now.minusSeconds(110), symbol2, BigDecimal(227)),
-            CsvEntry(now.minusSeconds(120), symbol2, BigDecimal(238)),
-            CsvEntry(now.minusSeconds(130), symbol2, BigDecimal(239)),
-            CsvEntry(now.minusSeconds(140), symbol2, BigDecimal(120)),
-            CsvEntry(now.minusSeconds(150), symbol2, BigDecimal(210)),
-            CsvEntry(now.minusSeconds(160), symbol2, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol2,BigDecimal(210))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol,BigDecimal(110), symbol),
+            PriceEntry(now, symbol2, BigDecimal(200), symbol),
+            PriceEntry(now.minusSeconds(10), symbol2, BigDecimal(205), symbol2),
+            PriceEntry(now.minusSeconds(20), symbol2, BigDecimal(220), symbol2),
+            PriceEntry(now.minusSeconds(30), symbol2, BigDecimal(215), symbol2),
+            PriceEntry(now.minusSeconds(40), symbol2, BigDecimal(200), symbol2),
+            PriceEntry(now.minusSeconds(50), symbol2, BigDecimal(201), symbol2),
+            PriceEntry(now.minusSeconds(60), symbol2, BigDecimal(222), symbol2),
+            PriceEntry(now.minusSeconds(70), symbol2, BigDecimal(203), symbol2),
+            PriceEntry(now.minusSeconds(80), symbol2, BigDecimal(204), symbol2),
+            PriceEntry(now.minusSeconds(90), symbol2, BigDecimal(205), symbol2),
+            PriceEntry(now.minusSeconds(100), symbol2, BigDecimal(226), symbol2),
+            PriceEntry(now.minusSeconds(110), symbol2, BigDecimal(227), symbol2),
+            PriceEntry(now.minusSeconds(120), symbol2, BigDecimal(238), symbol2),
+            PriceEntry(now.minusSeconds(130), symbol2, BigDecimal(239), symbol2),
+            PriceEntry(now.minusSeconds(140), symbol2, BigDecimal(120), symbol2),
+            PriceEntry(now.minusSeconds(150), symbol2, BigDecimal(210), symbol2),
+            PriceEntry(now.minusSeconds(160), symbol2, BigDecimal(110), symbol2),
+            PriceEntry(now.minusSeconds(170), symbol2,BigDecimal(210), symbol2)
         )
 
         val expectedList = listOf(
@@ -118,24 +119,24 @@ class IndicatorTest {
         val now = Instant.now()
         val symbol = "SAP.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol, BigDecimal(110))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol, BigDecimal(110), symbol)
         )
 
         val expectedList = listOf(
@@ -178,24 +179,24 @@ class IndicatorTest {
         val now = Instant.now()
         val symbol = "SAP.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol, BigDecimal(110))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol, BigDecimal(110), symbol)
         )
 
         val actual = calculateSMA(data.shuffled(), data[1].time, 14)
@@ -211,24 +212,24 @@ class IndicatorTest {
         val now = Instant.now()
         val symbol = "SAP.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol, BigDecimal(110))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol, BigDecimal(110), symbol)
         )
         val start = data[1]
         val expected = data.subList(1, 15)
@@ -248,24 +249,24 @@ class IndicatorTest {
         val now = Instant.now()
         val symbol = "SAP.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol, BigDecimal(110))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol, BigDecimal(110), symbol)
         )
         val start = data[10]
         val actual = reduceToRelevantData(data.shuffled(), start.time, windowSize = 14)

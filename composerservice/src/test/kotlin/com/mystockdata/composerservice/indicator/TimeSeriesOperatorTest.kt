@@ -1,6 +1,6 @@
 package com.mystockdata.composerservice.indicator
 
-import com.mystockdata.composerservice.csv.CsvEntry
+import com.mystockdata.composerservice.csv.PriceEntry
 import com.mystockdata.composerservice.printMultiDimensionalList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -16,14 +16,14 @@ class TimeSeriesOperatorTest {
         val symbol1 = "VW.DE"
 
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol1, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol1, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol1, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol1, BigDecimal(103))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol1, BigDecimal(100), symbol1),
+            PriceEntry(now.minusSeconds(50), symbol1, BigDecimal(101), symbol1),
+            PriceEntry(now.minusSeconds(60), symbol1, BigDecimal(102), symbol1),
+            PriceEntry(now.minusSeconds(70), symbol1, BigDecimal(103), symbol1)
         )
         val expectedList = listOf(
             data.filter { it.columnName == symbol }.sortedByDescending { it.time },
@@ -45,7 +45,7 @@ class TimeSeriesOperatorTest {
                 //println("$index\t $expected\t$actual")
                 Assertions.assertEquals(expected.time, actual.time)
                 Assertions.assertEquals(expected.columnName, actual.columnName)
-                Assertions.assertEquals(expected.value, actual.value)
+                Assertions.assertEquals(expected.price, actual.price)
             }
         }
 
@@ -59,18 +59,18 @@ class TimeSeriesOperatorTest {
         val symbol1 = "VW.DE"
 
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol1, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol1, null),
-            CsvEntry(now.minusSeconds(60), symbol1, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol1, BigDecimal(103))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol1),
+            PriceEntry(now.minusSeconds(40), symbol1, BigDecimal(100), symbol1),
+            PriceEntry(now.minusSeconds(50), symbol1, null, symbol1),
+            PriceEntry(now.minusSeconds(60), symbol1, BigDecimal(102), symbol1),
+            PriceEntry(now.minusSeconds(70), symbol1, BigDecimal(103), symbol1)
         )
         val expectedList = listOf(
             data.filter { it.columnName == symbol },
-            listOf(data[4], CsvEntry(data[5].time, data[5].columnName, data[4].value), data[6], data[7])
+            listOf(data[4], PriceEntry(data[5].time, data[5].columnName, data[4].price, data[5].symbol), data[6], data[7])
         )
         val actualList = TimeSeriesOperator.splitBySymbolAndFillMissingValues(data)
 
@@ -80,7 +80,7 @@ class TimeSeriesOperatorTest {
                 // println("$index\t $expected\t$actual")
                 Assertions.assertEquals(expected.time, actual.time)
                 Assertions.assertEquals(expected.columnName, actual.columnName)
-                Assertions.assertEquals(expected.value, actual.value)
+                Assertions.assertEquals(expected.price, actual.price)
             }
         }
 

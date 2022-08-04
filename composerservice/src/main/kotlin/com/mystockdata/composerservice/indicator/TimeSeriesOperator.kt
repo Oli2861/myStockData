@@ -1,6 +1,6 @@
 package com.mystockdata.composerservice.indicator
 
-import com.mystockdata.composerservice.csv.CsvEntry
+import com.mystockdata.composerservice.csv.PriceEntry
 import java.math.BigDecimal
 
 /**
@@ -13,11 +13,11 @@ object TimeSeriesOperator {
      * @param data AggregatedPriceInformationResponses
      * @return List containing lists of TimeSeriesDataPoint for each symbol.
      */
-    fun splitBySymbol(data: List<CsvEntry>): List<List<CsvEntry>> {
+    fun splitBySymbol(data: List<PriceEntry>): List<List<PriceEntry>> {
         val symbols: List<String> = data.distinctBy { it.columnName }.map { it.columnName }.sorted()
-        val splitData: MutableList<List<CsvEntry>> = mutableListOf()
+        val splitData: MutableList<List<PriceEntry>> = mutableListOf()
         for (symbol in symbols) {
-            val curr = mutableListOf<CsvEntry>()
+            val curr = mutableListOf<PriceEntry>()
             data.filter { symbol == it.columnName }.forEach {
                 curr.add(it)
             }
@@ -31,18 +31,18 @@ object TimeSeriesOperator {
      * @param data AggregatedPriceInformationResponses
      * @return List containing lists of TimeSeriesDataPoint for each symbol.
      */
-    fun splitBySymbolAndFillMissingValues(data: List<CsvEntry>): List<List<CsvEntry>> {
+    fun splitBySymbolAndFillMissingValues(data: List<PriceEntry>): List<List<PriceEntry>> {
         val splittedData = splitBySymbol(data)
 
         for (subList in splittedData) {
             // Fill missing values in sublist.
             for ((index, timeSeriesDataPoint) in subList.withIndex()) {
-                if (timeSeriesDataPoint.value == null) {
+                if (timeSeriesDataPoint.price == null) {
                     // Search previous value.
                     for (i in index downTo 0) {
-                        val currValue: BigDecimal? = subList[i].value
+                        val currValue: BigDecimal? = subList[i].price
                         if (currValue != null) {
-                            timeSeriesDataPoint.value = currValue
+                            timeSeriesDataPoint.price = currValue
                         }
                     }
                 }

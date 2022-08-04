@@ -1,6 +1,6 @@
 package com.mystockdata.composerservice.indicator
 
-import com.mystockdata.composerservice.csv.CsvEntry
+import com.mystockdata.composerservice.csv.PriceEntry
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Instant
@@ -12,7 +12,7 @@ import java.time.Instant
  * @param fillMissingValue whether missing values should be filled with the previous one.
  * @return List containing lists of the calculated SMA for each symbol. Rounded to two decimal points.
  */
-fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissingValue: Boolean = false): List<List<Indicator>>{
+fun smaForMultipleSymbols(data: List<PriceEntry>, windowSize: Int = 14, fillMissingValue: Boolean = false): List<List<Indicator>>{
     val preparedData = if(fillMissingValue) TimeSeriesOperator.splitBySymbolAndFillMissingValues(data) else TimeSeriesOperator.splitBySymbol(data)
     return preparedData.map { listForASymbol -> smaForAllOfASymbol(listForASymbol, windowSize) }
 }
@@ -24,7 +24,7 @@ fun smaForMultipleSymbols(data: List<CsvEntry>, windowSize: Int = 14, fillMissin
  * @return list of the calculated SMA. Rounded to two decimal points.
  */
 fun smaForAllOfASymbol(
-    data: List<CsvEntry>,
+    data: List<PriceEntry>,
     windowSize: Int = 14
 ): List<Indicator> {
     val smaList = mutableListOf<Indicator>()
@@ -42,7 +42,7 @@ fun smaForAllOfASymbol(
  * @return SMA rounded to two decimal points.
  */
 fun calculateSMA(
-    data: List<CsvEntry>,
+    data: List<PriceEntry>,
     start: Instant,
     windowSize: Int = 14
 ): Indicator {
@@ -50,7 +50,7 @@ fun calculateSMA(
     val relevantData = reduceToRelevantData(data, start, windowSize)
         ?: return Indicator(start, data.first().columnName, IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR, BigDecimal(0))
 
-    val result = relevantData.map { it.value ?: BigDecimal(0) }
+    val result = relevantData.map { it.price ?: BigDecimal(0) }
         .reduce { acc, num -> acc + num }
         .divide(windowSize.toBigDecimal(), 2, RoundingMode.HALF_UP)
 
@@ -65,10 +65,10 @@ fun calculateSMA(
  * @return Sublist starting at the element which matches the start instant and stops windowSize-elements later.
  */
 fun reduceToRelevantData(
-    data: List<CsvEntry>,
+    data: List<PriceEntry>,
     start: Instant,
     windowSize: Int
-): List<CsvEntry>? {
+): List<PriceEntry>? {
     if (data.size < windowSize) return null
 
     val sorted = data.sortedByDescending { it.time }

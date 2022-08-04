@@ -137,7 +137,7 @@ class Composerservice(
         companies: Set<Company>,
         useSymbolAsColumnName: Boolean
     ) {
-        val epsCols: List<CsvEntry> = reports.mapNotNull { report ->
+        val epsCols: List<PriceEntry> = reports.mapNotNull { report ->
             findFactAndParseToCSVEntry(report, tag, companies.firstOrNull { company -> company.lei == report.entityIdentifier }, useSymbolAsColumnName)
         }
         csv.addColumns(epsCols)
@@ -150,14 +150,15 @@ class Composerservice(
         ifrsTag: String,
         company: Company?,
         useSymbolAsColumnName: Boolean
-    ): CsvEntry? {
+    ): PriceEntry? {
         // Find fact
         val fact =  findFact(financialReport, ifrsTag) ?: return null
+        val symbolOfCompanyOrLei = company?.getSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier
         // Parse to CSV entry
         return if (fact is MonetaryFact && fact.end != null) {
-            CsvEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) company?.getSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier else financialReport.entityIdentifier}", fact.value)
+            PriceEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier}", fact.value, symbolOfCompanyOrLei)
         } else if (fact is NumericFact && fact.end != null) {
-            CsvEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) company?.getSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier else financialReport.entityIdentifier}", fact.value)
+            PriceEntry(fact.end!!.toInstant(), "${ifrsTag}_${if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier}", fact.value, symbolOfCompanyOrLei)
         } else {
             logger.debug("Only monetary and numeric facts are supported. $fact")
             null

@@ -34,16 +34,16 @@ class TimeIndexedCSVBuilderTest {
         val expectedHeader = arrayOf("timestamp") + arrayOf("open_SAP.DE", "high_SAP.DE","low_SAP.DE", "close_SAP.DE", "adjClose_SAP.DE", "volume_SAP.DE", "open_VW.DE", "high_VW.DE", "low_VW.DE", "close_VW.DE", "adjClose_VW.DE", "volume_VW.DE").sortedArray()
 
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(CsvEntry(data[3].time, TIMESTAMP_COLUMN_NAME, data[3].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[3].time, "adjClose_SAP.DE", placeholderValue),    CsvEntry(data[3].time, "adjClose_VW.DE", data[3].adjClose), CsvEntry(data[3].time, "close_SAP.DE", placeholderValue), CsvEntry(data[3].time, "close_VW.DE",  data[3].close), CsvEntry(data[3].time, "high_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "high_VW.DE",  data[3].high), CsvEntry(data[3].time, "low_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "low_VW.DE",  data[3].low), CsvEntry(data[3].time, "open_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "open_VW.DE",  data[3].open), CsvEntry(data[3].time, "volume_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "volume_VW.DE",  data[3].volume?.toBigDecimal())),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME, data[2].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[2].time, "adjClose_SAP.DE", data[2].adjClose),    CsvEntry(data[2].time, "adjClose_VW.DE", placeholderValue), CsvEntry(data[2].time, "close_SAP.DE", data[2].close), CsvEntry(data[2].time, "close_VW.DE",  placeholderValue), CsvEntry(data[2].time, "high_SAP.DE",  data[2].high), CsvEntry(data[2].time, "high_VW.DE",  placeholderValue), CsvEntry(data[2].time, "low_SAP.DE",   data[2].low), CsvEntry(data[2].time, "low_VW.DE",  placeholderValue), CsvEntry(data[2].time, "open_SAP.DE",  data[2].open), CsvEntry(data[2].time, "open_VW.DE",  placeholderValue), CsvEntry(data[2].time, "volume_SAP.DE",  data[2].volume?.toBigDecimal()), CsvEntry(data[2].time, "volume_VW.DE",  placeholderValue)),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME, data[0].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose),    CsvEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose), CsvEntry(data[0].time, "close_SAP.DE", data[0].close), CsvEntry(data[0].time, "close_VW.DE",  data[1].close), CsvEntry(data[0].time, "high_SAP.DE",  data[0].high), CsvEntry(data[0].time, "high_VW.DE",  data[1].high), CsvEntry(data[0].time, "low_SAP.DE",  data[0].low), CsvEntry(data[0].time, "low_VW.DE",  data[1].low), CsvEntry(data[0].time, "open_SAP.DE",  data[0].open), CsvEntry(data[0].time, "open_VW.DE",  data[1].open), CsvEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal()), CsvEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal())),
+            listOf(TimeEntry(data[3].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[3].time, "adjClose_SAP.DE", placeholderValue, data[2].symbol),    PriceEntry(data[3].time, "adjClose_VW.DE", data[3].adjClose,  data[3].symbol), PriceEntry(data[3].time, "close_SAP.DE", placeholderValue, data[2].symbol), PriceEntry(data[3].time, "close_VW.DE",  data[3].close, data[3].symbol), PriceEntry(data[3].time, "high_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "high_VW.DE",  data[3].high, data[3].symbol), PriceEntry(data[3].time, "low_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "low_VW.DE",  data[3].low, data[3].symbol), PriceEntry(data[3].time, "open_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "open_VW.DE",  data[3].open, data[3].symbol), PriceEntry(data[3].time, "volume_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "volume_VW.DE",  data[3].volume?.toBigDecimal(), data[3].symbol)),
+            listOf(TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[2].time, "adjClose_SAP.DE", data[2].adjClose, data[2].symbol),    PriceEntry(data[2].time, "adjClose_VW.DE", placeholderValue,  data[3].symbol), PriceEntry(data[2].time, "close_SAP.DE", data[2].close, data[2].symbol), PriceEntry(data[2].time, "close_VW.DE",  placeholderValue, data[3].symbol), PriceEntry(data[2].time, "high_SAP.DE",  data[2].high, data[2].symbol), PriceEntry(data[2].time, "high_VW.DE",  placeholderValue, data[3].symbol), PriceEntry(data[2].time, "low_SAP.DE",   data[2].low, data[2].symbol), PriceEntry(data[2].time, "low_VW.DE",  placeholderValue, data[3].symbol), PriceEntry(data[2].time, "open_SAP.DE",  data[2].open, data[2].symbol), PriceEntry(data[2].time, "open_VW.DE",  placeholderValue, data[3].symbol), PriceEntry(data[2].time, "volume_SAP.DE",  data[2].volume?.toBigDecimal(), data[2].symbol), PriceEntry(data[2].time, "volume_VW.DE",  placeholderValue, data[3].symbol)),
+            listOf(TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose, data[2].symbol),    PriceEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose,  data[3].symbol), PriceEntry(data[0].time, "close_SAP.DE", data[0].close, data[2].symbol), PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[3].symbol), PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol), PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[3].symbol), PriceEntry(data[0].time, "low_SAP.DE",  data[0].low, data[2].symbol), PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[3].symbol), PriceEntry(data[0].time, "open_SAP.DE",  data[0].open, data[2].symbol), PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[3].symbol), PriceEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal(), data[2].symbol), PriceEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal(), data[3].symbol)),
         )
 
         val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.IGNORE)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
-        if(true){
+        if(false){
             println("expectedHeader")
             println(expectedHeader.toString())
             println("actualHeader")
@@ -84,16 +84,16 @@ class TimeIndexedCSVBuilderTest {
 
 
         val expectedBody: List<List<CsvEntry>> = listOf<List<CsvEntry>>(
-            listOf(CsvEntry(data[3].time, TIMESTAMP_COLUMN_NAME, data[3].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[3].time, "adjClose_SAP.DE", placeholderValue),    CsvEntry(data[3].time, "adjClose_VW.DE", data[3].adjClose), CsvEntry(data[3].time, "close_SAP.DE", placeholderValue), CsvEntry(data[3].time, "close_VW.DE",  data[3].close), CsvEntry(data[3].time, "high_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "high_VW.DE",  data[3].high), CsvEntry(data[3].time, "low_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "low_VW.DE",  data[3].low), CsvEntry(data[3].time, "open_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "open_VW.DE",  data[3].open), CsvEntry(data[3].time, "volume_SAP.DE",  placeholderValue), CsvEntry(data[3].time, "volume_VW.DE",  data[3].volume?.toBigDecimal())),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME, data[2].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[2].time, "adjClose_SAP.DE", data[2].adjClose),    CsvEntry(data[2].time, "adjClose_VW.DE", data[1].adjClose), CsvEntry(data[2].time, "close_SAP.DE", data[2].close), CsvEntry(data[2].time, "close_VW.DE",  data[1].close), CsvEntry(data[2].time, "high_SAP.DE",  data[2].high), CsvEntry(data[2].time, "high_VW.DE",  data[1].high), CsvEntry(data[2].time, "low_SAP.DE",   data[2].low), CsvEntry(data[2].time, "low_VW.DE",  data[1].low), CsvEntry(data[2].time, "open_SAP.DE",  data[2].open), CsvEntry(data[2].time, "open_VW.DE",  data[1].open), CsvEntry(data[2].time, "volume_SAP.DE",  data[2].volume?.toBigDecimal()), CsvEntry(data[2].time, "volume_VW.DE",  data[3].volume?.toBigDecimal())),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME, data[0].time.toEpochMilli().toBigDecimal()),   CsvEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose),    CsvEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose), CsvEntry(data[0].time, "close_SAP.DE", data[0].close), CsvEntry(data[0].time, "close_VW.DE",  data[1].close), CsvEntry(data[0].time, "high_SAP.DE",  data[0].high), CsvEntry(data[0].time, "high_VW.DE",  data[1].high), CsvEntry(data[0].time, "low_SAP.DE",  data[2].low), CsvEntry(data[0].time, "low_VW.DE",  data[1].low), CsvEntry(data[0].time, "open_SAP.DE",  data[2].open), CsvEntry(data[0].time, "open_VW.DE",  data[1].open), CsvEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal()), CsvEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal())),
+            listOf(TimeEntry(data[3].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[3].time, "adjClose_SAP.DE", placeholderValue, data[2].symbol),    PriceEntry(data[3].time, "adjClose_VW.DE", data[3].adjClose, data[1].symbol), PriceEntry(data[3].time, "close_SAP.DE", placeholderValue, data[2].symbol), PriceEntry(data[3].time, "close_VW.DE",  data[3].close, data[1].symbol), PriceEntry(data[3].time, "high_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "high_VW.DE",  data[3].high, data[1].symbol), PriceEntry(data[3].time, "low_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "low_VW.DE",  data[3].low, data[1].symbol), PriceEntry(data[3].time, "open_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "open_VW.DE",  data[3].open, data[1].symbol), PriceEntry(data[3].time, "volume_SAP.DE",  placeholderValue, data[2].symbol), PriceEntry(data[3].time, "volume_VW.DE",  data[3].volume?.toBigDecimal(), data[1].symbol)),
+            listOf(TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[2].time, "adjClose_SAP.DE", data[2].adjClose, data[2].symbol),    PriceEntry(data[2].time, "adjClose_VW.DE", data[1].adjClose, data[1].symbol), PriceEntry(data[2].time, "close_SAP.DE", data[2].close, data[2].symbol), PriceEntry(data[2].time, "close_VW.DE",  data[1].close, data[1].symbol), PriceEntry(data[2].time, "high_SAP.DE",  data[2].high, data[2].symbol), PriceEntry(data[2].time, "high_VW.DE",  data[1].high, data[1].symbol), PriceEntry(data[2].time, "low_SAP.DE",   data[2].low, data[2].symbol), PriceEntry(data[2].time, "low_VW.DE",  data[1].low, data[1].symbol), PriceEntry(data[2].time, "open_SAP.DE",  data[2].open, data[2].symbol), PriceEntry(data[2].time, "open_VW.DE",  data[1].open, data[1].symbol), PriceEntry(data[2].time, "volume_SAP.DE",  data[2].volume?.toBigDecimal(), data[2].symbol), PriceEntry(data[2].time, "volume_VW.DE",  data[3].volume?.toBigDecimal(), data[1].symbol)),
+            listOf(TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose, data[2].symbol),    PriceEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose, data[1].symbol), PriceEntry(data[0].time, "close_SAP.DE", data[0].close, data[2].symbol), PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[1].symbol), PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol), PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[1].symbol), PriceEntry(data[0].time, "low_SAP.DE",  data[2].low, data[2].symbol), PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[1].symbol), PriceEntry(data[0].time, "open_SAP.DE",  data[2].open, data[2].symbol), PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[1].symbol), PriceEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal(), data[2].symbol), PriceEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal(), data[1].symbol)),
         )
 
         val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.LAST_VALUE)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
-        if(true){
+        if(false){
             println("expectedHeader")
             println(expectedHeader.toString())
             println("actualHeader")
@@ -134,50 +134,50 @@ class TimeIndexedCSVBuilderTest {
         expectedHeader.addAll(colNames)
 
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(
-                CsvEntry(data[3].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[3].time.toEpochMilli())),
-                CsvEntry(data[3].time, "adjClose_SAP.DE",  data[2].adjClose),
-                CsvEntry(data[3].time, "adjClose_VW.DE",  data[3].adjClose),
-                CsvEntry(data[3].time, "close_SAP.DE",  data[2].close),
-                CsvEntry(data[3].time, "close_VW.DE",  data[3].close),
-                CsvEntry(data[3].time, "high_SAP.DE",  data[2].high),
-                CsvEntry(data[3].time, "high_VW.DE",  data[3].high),
-                CsvEntry(data[3].time, "low_SAP.DE",  data[2].low),
-                CsvEntry(data[3].time, "low_VW.DE",  data[3].low),
-                CsvEntry(data[3].time, "open_SAP.DE",  data[2].open),
-                CsvEntry(data[3].time, "open_VW.DE",  data[3].open),
-                CsvEntry(data[3].time, "volume_SAP.DE", data[2].volume?.toBigDecimal()),
-                CsvEntry(data[3].time, "volume_VW.DE", data[3].volume?.toBigDecimal())
+            listOf<CsvEntry>(
+                TimeEntry(data[3].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[3].time, "adjClose_SAP.DE",  data[2].adjClose, data[2].symbol),
+                PriceEntry(data[3].time, "adjClose_VW.DE",  data[3].adjClose, data[3].symbol),
+                PriceEntry(data[3].time, "close_SAP.DE",  data[2].close, data[2].symbol),
+                PriceEntry(data[3].time, "close_VW.DE",  data[3].close, data[3].symbol),
+                PriceEntry(data[3].time, "high_SAP.DE",  data[2].high, data[2].symbol),
+                PriceEntry(data[3].time, "high_VW.DE",  data[3].high, data[3].symbol),
+                PriceEntry(data[3].time, "low_SAP.DE",  data[2].low, data[2].symbol),
+                PriceEntry(data[3].time, "low_VW.DE",  data[3].low, data[3].symbol),
+                PriceEntry(data[3].time, "open_SAP.DE",  data[2].open, data[2].symbol),
+                PriceEntry(data[3].time, "open_VW.DE",  data[3].open, data[3].symbol),
+                PriceEntry(data[3].time, "volume_SAP.DE", data[2].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[3].time, "volume_VW.DE", data[3].volume?.toBigDecimal(), data[3].symbol)
+            ),
+            listOf<CsvEntry>(
+                TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[2].time, "adjClose_SAP.DE",  data[2].adjClose, data[2].symbol),
+                PriceEntry(data[2].time, "adjClose_VW.DE",  data[1].adjClose, data[3].symbol),
+                PriceEntry(data[2].time, "close_SAP.DE",  data[2].close, data[2].symbol),
+                PriceEntry(data[2].time, "close_VW.DE",  data[1].close, data[3].symbol),
+                PriceEntry(data[2].time, "high_SAP.DE",  data[2].high, data[2].symbol),
+                PriceEntry(data[2].time, "high_VW.DE",  data[1].high, data[3].symbol),
+                PriceEntry(data[2].time, "low_SAP.DE",  data[2].low, data[2].symbol),
+                PriceEntry(data[2].time, "low_VW.DE",  data[1].low, data[3].symbol),
+                PriceEntry(data[2].time, "open_SAP.DE",  data[2].open, data[2].symbol),
+                PriceEntry(data[2].time, "open_VW.DE",  data[1].open, data[3].symbol),
+                PriceEntry(data[2].time, "volume_SAP.DE", data[2].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[2].time, "volume_VW.DE", data[1].volume?.toBigDecimal(), data[3].symbol),
             ),
             listOf(
-                CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[2].time.toEpochMilli())),
-                CsvEntry(data[2].time, "adjClose_SAP.DE",  data[2].adjClose),
-                CsvEntry(data[2].time, "adjClose_VW.DE",  data[1].adjClose),
-                CsvEntry(data[2].time, "close_SAP.DE",  data[2].close),
-                CsvEntry(data[2].time, "close_VW.DE",  data[1].close),
-                CsvEntry(data[2].time, "high_SAP.DE",  data[2].high),
-                CsvEntry(data[2].time, "high_VW.DE",  data[1].high),
-                CsvEntry(data[2].time, "low_SAP.DE",  data[2].low),
-                CsvEntry(data[2].time, "low_VW.DE",  data[1].low),
-                CsvEntry(data[2].time, "open_SAP.DE",  data[2].open),
-                CsvEntry(data[2].time, "open_VW.DE",  data[1].open),
-                CsvEntry(data[2].time, "volume_SAP.DE", data[2].volume?.toBigDecimal()),
-                CsvEntry(data[2].time, "volume_VW.DE", data[1].volume?.toBigDecimal()),
-            ),
-            listOf(
-                CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[0].time.toEpochMilli())),
-                CsvEntry(data[0].time, "adjClose_SAP.DE",  data[0].adjClose),
-                CsvEntry(data[0].time, "adjClose_VW.DE",  data[1].adjClose),
-                CsvEntry(data[0].time, "close_SAP.DE",  data[0].close),
-                CsvEntry(data[0].time, "close_VW.DE",  data[1].close),
-                CsvEntry(data[0].time, "high_SAP.DE",  data[0].high),
-                CsvEntry(data[0].time, "high_VW.DE",  data[1].high),
-                CsvEntry(data[0].time, "low_SAP.DE",  data[0].low),
-                CsvEntry(data[0].time, "low_VW.DE",  data[1].low),
-                CsvEntry(data[0].time, "open_SAP.DE",  data[0].open),
-                CsvEntry(data[0].time, "open_VW.DE",  data[1].open),
-                CsvEntry(data[0].time, "volume_SAP.DE", data[0].volume?.toBigDecimal()),
-                CsvEntry(data[0].time, "volume_VW.DE", data[1].volume?.toBigDecimal()),
+                TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[0].time, "adjClose_SAP.DE",  data[0].adjClose, data[2].symbol),
+                PriceEntry(data[0].time, "adjClose_VW.DE",  data[1].adjClose, data[3].symbol),
+                PriceEntry(data[0].time, "close_SAP.DE",  data[0].close, data[2].symbol),
+                PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[3].symbol),
+                PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol),
+                PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[3].symbol),
+                PriceEntry(data[0].time, "low_SAP.DE",  data[0].low, data[2].symbol),
+                PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[3].symbol),
+                PriceEntry(data[0].time, "open_SAP.DE",  data[0].open, data[2].symbol),
+                PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[3].symbol),
+                PriceEntry(data[0].time, "volume_SAP.DE", data[0].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[0].time, "volume_VW.DE", data[1].volume?.toBigDecimal(), data[3].symbol),
             ),
         )
 
@@ -185,7 +185,7 @@ class TimeIndexedCSVBuilderTest {
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
-        if(true){
+        if(false){
             println("expectedHeader")
             println(expectedHeader.toString())
             println("actualHeader")
@@ -226,16 +226,58 @@ class TimeIndexedCSVBuilderTest {
         expectedHeader.addAll(colNames)
 
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(CsvEntry(data[3].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[3].time.toEpochMilli())), CsvEntry(data[3].time, "adjClose_SAP.DE",  data[2].adjClose), CsvEntry(data[3].time, "adjClose_VW.DE",  data[3].adjClose), CsvEntry(data[3].time, "close_SAP.DE",  data[2].close), CsvEntry(data[3].time, "close_VW.DE",  data[3].close), CsvEntry(data[3].time, "high_SAP.DE",  data[2].high), CsvEntry(data[3].time, "high_VW.DE",  data[3].high), CsvEntry(data[3].time, "low_SAP.DE",  data[2].low), CsvEntry(data[3].time, "low_VW.DE",  data[3].low), CsvEntry(data[3].time, "open_SAP.DE",  data[2].open), CsvEntry(data[3].time, "open_VW.DE",  data[3].open), CsvEntry(data[3].time, "volume_SAP.DE", data[2].volume?.toBigDecimal()), CsvEntry(data[3].time, "volume_VW.DE", data[3].volume?.toBigDecimal())),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[2].time.toEpochMilli())), CsvEntry(data[2].time, "adjClose_SAP.DE",  data[2].adjClose), CsvEntry(data[2].time, "adjClose_VW.DE",  data[1].adjClose), CsvEntry(data[2].time, "close_SAP.DE",  data[2].close), CsvEntry(data[2].time, "close_VW.DE",  data[1].close), CsvEntry(data[2].time, "high_SAP.DE",  data[2].high), CsvEntry(data[2].time, "high_VW.DE",  data[1].high), CsvEntry(data[2].time, "low_SAP.DE",  data[2].low), CsvEntry(data[2].time, "low_VW.DE",  data[1].low), CsvEntry(data[2].time, "open_SAP.DE",  data[2].open), CsvEntry(data[2].time, "open_VW.DE",  data[1].open), CsvEntry(data[2].time, "volume_SAP.DE", data[2].volume?.toBigDecimal()), CsvEntry(data[2].time, "volume_VW.DE", data[1].volume?.toBigDecimal()),),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME, BigDecimal(data[0].time.toEpochMilli())), CsvEntry(data[0].time, "adjClose_SAP.DE",  data[2].adjClose), CsvEntry(data[0].time, "adjClose_VW.DE",  data[1].adjClose), CsvEntry(data[0].time, "close_SAP.DE",  data[0].close), CsvEntry(data[0].time, "close_VW.DE",  data[1].close), CsvEntry(data[0].time, "high_SAP.DE",  data[0].high), CsvEntry(data[0].time, "high_VW.DE",  data[1].high), CsvEntry(data[0].time, "low_SAP.DE",  data[0].low), CsvEntry(data[0].time, "low_VW.DE",  data[1].low), CsvEntry(data[0].time, "open_SAP.DE",  data[0].open), CsvEntry(data[0].time, "open_VW.DE",  data[1].open), CsvEntry(data[0].time, "volume_SAP.DE", data[0].volume?.toBigDecimal()), CsvEntry(data[0].time, "volume_VW.DE", data[1].volume?.toBigDecimal()),),
+            listOf(
+                TimeEntry(data[3].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[3].time, "adjClose_SAP.DE", data[2].adjClose, data[2].symbol),
+                PriceEntry(data[3].time, "adjClose_VW.DE",  data[3].adjClose, data[3].symbol),
+                PriceEntry(data[3].time, "close_SAP.DE",  data[2].close, data[2].symbol),
+                PriceEntry(data[3].time, "close_VW.DE",  data[3].close, data[3].symbol),
+                PriceEntry(data[3].time, "high_SAP.DE",  data[2].high, data[2].symbol),
+                PriceEntry(data[3].time, "high_VW.DE",  data[3].high, data[3].symbol),
+                PriceEntry(data[3].time, "low_SAP.DE",  data[2].low, data[2].symbol),
+                PriceEntry(data[3].time, "low_VW.DE",  data[3].low, data[3].symbol),
+                PriceEntry(data[3].time, "open_SAP.DE",  data[2].open, data[2].symbol),
+                PriceEntry(data[3].time, "open_VW.DE",  data[3].open, data[3].symbol),
+                PriceEntry(data[3].time, "volume_SAP.DE", data[2].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[3].time, "volume_VW.DE", data[3].volume?.toBigDecimal(), data[3].symbol)
+            ),
+            listOf(
+                TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[2].time, "adjClose_SAP.DE",  data[2].adjClose, data[2].symbol),
+                PriceEntry(data[2].time, "adjClose_VW.DE",  data[1].adjClose, data[3].symbol),
+                PriceEntry(data[2].time, "close_SAP.DE",  data[2].close, data[2].symbol),
+                PriceEntry(data[2].time, "close_VW.DE",  data[1].close, data[3].symbol),
+                PriceEntry(data[2].time, "high_SAP.DE",  data[2].high, data[2].symbol),
+                PriceEntry(data[2].time, "high_VW.DE",  data[1].high, data[3].symbol),
+                PriceEntry(data[2].time, "low_SAP.DE",  data[2].low, data[2].symbol),
+                PriceEntry(data[2].time, "low_VW.DE",  data[1].low, data[3].symbol),
+                PriceEntry(data[2].time, "open_SAP.DE",  data[2].open, data[2].symbol),
+                PriceEntry(data[2].time, "open_VW.DE",  data[1].open, data[3].symbol),
+                PriceEntry(data[2].time, "volume_SAP.DE", data[2].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[2].time, "volume_VW.DE", data[1].volume?.toBigDecimal(), data[3].symbol)
+            ),
+            listOf(
+                TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[0].time, "adjClose_SAP.DE",  data[2].adjClose, data[2].symbol),
+                PriceEntry(data[0].time, "adjClose_VW.DE",  data[1].adjClose, data[3].symbol),
+                PriceEntry(data[0].time, "close_SAP.DE",  data[0].close, data[2].symbol),
+                PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[3].symbol),
+                PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol),
+                PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[3].symbol),
+                PriceEntry(data[0].time, "low_SAP.DE",  data[0].low, data[2].symbol),
+                PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[3].symbol),
+                PriceEntry(data[0].time, "open_SAP.DE",  data[0].open, data[2].symbol),
+                PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[3].symbol),
+                PriceEntry(data[0].time, "volume_SAP.DE", data[0].volume?.toBigDecimal(), data[2].symbol),
+                PriceEntry(data[0].time, "volume_VW.DE", data[1].volume?.toBigDecimal(), data[3].symbol)
+            ),
         )
 
         val csvEntries = data.toCSVEntryList().toMutableList()
         val nullValueEntry = csvEntries.find { it.time == data[0].time && it.columnName ==  "adjClose_SAP.DE"}
         csvEntries.replaceAll {
             if(it == nullValueEntry){
-                CsvEntry(nullValueEntry.time, nullValueEntry.columnName, PLACEHOLDER_VALUE)
+                PriceEntry(nullValueEntry.time, nullValueEntry.columnName, PLACEHOLDER_VALUE, it.symbol)
             } else{
                 it
             }
@@ -244,7 +286,7 @@ class TimeIndexedCSVBuilderTest {
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
-        if(true){
+        if(false){
             println("expectedHeader")
             println(expectedHeader.toString())
             println("actualHeader")
@@ -292,11 +334,36 @@ class TimeIndexedCSVBuilderTest {
         val expectedHeader = arrayOf("timestamp") + arrayOf("SAP.DE", "VW.DE", "TSLA").sortedArray()
 
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(CsvEntry(data[7].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[7].time.toEpochMilli())),  CsvEntry(data[7]. time, data[5].symbol, placeholderValue),  CsvEntry(data[7].time, data[1].symbol, placeholderValue),  data[7].toCSVEntry()),
-            listOf(CsvEntry(data[6].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[6].time.toEpochMilli())),  CsvEntry(data[6]. time, data[5].symbol, placeholderValue),  CsvEntry(data[6].time, data[1].symbol, placeholderValue),  data[6].toCSVEntry()),
-            listOf(CsvEntry(data[4].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[4].time.toEpochMilli())),  data[5].toCSVEntry(),                                       CsvEntry(data[4].time, data[1].symbol, placeholderValue),  data[4].toCSVEntry()),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[2].time.toEpochMilli())),  data[3].toCSVEntry(),                                       CsvEntry(data[2].time, data[1].symbol, placeholderValue),  data[2].toCSVEntry()),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[0].time.toEpochMilli())),  data[0].toCSVEntry(),                                       data[1].toCSVEntry(),                                   CsvEntry(data[1].time, data[2].symbol, placeholderValue))
+            listOf(
+                TimeEntry(data[7].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[7]. time, data[5].symbol, placeholderValue, data[5].symbol),
+                PriceEntry(data[7].time, data[1].symbol, placeholderValue, data[1].symbol),
+                data[7].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[6].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[6]. time, data[5].symbol, placeholderValue, data[5].symbol),
+                PriceEntry(data[6].time, data[1].symbol, placeholderValue, data[1].symbol),
+                data[6].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[4].time, TIMESTAMP_COLUMN_NAME),
+                data[5].toCSVEntry(),
+                PriceEntry(data[4].time, data[1].symbol, placeholderValue, data[1].symbol),
+                data[4].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),
+                data[3].toCSVEntry(),
+                PriceEntry(data[2].time, data[1].symbol, placeholderValue, data[1].symbol),
+                data[2].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),
+                data[0].toCSVEntry(),
+                data[1].toCSVEntry(),
+                PriceEntry(data[1].time, data[2].symbol, placeholderValue, data[2].symbol)
+            )
         )
 
         if(false){
@@ -346,14 +413,38 @@ class TimeIndexedCSVBuilderTest {
         val actualBody = subject.csvBody
         val expectedHeader = listOf("timestamp", "SAP.DE", "TSLA", "VW.DE")
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(CsvEntry(data[7].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[7].time.toEpochMilli())),  CsvEntry(data[7]. time, data[5].symbol, data[5].price),  CsvEntry(data[7].time, data[1].symbol, data[1].price),  data[7].toCSVEntry()),
-            listOf(CsvEntry(data[6].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[6].time.toEpochMilli())),  CsvEntry(data[6]. time, data[5].symbol, data[5].price),  CsvEntry(data[6].time, data[1].symbol, data[1].price),  data[6].toCSVEntry()),
-            listOf(CsvEntry(data[4].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[4].time.toEpochMilli())),  data[5].toCSVEntry(),                                    CsvEntry(data[4].time, data[1].symbol, data[1].price),  data[4].toCSVEntry()),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[2].time.toEpochMilli())),  data[3].toCSVEntry(),                                    CsvEntry(data[2].time, data[1].symbol, data[1].price),  data[2].toCSVEntry()),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME,    BigDecimal(data[0].time.toEpochMilli())),  data[0].toCSVEntry(),                                    data[1].toCSVEntry(),                                   CsvEntry(data[1].time, data[2].symbol, data[2].price))
+            listOf(
+                TimeEntry(data[7].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[7]. time, data[5].symbol, data[5].price, data[5].symbol),
+                PriceEntry(data[7].time, data[1].symbol, data[1].price, data[1].symbol),
+                data[7].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[6].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[6]. time, data[5].symbol, data[5].price, data[5].symbol),
+                PriceEntry(data[6].time, data[1].symbol, data[1].price, data[1].symbol),
+                data[6].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[4].time, TIMESTAMP_COLUMN_NAME),
+                data[5].toCSVEntry(),
+                PriceEntry(data[4].time, data[1].symbol, data[1].price, data[1].symbol),
+                data[4].toCSVEntry()
+            ),
+            listOf(
+                TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),
+                data[3].toCSVEntry(),
+                PriceEntry(data[2].time, data[1].symbol, data[1].price, data[1].symbol),
+                data[2].toCSVEntry()),
+            listOf(
+                TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),
+                data[0].toCSVEntry(),
+                data[1].toCSVEntry(),
+                PriceEntry(data[1].time, data[2].symbol, data[2].price, data[2].symbol)
+            )
         )
 
-        if(true) {
+        if(false) {
             println("expectedHeader")
             println(expectedHeader.toString())
             println("actualHeader")
@@ -398,10 +489,10 @@ class TimeIndexedCSVBuilderTest {
         val smaHeader = "SMA"
         val rsiHeader = "RSI"
         val columns = listOf(
-            CsvEntry(now, rsiHeader, BigDecimal(10)),
-            CsvEntry(now.minusSeconds(20), rsiHeader, BigDecimal(20)),
-            CsvEntry(now.minusSeconds(20), smaHeader, BigDecimal(30)),
-            CsvEntry(now.minusSeconds(50), smaHeader, BigDecimal(40)),
+            PriceEntry(now, rsiHeader, BigDecimal(10), "test"),
+            PriceEntry(now.minusSeconds(20), rsiHeader, BigDecimal(20), "test"),
+            PriceEntry(now.minusSeconds(20), smaHeader, BigDecimal(30), "test"),
+            PriceEntry(now.minusSeconds(50), smaHeader, BigDecimal(40), "test"),
         )
         val subject = TimeIndexedCSVBuilder(data.toCSVEntryList(), MissingValueHandlingStrategy.IGNORE)
         subject.addColumns(columns)
@@ -412,11 +503,46 @@ class TimeIndexedCSVBuilderTest {
         val expectedHeader = listOf(TIMESTAMP_COLUMN_NAME, "SAP.DE", "TSLA", "VW.DE", rsiHeader, smaHeader)
 
         val expectedBody: List<List<CsvEntry>> = listOf(
-            listOf(CsvEntry(data[7].time, TIMESTAMP_COLUMN_NAME, data[7].time.toEpochMilli().toBigDecimal()),  CsvEntry(data[7].time, data[0].symbol, placeholderValue),   CsvEntry(data[7].time, data[1].symbol, placeholderValue),    CsvEntry(data[7].time, data[7].symbol, data[7].price),       CsvEntry(data[7].time, rsiHeader, columns[1].value),  CsvEntry(data[7].time, smaHeader, columns[3].value)),
-            listOf(CsvEntry(data[6].time, TIMESTAMP_COLUMN_NAME, data[6].time.toEpochMilli().toBigDecimal()),  CsvEntry(data[6].time, data[0].symbol, placeholderValue),   CsvEntry(data[6].time, data[1].symbol, placeholderValue),    CsvEntry(data[6].time, data[7].symbol, data[6].price),       CsvEntry(data[6].time, rsiHeader, columns[1].value),  CsvEntry(data[6].time, smaHeader, columns[3].value)),
-            listOf(CsvEntry(data[4].time, TIMESTAMP_COLUMN_NAME, data[4].time.toEpochMilli().toBigDecimal()),  CsvEntry(data[4].time, data[0].symbol, data[5].price),      CsvEntry(data[4].time, data[1].symbol, placeholderValue),    CsvEntry(data[4].time, data[7].symbol, data[4].price),       CsvEntry(data[4].time, rsiHeader, columns[1].value),  CsvEntry(data[4].time, smaHeader, columns[2].value)),
-            listOf(CsvEntry(data[2].time, TIMESTAMP_COLUMN_NAME, data[2].time.toEpochMilli().toBigDecimal()),  CsvEntry(data[2].time, data[0].symbol, data[3].price),      CsvEntry(data[2].time, data[1].symbol, placeholderValue),    CsvEntry(data[2].time, data[7].symbol, data[2].price),       CsvEntry(data[2].time, rsiHeader, columns[1].value),  CsvEntry(data[2].time, smaHeader, columns[2].value)),
-            listOf(CsvEntry(data[0].time, TIMESTAMP_COLUMN_NAME, data[0].time.toEpochMilli().toBigDecimal()),  CsvEntry(data[0].time, data[0].symbol, data[0].price),      CsvEntry(data[0].time, data[1].symbol, data[1].price),       CsvEntry(data[0].time, data[7].symbol, placeholderValue),    CsvEntry(data[0].time, rsiHeader, columns[0].value),  CsvEntry(data[0].time, smaHeader, columns[2].value))
+            listOf(
+                TimeEntry(data[7].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[7].time, data[0].symbol, placeholderValue, data[0].symbol),
+                PriceEntry(data[7].time, data[1].symbol, placeholderValue, data[1].symbol),
+                PriceEntry(data[7].time, data[7].symbol, data[7].price, data[7].symbol),
+                PriceEntry(data[7].time, rsiHeader, columns[1].price, columns[1].symbol),
+                PriceEntry(data[7].time, smaHeader, columns[3].price, columns[3].symbol)
+            ),
+            listOf(
+                TimeEntry(data[6].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[6].time, data[0].symbol, placeholderValue, data[0].symbol),
+                PriceEntry(data[6].time, data[1].symbol, placeholderValue, data[1].symbol),
+                PriceEntry(data[6].time, data[7].symbol, data[6].price, data[7].symbol),
+                PriceEntry(data[6].time, rsiHeader, columns[1].price, columns[1].symbol),
+                PriceEntry(data[6].time, smaHeader, columns[3].price, columns[3].symbol)
+            ),
+            listOf(
+                TimeEntry(data[4].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[4].time, data[0].symbol, data[5].price, data[0].symbol),
+                PriceEntry(data[4].time, data[1].symbol, placeholderValue, data[1].symbol),
+                PriceEntry(data[4].time, data[7].symbol, data[4].price, data[7].symbol),
+                PriceEntry(data[4].time, rsiHeader, columns[1].price, columns[1].symbol),
+                PriceEntry(data[4].time, smaHeader, columns[2].price, columns[2].symbol)
+            ),
+            listOf(
+                TimeEntry(data[2].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[2].time, data[0].symbol, data[3].price, data[0].symbol),
+                PriceEntry(data[2].time, data[1].symbol, placeholderValue, data[1].symbol),
+                PriceEntry(data[2].time, data[7].symbol, data[2].price, data[7].symbol),
+                PriceEntry(data[2].time, rsiHeader, columns[1].price, columns[1].symbol),
+                PriceEntry(data[2].time, smaHeader, columns[2].price, columns[2].symbol)
+            ),
+            listOf(
+                TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),
+                PriceEntry(data[0].time, data[0].symbol, data[0].price, data[0].symbol),
+                PriceEntry(data[0].time, data[1].symbol, data[1].price, data[1].symbol),
+                PriceEntry(data[0].time, data[7].symbol, placeholderValue, data[7].symbol),
+                PriceEntry(data[0].time, rsiHeader, columns[0].price, columns[0].symbol),
+                PriceEntry(data[0].time, smaHeader, columns[2].price, columns[2].symbol)
+            )
         )
 
         if(false){
@@ -451,42 +577,42 @@ class TimeIndexedCSVBuilderTest {
         val symbol = "SAP.DE"
         val symbol1 = "VW.DE"
         val data = listOf(
-            CsvEntry(now, symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(10), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(20), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(30), symbol, BigDecimal(115)),
-            CsvEntry(now.minusSeconds(40), symbol, BigDecimal(100)),
-            CsvEntry(now.minusSeconds(50), symbol, BigDecimal(101)),
-            CsvEntry(now.minusSeconds(60), symbol, BigDecimal(102)),
-            CsvEntry(now.minusSeconds(70), symbol, BigDecimal(103)),
-            CsvEntry(now.minusSeconds(80), symbol, BigDecimal(104)),
-            CsvEntry(now.minusSeconds(90), symbol, BigDecimal(105)),
-            CsvEntry(now.minusSeconds(100), symbol, BigDecimal(106)),
-            CsvEntry(now.minusSeconds(110), symbol, BigDecimal(107)),
-            CsvEntry(now.minusSeconds(120), symbol, BigDecimal(108)),
-            CsvEntry(now.minusSeconds(130), symbol, BigDecimal(109)),
-            CsvEntry(now.minusSeconds(140), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(150), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(160), symbol, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol,BigDecimal(110)),
-            CsvEntry(now, symbol1, BigDecimal(200)),
-            CsvEntry(now.minusSeconds(10), symbol1, BigDecimal(205)),
-            CsvEntry(now.minusSeconds(20), symbol1, BigDecimal(220)),
-            CsvEntry(now.minusSeconds(30), symbol1, BigDecimal(215)),
-            CsvEntry(now.minusSeconds(40), symbol1, BigDecimal(200)),
-            CsvEntry(now.minusSeconds(50), symbol1, BigDecimal(201)),
-            CsvEntry(now.minusSeconds(60), symbol1, BigDecimal(222)),
-            CsvEntry(now.minusSeconds(70), symbol1, BigDecimal(203)),
-            CsvEntry(now.minusSeconds(80), symbol1, BigDecimal(204)),
-            CsvEntry(now.minusSeconds(90), symbol1, BigDecimal(205)),
-            CsvEntry(now.minusSeconds(100), symbol1, BigDecimal(226)),
-            CsvEntry(now.minusSeconds(110), symbol1, BigDecimal(227)),
-            CsvEntry(now.minusSeconds(120), symbol1, BigDecimal(238)),
-            CsvEntry(now.minusSeconds(130), symbol1, BigDecimal(239)),
-            CsvEntry(now.minusSeconds(140), symbol1, BigDecimal(120)),
-            CsvEntry(now.minusSeconds(150), symbol1, BigDecimal(210)),
-            CsvEntry(now.minusSeconds(160), symbol1, BigDecimal(110)),
-            CsvEntry(now.minusSeconds(170), symbol1,BigDecimal(210))
+            PriceEntry(now, symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(10), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(20), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(30), symbol, BigDecimal(115), symbol),
+            PriceEntry(now.minusSeconds(40), symbol, BigDecimal(100), symbol),
+            PriceEntry(now.minusSeconds(50), symbol, BigDecimal(101), symbol),
+            PriceEntry(now.minusSeconds(60), symbol, BigDecimal(102), symbol),
+            PriceEntry(now.minusSeconds(70), symbol, BigDecimal(103), symbol),
+            PriceEntry(now.minusSeconds(80), symbol, BigDecimal(104), symbol),
+            PriceEntry(now.minusSeconds(90), symbol, BigDecimal(105), symbol),
+            PriceEntry(now.minusSeconds(100), symbol, BigDecimal(106), symbol),
+            PriceEntry(now.minusSeconds(110), symbol, BigDecimal(107), symbol),
+            PriceEntry(now.minusSeconds(120), symbol, BigDecimal(108), symbol),
+            PriceEntry(now.minusSeconds(130), symbol, BigDecimal(109), symbol),
+            PriceEntry(now.minusSeconds(140), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(150), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(160), symbol, BigDecimal(110), symbol),
+            PriceEntry(now.minusSeconds(170), symbol,BigDecimal(110), symbol),
+            PriceEntry(now, symbol1, BigDecimal(200), symbol1),
+            PriceEntry(now.minusSeconds(10), symbol1, BigDecimal(205), symbol1),
+            PriceEntry(now.minusSeconds(20), symbol1, BigDecimal(220), symbol1),
+            PriceEntry(now.minusSeconds(30), symbol1, BigDecimal(215), symbol1),
+            PriceEntry(now.minusSeconds(40), symbol1, BigDecimal(200), symbol1),
+            PriceEntry(now.minusSeconds(50), symbol1, BigDecimal(201), symbol1),
+            PriceEntry(now.minusSeconds(60), symbol1, BigDecimal(222), symbol1),
+            PriceEntry(now.minusSeconds(70), symbol1, BigDecimal(203), symbol1),
+            PriceEntry(now.minusSeconds(80), symbol1, BigDecimal(204), symbol1),
+            PriceEntry(now.minusSeconds(90), symbol1, BigDecimal(205), symbol1),
+            PriceEntry(now.minusSeconds(100), symbol1, BigDecimal(226), symbol1),
+            PriceEntry(now.minusSeconds(110), symbol1, BigDecimal(227), symbol1),
+            PriceEntry(now.minusSeconds(120), symbol1, BigDecimal(238), symbol1),
+            PriceEntry(now.minusSeconds(130), symbol1, BigDecimal(239), symbol1),
+            PriceEntry(now.minusSeconds(140), symbol1, BigDecimal(120), symbol1),
+            PriceEntry(now.minusSeconds(150), symbol1, BigDecimal(210), symbol1),
+            PriceEntry(now.minusSeconds(160), symbol1, BigDecimal(110), symbol1),
+            PriceEntry(now.minusSeconds(170), symbol1,BigDecimal(210), symbol1)
         )
 
         val smaResults = listOf(
@@ -534,7 +660,7 @@ class TimeIndexedCSVBuilderTest {
 
         val expectedList = smaResults.map { list ->
             list.map {
-                    indicator -> CsvEntry(indicator.time, "SMA_${indicator.symbol}", indicator.value)
+                    indicator -> PriceEntry(indicator.time, "SMA_${indicator.symbol}", indicator.value, indicator.symbol)
             }.sortedBy { it.time }
         }
 
@@ -545,7 +671,8 @@ class TimeIndexedCSVBuilderTest {
 
         val actualSMASymbol = subject.getColumn("SMA_SAP.DE")
         val actualSMASymbol1 = subject.getColumn("SMA_VW.DE")
-        val actualList = listOf(actualSMASymbol, actualSMASymbol1)
+        val actualList =
+            listOf(actualSMASymbol, actualSMASymbol1).map { it.mapNotNull { entry -> entry as? PriceEntry } }
 
         if(false){
             println("actualHeader:")
@@ -564,7 +691,7 @@ class TimeIndexedCSVBuilderTest {
             for((index, _) in sublist.withIndex()){
                 Assertions.assertEquals(expectedList[subListNum][index].time, actualList[subListNum][index].time)
                 Assertions.assertEquals(expectedList[subListNum][index].columnName, actualList[subListNum][index].columnName)
-                Assertions.assertEquals(expectedList[subListNum][index].value, actualList[subListNum][index].value)
+                Assertions.assertEquals(expectedList[subListNum][index].price, actualList[subListNum][index].price)
             }
             Assertions.assertEquals(expectedList[subListNum].size, actualList[subListNum].size)
         }
@@ -588,14 +715,14 @@ class TimeIndexedCSVBuilderTest {
         ).toCSVEntryList()
 
         val expected = listOf(
-            CsvEntry(data[6].time, "SAP.DE",null),
-            CsvEntry(data[7].time, "SAP.DE", null),
-            CsvEntry(data[0].time, "SAP.DE", data[0].value),
-            CsvEntry(data[3].time, "SAP.DE", data[3].value),
-            CsvEntry(data[5].time, "SAP.DE", data[5].value),
+            PriceEntry(data[6].time, "SAP.DE", null, "SAP.DE"),
+            PriceEntry(data[7].time, "SAP.DE", null, "SAP.DE"),
+            PriceEntry(data[0].time, "SAP.DE", data[0].price, "SAP.DE"),
+            PriceEntry(data[3].time, "SAP.DE", data[3].price, "SAP.DE"),
+            PriceEntry(data[5].time, "SAP.DE", data[5].price, "SAP.DE"),
         ).sortedBy { it.time }
         val actual = TimeIndexedCSVBuilder(data, MissingValueHandlingStrategy.LAST_VALUE).getColumn("SAP.DE")
-        if(true){
+        if(false){
             println(expected.toString())
             println(actual.toString())
         }
@@ -607,14 +734,14 @@ class TimeIndexedCSVBuilderTest {
     fun findClosestEntryTest(){
         val instant = Instant.now().minusSeconds(5000)
         val list = listOf(
-            CsvEntry(instant, "a", PLACEHOLDER_VALUE),
-            CsvEntry(instant.minusSeconds(1000), "b", BigDecimal(10)),
-            CsvEntry(instant.plusSeconds(10), "c", BigDecimal(20))
+            PriceEntry(instant, "a", PLACEHOLDER_VALUE, "a"),
+            PriceEntry(instant.minusSeconds(1000), "a", BigDecimal(10), "a"),
+            PriceEntry(instant.plusSeconds(10), "a", BigDecimal(20), "a")
         )
         val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findClosestEntryMissingValueStrategy(
-            instant.plusSeconds(5), "c" ,list, false
+            instant.plusSeconds(5), "a" , list, "a", false
         )
-        val expected = CsvEntry(instant.plusSeconds(5), list[2].columnName, list[2].value)
+        val expected = PriceEntry(instant.plusSeconds(5), list[2].columnName, list[2].price, "a")
 
         Assertions.assertEquals(expected, actual)
     }
@@ -623,11 +750,11 @@ class TimeIndexedCSVBuilderTest {
     fun findLastEntryTest(){
         val instant = Instant.now().minusSeconds(5000)
         val list = listOf(
-            listOf(CsvEntry(instant, "a", BigDecimal(1)), CsvEntry(instant, "b", BigDecimal(2)), CsvEntry(instant, "c", BigDecimal(3))),
-            listOf(CsvEntry(instant, "a", BigDecimal(4)), CsvEntry(instant, "b", PLACEHOLDER_VALUE), CsvEntry(instant, "c", BigDecimal(6))),
-            listOf(CsvEntry(instant, "a", BigDecimal(7)), CsvEntry(instant, "a", BigDecimal(8)), CsvEntry(instant, "a", BigDecimal(9)))
+            listOf(PriceEntry(instant, "a", BigDecimal(1), "a"), PriceEntry(instant, "b", BigDecimal(2), "b"), PriceEntry(instant, "c", BigDecimal(3), "c")),
+            listOf(PriceEntry(instant, "a", BigDecimal(4), "a"), PriceEntry(instant, "b", PLACEHOLDER_VALUE, "b"), PriceEntry(instant, "c", BigDecimal(6), "c")),
+            listOf(PriceEntry(instant, "a", BigDecimal(7), "a"), PriceEntry(instant, "a", BigDecimal(8), "a"), PriceEntry(instant, "a", BigDecimal(9), "a"))
         )
-        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b",instant, list)
+        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b", instant, "b", list)
         val expected = list[0][1]
         Assertions.assertEquals(expected, actual)
     }
@@ -635,11 +762,11 @@ class TimeIndexedCSVBuilderTest {
     fun findLastEntryNoneExistingTest(){
         val instant = Instant.now().minusSeconds(5000)
         val list = listOf(
-            listOf(CsvEntry(instant, "a", BigDecimal(1)), CsvEntry(instant, "b", BigDecimal(2)), CsvEntry(instant, "c", BigDecimal(3))),
-            listOf(CsvEntry(instant, "a", BigDecimal(4)), CsvEntry(instant, "b", PLACEHOLDER_VALUE), CsvEntry(instant, "c", BigDecimal(6))),
-            listOf(CsvEntry(instant, "a", BigDecimal(7)), CsvEntry(instant, "a", BigDecimal(8)), CsvEntry(instant, "a", BigDecimal(9)))
+            listOf(PriceEntry(instant, "a", BigDecimal(1), "a"), PriceEntry(instant, "b", BigDecimal(2), "b"), PriceEntry(instant, "c", BigDecimal(3), "c")),
+            listOf(PriceEntry(instant, "a", BigDecimal(4), "a"), PriceEntry(instant, "b", PLACEHOLDER_VALUE, "b"), PriceEntry(instant, "c", BigDecimal(6), "c")),
+            listOf(PriceEntry(instant, "a", BigDecimal(7), "a"), PriceEntry(instant, "a", BigDecimal(8), "a"), PriceEntry(instant, "a", BigDecimal(9), "a"))
         )
-        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b",instant, list)
+        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b", instant, "b", list)
         val expected = list[0][1]
         Assertions.assertEquals(expected, actual)
     }
