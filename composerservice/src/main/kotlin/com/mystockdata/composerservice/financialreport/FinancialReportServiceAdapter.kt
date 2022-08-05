@@ -1,5 +1,6 @@
 package com.mystockdata.composerservice.financialreport
 
+import com.mystockdata.composerservice.financialreport.FinancialReportServiceConstants.LEI_QUERY_PARAM
 import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -11,6 +12,10 @@ import org.springframework.web.reactive.function.client.bodyToFlow
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
+
+object FinancialReportServiceConstants {
+    const val LEI_QUERY_PARAM = "lei"
+}
 
 @Component
 class FinancialReportServiceAdapter(
@@ -28,6 +33,7 @@ class FinancialReportServiceAdapter(
     suspend fun getFinancialReports(leis: List<String>, startDate: Instant, endDate: Instant): Flow<FinancialReport> {
         return getFinancialReports(leis, Date.from(startDate), Date.from(endDate))
     }
+
     /**
      * Retrieve financial reports from financial report service.
      * @param leis legal entity identifiers.
@@ -50,11 +56,22 @@ class FinancialReportServiceAdapter(
             .bodyToFlow()
     }
 
-    suspend fun loadReports(leis: List<String>): Flow<FinancialReport> {
+    /**
+     * Tells the financialreportservice to retrieve financial reports from a remote data source.
+     * @param leis List of the leis the financial reports have to match in order to get retrieved. If the list is empty all available financial reports will be retrieved.
+     * @return flow emitting the retrieved reports.
+     */
+    suspend fun retrieveReports(leis: List<String> = listOf()): Flow<FinancialReport> {
         return financialReportServiceWebClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("v1/financialreports/loadReports")
-                    .build()
+                if (leis.isEmpty()) {
+                    uriBuilder.path("v1/financialreports/retrieveReports")
+                        .build()
+                } else {
+                    uriBuilder.path("v1/financialreports/retrieveReports")
+                        .queryParam(LEI_QUERY_PARAM, leis)
+                        .build()
+                }
             }.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType(MediaType.APPLICATION_JSON))
             .retrieve()

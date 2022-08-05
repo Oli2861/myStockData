@@ -13,29 +13,6 @@ fun localDateToEpochMilli(date: LocalDate) = Date.from(date.atStartOfDay().toIns
 
 fun localDateToEpochSeconds(date: LocalDate) = localDateToEpochMilli(date) / 1000
 
-
-/**
- * Accumulates a certain number of elements and emit them in a new flow.
- * As in https://github.com/influxdata/influxdb-client-java/blob/master/examples/src/main/java/example/KotlinWriteBatchingByFlow.kt
- * @param size The amount of elements to be accumulated.
- * @return New Flow emitting lists of accumulated elements.
- */
-suspend fun <T> Flow<T>.chunks(size: Int): Flow<List<T>> = flow{
-    val chunk = ArrayList<T>(size)
-
-    collect{ t ->
-        chunk += t
-        if(chunk.size >= size){
-            emit(chunk)
-            chunk.clear()
-        }
-    }
-
-    if(chunk.size > 0){
-        emit(chunk)
-    }
-}
-
 fun printMultiDimensionalArray(arr: Array<Array<String>>) {
     for (subArr in arr) {
         var row = ""

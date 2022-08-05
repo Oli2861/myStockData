@@ -1,6 +1,6 @@
 package com.mystockdata.stockdataservice.persistencetests
 
-import com.mystockdata.stockdataservice.persistence.createFilter
+import com.mystockdata.stockdataservice.utility.createFilter
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 

@@ -18,21 +18,21 @@ class PrecisePriceInformationController(
 ) {
     @GetMapping("/start")
     suspend fun start(
-        @RequestParam symbols: Set<String>?
-    ) = stockDataService.startRetrievingPrecisePriceInformation(symbols)
+        @RequestParam symbol: Set<String>?
+    ) = stockDataService.startRetrievingPrecisePriceInformation(symbol)
 
     @GetMapping("/stop")
     suspend fun stop() = stockDataService.stopRetrievingPrecisePriceInformation()
 
     @GetMapping
     suspend fun get(
-        @RequestParam symbols: List<String>,
+        @RequestParam symbol: List<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<List<PrecisePriceInformationResponse>> {
 
         val data = stockDataService.getPrecisePriceInformation(
-            symbols = symbols,
+            symbols = symbol,
             start = start ?: Instant.now().minus(1, ChronoUnit.DAYS),
             end = end ?: Instant.now()
         )

@@ -25,27 +25,27 @@ class AggregatedPriceInformationController(
 
     @GetMapping("/retrieve")
     suspend fun retrieve(
-        @RequestParam symbols: Set<String>?,
+        @RequestParam symbol: Set<String>?,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): Flow<AggregatedPriceInformation> {
         return if(start == null || end == null) {
             logger.debug("No time range specified, retrieving for 1 month")
-            stockDataService.retrieveAggregatedInformationForMonths(symbols, 1)
+            stockDataService.retrieveAggregatedInformationForMonths(symbol, 1)
         }else{
-            stockDataService.retrieveAggregatedPriceInformation(symbols, start, end)
+            stockDataService.retrieveAggregatedPriceInformation(symbol, start, end)
         }
     }
 
     @GetMapping
     suspend fun get(
-        @RequestParam symbols: Set<String>,
+        @RequestParam symbol: Set<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<List<AggregatedPriceInformationResponse>> {
         if(start == null || end == null) logger.debug("No time range specified, retrieving for 30 days")
         val data = stockDataService.getAggregatedPriceInformation(
-            symbols = symbols,
+            symbols = symbol,
             start = start ?: Instant.now().minus(30, ChronoUnit.DAYS),
             end = end ?: Instant.now()
         )

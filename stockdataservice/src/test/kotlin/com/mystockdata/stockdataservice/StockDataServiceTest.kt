@@ -2,8 +2,8 @@ package com.mystockdata.stockdataservice
 
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedInformationProvider
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationRepository
-import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationRepository
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationProvider
+import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationRepository
 import com.mystockdata.stockdataservice.watchlist.Watchlist
 import com.mystockdata.stockdataservice.watchlist.WatchlistConstants
 import com.mystockdata.stockdataservice.watchlist.WatchlistRepository
@@ -39,7 +39,7 @@ class StockDataServiceTest(
         watchlistRepository
     )
 
-    val watchlist = listOf("lei", "lei1")
+    private val watchlist = listOf("lei", "lei1")
 
     @BeforeEach
     fun clearDB() = runBlocking {
@@ -55,18 +55,18 @@ class StockDataServiceTest(
     @Test
     fun removeFromWatchListTest() = runBlocking {
         subject.addToWatchList(watchlist)
-        val response = subject.removeFromWatchList(watchlist[0])
+        val response = subject.removeFromWatchList(setOf(watchlist[0]))
         val actual = subject.getWatchlist()
         Assertions.assertEquals(1, actual!!.size)
         Assertions.assertEquals(watchlist[1], actual.first())
-        Assertions.assertEquals(watchlist[0], response)
+        Assertions.assertEquals(setOf(watchlist[0]) , response)
     }
 
     @Test
     fun addToWatchListNotExistingTest() = runBlocking {
         val response = subject.addToWatchList(watchlist)
         val actual = watchlistRepository.findAll().first()
-        Assertions.assertEquals(watchlist, response)
+        Assertions.assertEquals(watchlist, response.toList())
         Assertions.assertEquals(Watchlist(WatchlistConstants.watchlistID, watchlist.toMutableSet()), actual)
     }
 

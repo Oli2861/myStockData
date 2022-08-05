@@ -27,7 +27,8 @@ class Scheduler(
     val scope = CoroutineScope(Dispatchers.Unconfined)
     val financialReportEventFlow: MutableSharedFlow<FinancialReportEvent> =
         financialReportEventConfig.financialReportEventFlow
-    val stockDataEventConsumerFlow: MutableSharedFlow<StockDataEvent> = stockDataEventConsumerConfig.stockDataEventFlow
+    val stockDataEventConsumerFlow: MutableSharedFlow<StockDataEvent> =
+        stockDataEventConsumerConfig.stockDataEventFlow
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(Scheduler::class.java)
@@ -44,8 +45,8 @@ class Scheduler(
         financialReportEventFlow.emit(event)
     }
 
-    // Every day 10 pm
-    @Scheduled(cron = "0 0 22 * * *")
+    // Every day 11 pm: 0 0 23 * * *
+    @Scheduled(cron = "0 0 23 * * *")
     fun triggerStockDataTest() = scope.launch {
         val event = StockDataEvent(
             "${Date().time}_RETRIEVE_AGGREGATED",

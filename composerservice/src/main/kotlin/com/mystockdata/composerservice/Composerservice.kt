@@ -3,7 +3,10 @@ package com.mystockdata.composerservice
 import com.mystockdata.composerservice.company.Company
 import com.mystockdata.composerservice.company.CompanyService
 import com.mystockdata.composerservice.company.findCompanyBySymbol
-import com.mystockdata.composerservice.csv.*
+import com.mystockdata.composerservice.csv.CSVEntryConstants
+import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
+import com.mystockdata.composerservice.csv.PriceEntry
+import com.mystockdata.composerservice.csv.TimeIndexedCSVBuilder
 import com.mystockdata.composerservice.financialreport.FinancialReport
 import com.mystockdata.composerservice.financialreport.FinancialReportServiceAdapter
 import com.mystockdata.composerservice.financialreport.IFRSTAGS
@@ -66,7 +69,7 @@ class Composerservice(
 
         // Retrieve aggregated price information for the symbols of the lei.
         val symbols: List<String> = companies.map { it.getSymbolNames() }.flatten()
-        val (reports, aggregatedPriceInformation) = retrieveData(leis, symbols, start, end)
+        val (reports, aggregatedPriceInformation) = retrieveData(leis, start, symbols, end)
 
         // Can not build a csv if the required data is not present.
         if (aggregatedPriceInformation.isNullOrEmpty()) return null
@@ -86,8 +89,8 @@ class Composerservice(
 
     private suspend fun retrieveData(
         leis: List<String>,
-        symbols: List<String>,
         start: Instant,
+        symbols: List<String>,
         end: Instant
     ): Pair<List<FinancialReport>?, List<AggregatedPriceInformationResponse>?> = coroutineScope {
         val financialReports = async { getFinancialReports(leis, start, end) }
@@ -96,10 +99,15 @@ class Composerservice(
     }
 
     private suspend fun getFinancialReports(leis: List<String>, start: Instant, end: Instant): List<FinancialReport>? {
-        val reports = financialReportServiceAdapter.getFinancialReports(leis, start, end).toList()
-        return reports.ifEmpty {
-            logger.debug("Could not retrieve financial reports.")
+        return if (leis.isEmpty()) {
+            logger.debug("No leis specified.")
             null
+        } else {
+            val reports = financialReportServiceAdapter.getFinancialReports(leis, start, end).toList()
+            reports.ifEmpty {
+                logger.debug("Could not retrieve financial reports.")
+                null
+            }
         }
     }
 
@@ -108,11 +116,16 @@ class Composerservice(
         start: Instant,
         end: Instant
     ): List<AggregatedPriceInformationResponse>? {
-        val aggregatedPriceInformation: List<AggregatedPriceInformationResponse> =
-            stockDataServiceAdapter.getAggregatedPriceInformation(symbols, start, end).toList()
-        return aggregatedPriceInformation.ifEmpty {
-            logger.debug("Could not retrieve aggregated price information.")
+        return if (symbols.isEmpty()) {
+            logger.debug("No symbols found.")
             null
+        } else {
+            val aggregatedPriceInformation: List<AggregatedPriceInformationResponse> =
+                stockDataServiceAdapter.getAggregatedPriceInformation(symbols.toSet(), start, end).toList()
+            aggregatedPriceInformation.ifEmpty {
+                logger.debug("Could not retrieve aggregated price information.")
+                null
+            }
         }
     }
 
@@ -257,7 +270,7 @@ class Composerservice(
     }
 
     /**
-     * Add the SMA Indicator the the csv file.
+     * Add the SMA Indicator the csv file.
      * @param csv to add the indicator to.
      * @param name name of the indicator to be added.
      * @param relevantCols columns to calculate the indicator for.

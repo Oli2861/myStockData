@@ -15,7 +15,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object StockDataServiceAdapterConstants {
-    const val SYMBOLS_REQUEST_PARAM: String = "symbols"
+    const val SYMBOLS_REQUEST_PARAM: String = "symbol"
     const val START_REQUEST_PARAM: String = "start"
     const val END_REQUEST_PARAM: String = "end"
 }
@@ -33,13 +33,38 @@ class StockDataServiceAdapter(
      * @return flow emitting the retrieved aggregated price information.
      */
     suspend fun getAggregatedPriceInformation(
-        symbols: List<String>,
+        symbols: Set<String>,
         start: Instant? = Instant.now().minus(30, ChronoUnit.DAYS),
         end: Instant? = Instant.now()
     ): Flow<AggregatedPriceInformationResponse> {
         return stockDataServiceWebClient.get()
             .uri { uriBuilder ->
                 uriBuilder.path("/v1/aggregatedPriceInformation")
+                    .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
+                    .queryParam(START_REQUEST_PARAM, start)
+                    .queryParam(END_REQUEST_PARAM, end)
+                    .build()
+            }.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType(MediaType.APPLICATION_JSON))
+            .retrieve()
+            .bodyToFlow()
+    }
+
+    /**
+     * Tell the stockdataservice to retrieve aggregated price information from the remote data source.
+     * @param symbols symbols of the desired stocks.
+     * @param start start of the time window.
+     * @param end end of the time window.
+     * @return flow emitting the retrieved aggregated price information.
+     */
+    suspend fun retrieveAggregatedPriceInformation(
+        symbols: Set<String>,
+        start: Instant? = Instant.now().minus(30, ChronoUnit.DAYS),
+        end: Instant? = Instant.now()
+    ): Flow<AggregatedPriceInformationResponse> {
+        return stockDataServiceWebClient.get()
+            .uri { uriBuilder ->
+                uriBuilder.path("/v1/aggregatedPriceInformation/retrieve")
                     .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
                     .queryParam(START_REQUEST_PARAM, start)
                     .queryParam(END_REQUEST_PARAM, end)
@@ -68,6 +93,23 @@ class StockDataServiceAdapter(
                     .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
                     .queryParam(START_REQUEST_PARAM, start)
                     .queryParam(END_REQUEST_PARAM, end)
+                    .build()
+            }.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .accept(MediaType(MediaType.APPLICATION_JSON))
+            .retrieve()
+            .bodyToFlow()
+    }
+
+    /**
+     * Adds a set of symbols to the watchlist of the stockdataservice.
+     * @param symbols symbols to be added to the watchlist contained in the stockdataservice.
+     * @return Received response.
+     */
+    suspend fun addToWatchlist(symbols: Set<String>): Flow<String>{
+        return stockDataServiceWebClient.put()
+            .uri{ uriBuilder ->
+                uriBuilder.path("v1/watchlist")
+                    .queryParam(SYMBOLS_REQUEST_PARAM, symbols)
                     .build()
             }.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .accept(MediaType(MediaType.APPLICATION_JSON))

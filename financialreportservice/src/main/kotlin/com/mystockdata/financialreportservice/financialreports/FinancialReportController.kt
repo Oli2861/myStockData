@@ -16,8 +16,8 @@ class FinancialReportController(
     @Autowired val financialReportService: FinancialReportService
 ) {
 
-    @GetMapping("/loadReports")
-    suspend fun loadReports(
+    @GetMapping("/retrieveReports")
+    suspend fun retrieveReports(
         @RequestParam(required = false) lei: List<String>?
     ): Flow<FinancialReport> = financialReportService.retrieveAvailableFinancialReports(lei ?: listOf())
 

@@ -73,8 +73,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: "mongoUsername"
       MONGO_INITDB_ROOT_PASSWORD: "mongoPassword"
-    command:
-      - --quiet
 
   stockdataservice:
     build:

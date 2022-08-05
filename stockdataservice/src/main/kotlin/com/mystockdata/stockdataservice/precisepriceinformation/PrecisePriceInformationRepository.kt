@@ -3,7 +3,8 @@ package com.mystockdata.stockdataservice.precisepriceinformation
 import com.influxdb.client.domain.WritePrecision
 import com.influxdb.client.kotlin.InfluxDBClientKotlin
 import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
-import com.mystockdata.stockdataservice.persistence.createFilter
+import com.mystockdata.stockdataservice.utility.chunks
+import com.mystockdata.stockdataservice.utility.createFilter
 import kotlinx.coroutines.flow.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -35,10 +36,11 @@ class PrecisePriceInformationRepository(
         influxDBClientKotlin().use { client ->
             val writeApi = client.getWriteKotlinApi()
 
-            precisePriceInformation.collect { precisePriceInformation ->
-                logger.trace("Writing $precisePriceInformation")
-                writeApi.writeMeasurement(precisePriceInformation, WritePrecision.NS)
-            }
+            precisePriceInformation.chunks()
+                .collect { precisePriceInformation ->
+                    logger.trace("Writing $precisePriceInformation")
+                    writeApi.writeMeasurements(precisePriceInformation, WritePrecision.NS)
+                }
 
         }
     }

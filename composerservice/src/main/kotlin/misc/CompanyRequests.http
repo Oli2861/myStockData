@@ -1,9 +1,12 @@
-GET http://localhost:8080/v1/company/529900NNUPAGGOMPXZ31
+GET http://localhost:8085/v1/company/529900NNUPAGGOMPXZ31
 Content-Type: application/json
 
+###
+GET http://localhost:8080/v1/company/retrieveDataForCompanies?aggregatedPriceInfoStart=2012-08-01T09:15:29.442856700Z&aggregatedPriceInfoEnd=2022-08-05T09:15:29.442856700Z&lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+Content-Type: application/json
 
 ###
-PUT http://localhost:8080/v1/company
+PUT http://localhost:8085/v1/company?addToWatchList=true
 Content-Type: application/json
 
 [

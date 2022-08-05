@@ -48,8 +48,15 @@ class StockDataService(
 
         when (stockDataEvent.stockDataEventType) {
             StockDataEventType.RETRIEVE_AGGREGATED -> getWatchlist().let {
-                if (it != null) retrieveAggregatedPriceInformation(it)
-                else logger.debug("Cannot retrieve aggregated price information since watchlist is empty.")
+                if (it != null) {
+                    if (stockDataEvent.start != null && stockDataEvent.end != null) {
+                        retrieveAggregatedPriceInformation(it, stockDataEvent.start, stockDataEvent.end)
+                    } else {
+                        retrieveAggregatedPriceInformation(it)
+                    }
+                } else {
+                    logger.debug("Cannot retrieve aggregated price information since watchlist is empty.")
+                }
             }
             StockDataEventType.START_RETRIEVING_PRECISE -> getWatchlist().let {
                 if (it != null) startRetrievingPrecisePriceInformation(it)
@@ -63,10 +70,10 @@ class StockDataService(
         return watchlistRepository.findById(WatchlistConstants.watchlistID)?.symbols
     }
 
-    suspend fun removeFromWatchList(lei: String): String? {
+    suspend fun removeFromWatchList(lei: Set<String>): Set<String>? {
         val watchlist = watchlistRepository.findById(WatchlistConstants.watchlistID)
         if (watchlist != null) {
-            watchlist.symbols.remove(lei)
+            watchlist.symbols.removeAll(lei)
             watchlistRepository.save(watchlist)
             return lei
         }
@@ -101,9 +108,10 @@ class StockDataService(
         start: Instant = Instant.now().minus(1, ChronoUnit.DAYS),
         end: Instant = Instant.now()
     ): Flow<AggregatedPriceInformation> {
-        val usedSymbols: Set<String> = if(!symbols.isNullOrEmpty())symbols else getWatchlist() ?: return flowOf()
+        val usedSymbols: Set<String> = if (!symbols.isNullOrEmpty()) symbols else getWatchlist() ?: return flowOf()
         val priceInformationFlow: Flow<AggregatedPriceInformation> =
-            aggregatedInformationProvider.retrieveHistoricalStockData(usedSymbols.toList(), start, end).flatten().asFlow()
+            aggregatedInformationProvider.retrieveHistoricalStockData(usedSymbols.toList(), start, end).flatten()
+                .asFlow()
         aggregatedPriceInformationRepository.writeAggregatedPriceInformation(priceInformationFlow)
         return priceInformationFlow
     }
@@ -124,7 +132,7 @@ class StockDataService(
      * Start retrieving PrecisePriceInformation from a Precise Price Information Provider.
      */
     suspend fun startRetrievingPrecisePriceInformation(symbols: Set<String>?): Flow<PrecisePriceInformation> {
-        val usedSymbols = (if(symbols.isNullOrEmpty()) getWatchlist() else symbols) ?: return flowOf()
+        val usedSymbols = (if (symbols.isNullOrEmpty()) getWatchlist() else symbols) ?: return flowOf()
         scope.launch {
             precisePriceInformationProvider.establishConnection(usedSymbols)
             precisePriceInformationRepository.writePrecisePriceInformation(precisePriceInformationProvider.flow)

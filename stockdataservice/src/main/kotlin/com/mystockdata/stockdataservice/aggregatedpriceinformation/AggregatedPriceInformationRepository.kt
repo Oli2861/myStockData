@@ -3,7 +3,8 @@ package com.mystockdata.stockdataservice.aggregatedpriceinformation
 import com.influxdb.client.domain.WritePrecision
 import com.influxdb.client.kotlin.InfluxDBClientKotlin
 import com.influxdb.client.kotlin.InfluxDBClientKotlinFactory
-import com.mystockdata.stockdataservice.persistence.createFilter
+import com.mystockdata.stockdataservice.utility.chunks
+import com.mystockdata.stockdataservice.utility.createFilter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.toList
@@ -44,10 +45,11 @@ class AggregatedPriceInformationRepository(
         influxDBClientKotlin().use { client ->
             val writeApi = client.getWriteKotlinApi()
 
-            aggregatedPriceInformation.collect { aggregatedPriceInfo ->
-                logger.trace("Writing $aggregatedPriceInfo")
-                writeApi.writeMeasurement(aggregatedPriceInfo, WritePrecision.S)
-            }
+            aggregatedPriceInformation.chunks()
+                .collect { aggregatedPriceInfo ->
+                    logger.trace("Writing $aggregatedPriceInfo")
+                    writeApi.writeMeasurements(aggregatedPriceInfo, WritePrecision.S)
+                }
 
         }
     }

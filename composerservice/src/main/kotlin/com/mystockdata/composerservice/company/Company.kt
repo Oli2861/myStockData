@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 data class Company(
     @Id val lei: String,
     val securities: Set<Security>,
-){
+) {
     fun getSymbolNames(): Set<String> {
         return securities.map { security ->
             security.symbols.map { symbol ->
@@ -16,7 +16,7 @@ data class Company(
         }.flatten().toSet()
     }
 
-    fun containsSymbol(symbol: String): Boolean{
+    fun containsSymbol(symbol: String): Boolean {
         return getSymbolNames().contains(symbol)
     }
 }
@@ -24,6 +24,8 @@ data class Company(
 fun Set<Company>.findCompanyBySymbol(symbol: String): Company? {
     return this.find { it.containsSymbol(symbol) }
 }
+
+fun Set<Company>.getSymbols(): Set<String> = map { it.getSymbolNames() }.flatten().toSet()
 
 data class Security(
     val isin: String,
