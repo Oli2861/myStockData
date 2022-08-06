@@ -11,18 +11,20 @@ data class Indicator(
     val value: BigDecimal?
 )
 
+data class RequestedIndicator(val indicatorName: IndicatorName, val indicatorType: IndicatorType)
+
 /**
  * Splits a list of Pair<IndicatorName, IndicatorType> into a list of names.
  * @return a pair containing a list of all technical indicators names and a list containing all fundamental indicator names.
  */
-fun List<Pair<IndicatorName, IndicatorType>>.splitByType(): Pair<List<IndicatorName>, List<IndicatorName>>{
+fun List<RequestedIndicator>.splitByType(): Pair<List<IndicatorName>, List<IndicatorName>>{
     val technicalIndicators = mutableListOf<IndicatorName>()
     val fundamentalIndicators = mutableListOf<IndicatorName>()
 
-    forEach { (name, type) ->
-        when(type){
-            IndicatorType.TECHNICAL_INDICATOR -> technicalIndicators.add(name)
-            IndicatorType.FUNDAMENTAL_INDICATOR -> fundamentalIndicators.add(name)
+    forEach {
+        when(it.indicatorType){
+            IndicatorType.TECHNICAL_INDICATOR -> technicalIndicators.add(it.indicatorName)
+            IndicatorType.FUNDAMENTAL_INDICATOR -> fundamentalIndicators.add(it.indicatorName)
         }
     }
 
@@ -38,8 +40,7 @@ enum class IndicatorName(
     val indicatorName: String
 )  {
     SMA("SMA"),
-    PE_RATIO("PER"),
-    EPS("EPS")
+    PE_RATIO("PER")
 }
 
 enum class IndicatorType{

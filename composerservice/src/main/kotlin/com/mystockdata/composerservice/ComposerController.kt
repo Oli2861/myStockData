@@ -6,6 +6,7 @@ import com.mystockdata.composerservice.csv.LastValueStrategy
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.indicator.IndicatorType
+import com.mystockdata.composerservice.indicator.RequestedIndicator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -61,7 +62,8 @@ class ComposerController(
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?,
         @RequestParam(required = false) indicatorNames: List<String>?,
-        @RequestParam(required = false) missingValueStrategy: String?
+        @RequestParam(required = false) missingValueStrategy: String?,
+        @RequestParam(required = false) ifrsFact: List<String>?
     ): ResponseEntity<InputStreamResource> {
         if (start == null || end == null) logger.debug("No time range specified / detected while trying to getAggregatedPriceInfoCSV, retrieving for 365 days.")
 
@@ -70,7 +72,8 @@ class ComposerController(
             start = start ?: Instant.now().minus(365, ChronoUnit.DAYS),
             end = end ?: Instant.now(),
             indicators = parseIndicatorNames(indicatorNames),
-            missingValueHandlingStrategy = parseMissingValueStrategy(missingValueStrategy)
+            missingValueHandlingStrategy = parseMissingValueStrategy(missingValueStrategy),
+            factTags = ifrsFact
         )
 
         val headers = HttpHeaders()
@@ -80,7 +83,7 @@ class ComposerController(
         return ResponseEntity(stream, headers, HttpStatus.OK)
     }
 
-    private fun parseIndicatorNames(indicatorNames: List<String>?): List<Pair<IndicatorName, IndicatorType>> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf()
+    private fun parseIndicatorNames(indicatorNames: List<String>?): List<RequestedIndicator> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf()
     private fun parseMissingValueStrategy(missingValueStrategy: String?): MissingValueHandlingStrategy =  missingValueStrategyMap[missingValueStrategy] ?: LastValueStrategy
 
 }
@@ -92,7 +95,6 @@ private val missingValueStrategyMap = mapOf(
 )
 
 private val indicatorMap = mapOf(
-    IndicatorName.SMA.indicatorName to Pair(IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR),
-    IndicatorName.PE_RATIO.indicatorName to Pair(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR),
-    IndicatorName.EPS.indicatorName to Pair(IndicatorName.EPS, IndicatorType.FUNDAMENTAL_INDICATOR)
+    IndicatorName.SMA.indicatorName to RequestedIndicator(IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR),
+    IndicatorName.PE_RATIO.indicatorName to RequestedIndicator(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR)
 )

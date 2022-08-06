@@ -43,7 +43,7 @@ class Composerservice(
         symbols: List<String>,
         start: Instant,
         end: Instant,
-        indicators: List<Pair<IndicatorName, IndicatorType>>,
+        indicators: List<RequestedIndicator>,
         missingValueHandlingStrategy: MissingValueHandlingStrategy
     ): InputStreamResource {
         val precisePriceInformation = stockDataServiceAdapter.getPrecisePriceInformation(symbols, start, end).toList()
@@ -59,9 +59,10 @@ class Composerservice(
         leis: List<String>,
         start: Instant,
         end: Instant,
-        indicators: List<Pair<IndicatorName, IndicatorType>>,
+        indicators: List<RequestedIndicator>,
         missingValueHandlingStrategy: MissingValueHandlingStrategy,
-        refreshData: Boolean = false
+        refreshData: Boolean = false,
+        factTags: List<String>?
     ): InputStreamResource? {
 
         // Get companies of the provided lei.
@@ -83,6 +84,11 @@ class Composerservice(
 
         // Add indicators.
         addIndicators(indicators, csv, closePriceColumnNames, companies, reports)
+
+        // Add facts.
+        if (!factTags.isNullOrEmpty() && !reports.isNullOrEmpty()) {
+            addFacts(factTags, reports, csv, companies)
+        }
 
         return csv.buildCSV()
     }
@@ -138,7 +144,7 @@ class Composerservice(
      * @param reports a list containing the retrieved financial reports.
      */
     private suspend fun addIndicators(
-        indicators: List<Pair<IndicatorName, IndicatorType>>,
+        indicators: List<RequestedIndicator>,
         csv: TimeIndexedCSVBuilder,
         relevantColumnNames: List<String>,
         companies: Set<Company>,
@@ -159,12 +165,10 @@ class Composerservice(
         csv: TimeIndexedCSVBuilder,
         relevantCols: List<String>,
         fundamentalIndicators: List<IndicatorName>,
-        reports: List<FinancialReport>,
-        useSymbolAsColumnName: Boolean = true
+        reports: List<FinancialReport>
     ) {
         fundamentalIndicators.forEach { indicatorName ->
             when (indicatorName) {
-                IndicatorName.EPS -> addFact(reports, csv, IFRSTAGS.DELUTED_EPS, companies, useSymbolAsColumnName)
                 IndicatorName.PE_RATIO -> addPERatio(indicatorName, reports, csv, relevantCols, companies)
                 else -> logger.debug("Unknown Indicator ${indicatorName.indicatorName}")
             }
@@ -221,16 +225,26 @@ class Composerservice(
         }
     }
 
+    private fun addFacts(
+        ifrsFactTag: List<String>,
+        reports: List<FinancialReport>,
+        csv: TimeIndexedCSVBuilder,
+        companies: Set<Company>,
+        useSymbolAsColumnName: Boolean = true
+    ) = ifrsFactTag.forEach { factTag ->
+        addFact(reports, csv, factTag, companies, useSymbolAsColumnName)
+    }
+
     private fun addFact(
         reports: List<FinancialReport>,
         csv: TimeIndexedCSVBuilder,
-        tag: String,
+        ifrsFactTag: String,
         companies: Set<Company>,
         useSymbolAsColumnName: Boolean
     ) {
         val epsCols: List<PriceEntry> = reports.map { report ->
             val company = companies.firstOrNull { company -> company.lei == report.entityIdentifier }
-            findFactAndParseToCSVEntry(report, tag, company, useSymbolAsColumnName)
+            findFactAndParseToCSVEntry(report, ifrsFactTag, company, useSymbolAsColumnName)
         }.flatten()
         csv.addColumns(epsCols)
     }
