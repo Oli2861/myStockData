@@ -21,12 +21,6 @@ data class Company(
     }
 }
 
-fun Set<Company>.findCompanyBySymbol(symbol: String): Company? {
-    return this.find { it.containsSymbol(symbol) }
-}
-
-fun Set<Company>.getSymbols(): Set<String> = map { it.getSymbolNames() }.flatten().toSet()
-
 data class Security(
     val isin: String,
     val symbols: Set<Symbol>
@@ -36,3 +30,9 @@ data class Symbol(
     val symbol: String,
     val exchange: String,
 )
+
+fun Set<Company>.findCompanyBySymbol(symbol: String): Company? {
+    return this.find { it.containsSymbol(symbol) }
+}
+
+fun Set<Company>.getSymbols(): Set<String> = map { it.getSymbolNames() }.flatten().toSet()

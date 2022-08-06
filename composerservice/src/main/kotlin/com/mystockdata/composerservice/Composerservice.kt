@@ -232,7 +232,6 @@ class Composerservice(
             val company = companies.firstOrNull { company -> company.lei == report.entityIdentifier }
             findFactAndParseToCSVEntry(report, tag, company, useSymbolAsColumnName)
         }.flatten()
-        logger.debug("EPS cols $epsCols")
         csv.addColumns(epsCols)
     }
 

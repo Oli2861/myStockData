@@ -1,5 +1,8 @@
 package com.mystockdata.composerservice
 
+import com.mystockdata.composerservice.csv.ClosestEntryStrategy
+import com.mystockdata.composerservice.csv.IgnoreStrategy
+import com.mystockdata.composerservice.csv.LastValueStrategy
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.indicator.IndicatorName
 import com.mystockdata.composerservice.indicator.IndicatorType
@@ -77,18 +80,18 @@ class ComposerController(
         return ResponseEntity(stream, headers, HttpStatus.OK)
     }
 
-    private fun parseIndicatorNames(indicatorNames: List<String>?): List<Pair<IndicatorName, IndicatorType>> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf<Pair<IndicatorName, IndicatorType>>()
-    private fun parseMissingValueStrategy(missingValueStrategy: String?): MissingValueHandlingStrategy =  missingValueStrategyMap[missingValueStrategy] ?: MissingValueHandlingStrategy.LAST_VALUE
+    private fun parseIndicatorNames(indicatorNames: List<String>?): List<Pair<IndicatorName, IndicatorType>> = indicatorNames?.mapNotNull { str -> indicatorMap[str] } ?: listOf()
+    private fun parseMissingValueStrategy(missingValueStrategy: String?): MissingValueHandlingStrategy =  missingValueStrategyMap[missingValueStrategy] ?: LastValueStrategy
 
 }
 
 private val missingValueStrategyMap = mapOf(
-    "LAST_VALUE" to MissingValueHandlingStrategy.LAST_VALUE,
-    "IGNORE" to MissingValueHandlingStrategy.IGNORE,
-    "NEXT_MATCHING" to MissingValueHandlingStrategy.NEXT_MATCHING
+    "LAST_VALUE" to LastValueStrategy,
+    "IGNORE" to IgnoreStrategy,
+    "NEXT_MATCHING" to ClosestEntryStrategy
 )
 
-private val indicatorMap = mapOf<String, Pair<IndicatorName, IndicatorType>>(
+private val indicatorMap = mapOf(
     IndicatorName.SMA.indicatorName to Pair(IndicatorName.SMA, IndicatorType.TECHNICAL_INDICATOR),
     IndicatorName.PE_RATIO.indicatorName to Pair(IndicatorName.PE_RATIO, IndicatorType.FUNDAMENTAL_INDICATOR),
     IndicatorName.EPS.indicatorName to Pair(IndicatorName.EPS, IndicatorType.FUNDAMENTAL_INDICATOR)

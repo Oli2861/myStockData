@@ -39,7 +39,7 @@ class TimeIndexedCSVBuilderTest {
             listOf(TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose, data[2].symbol),    PriceEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose,  data[3].symbol), PriceEntry(data[0].time, "close_SAP.DE", data[0].close, data[2].symbol), PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[3].symbol), PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol), PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[3].symbol), PriceEntry(data[0].time, "low_SAP.DE",  data[0].low, data[2].symbol), PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[3].symbol), PriceEntry(data[0].time, "open_SAP.DE",  data[0].open, data[2].symbol), PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[3].symbol), PriceEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal(), data[2].symbol), PriceEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal(), data[3].symbol)),
         )
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.IGNORE)
+        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), IgnoreStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
@@ -89,7 +89,7 @@ class TimeIndexedCSVBuilderTest {
             listOf(TimeEntry(data[0].time, TIMESTAMP_COLUMN_NAME),   PriceEntry(data[0].time, "adjClose_SAP.DE", data[0].adjClose, data[2].symbol),    PriceEntry(data[0].time, "adjClose_VW.DE", data[1].adjClose, data[1].symbol), PriceEntry(data[0].time, "close_SAP.DE", data[0].close, data[2].symbol), PriceEntry(data[0].time, "close_VW.DE",  data[1].close, data[1].symbol), PriceEntry(data[0].time, "high_SAP.DE",  data[0].high, data[2].symbol), PriceEntry(data[0].time, "high_VW.DE",  data[1].high, data[1].symbol), PriceEntry(data[0].time, "low_SAP.DE",  data[2].low, data[2].symbol), PriceEntry(data[0].time, "low_VW.DE",  data[1].low, data[1].symbol), PriceEntry(data[0].time, "open_SAP.DE",  data[2].open, data[2].symbol), PriceEntry(data[0].time, "open_VW.DE",  data[1].open, data[1].symbol), PriceEntry(data[0].time, "volume_SAP.DE",  data[0].volume!!.toBigDecimal(), data[2].symbol), PriceEntry(data[0].time, "volume_VW.DE",  data[1].volume?.toBigDecimal(), data[1].symbol)),
         )
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.LAST_VALUE)
+        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), LastValueStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
@@ -181,7 +181,7 @@ class TimeIndexedCSVBuilderTest {
             ),
         )
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.NEXT_MATCHING)
+        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), ClosestEntryStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
@@ -282,7 +282,7 @@ class TimeIndexedCSVBuilderTest {
                 it
             }
         }
-        val subject = TimeIndexedCSVBuilder(csvEntries, MissingValueHandlingStrategy.NEXT_MATCHING)
+        val subject = TimeIndexedCSVBuilder(csvEntries, ClosestEntryStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
 
@@ -328,7 +328,7 @@ class TimeIndexedCSVBuilderTest {
             PrecisePriceInformationResponse(now.minusSeconds(50), "VW.DE", "GER", "OPEN", BigDecimal(101)),
         )
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.IGNORE)
+        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), IgnoreStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
         val expectedHeader = arrayOf("timestamp") + arrayOf("SAP.DE", "VW.DE", "TSLA").sortedArray()
@@ -408,7 +408,7 @@ class TimeIndexedCSVBuilderTest {
             PrecisePriceInformationResponse(now.minusSeconds(50), "VW.DE", "GER", "OPEN", BigDecimal(101)),
         )
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), MissingValueHandlingStrategy.NEXT_MATCHING)
+        val subject = TimeIndexedCSVBuilder(data.shuffled().toCSVEntryList(), ClosestEntryStrategy)
         val actualHeader = subject.csvHeader
         val actualBody = subject.csvBody
         val expectedHeader = listOf("timestamp", "SAP.DE", "TSLA", "VW.DE")
@@ -494,7 +494,7 @@ class TimeIndexedCSVBuilderTest {
             PriceEntry(now.minusSeconds(20), smaHeader, BigDecimal(30), "test"),
             PriceEntry(now.minusSeconds(50), smaHeader, BigDecimal(40), "test"),
         )
-        val subject = TimeIndexedCSVBuilder(data.toCSVEntryList(), MissingValueHandlingStrategy.IGNORE)
+        val subject = TimeIndexedCSVBuilder(data.toCSVEntryList(), IgnoreStrategy)
         subject.addColumns(columns)
 
         val actualHeader = subject.csvHeader
@@ -664,7 +664,7 @@ class TimeIndexedCSVBuilderTest {
             }.sortedBy { it.time }
         }
 
-        val subject = TimeIndexedCSVBuilder(data.shuffled(), MissingValueHandlingStrategy.LAST_VALUE)
+        val subject = TimeIndexedCSVBuilder(data.shuffled(), LastValueStrategy)
         subject.addIndicator(IndicatorName.SMA, listOf("SAP.DE", "VW.DE")){ list ->
             return@addIndicator smaForAllOfASymbol(list)
         }
@@ -721,53 +721,11 @@ class TimeIndexedCSVBuilderTest {
             PriceEntry(data[3].time, "SAP.DE", data[3].price, "SAP.DE"),
             PriceEntry(data[5].time, "SAP.DE", data[5].price, "SAP.DE"),
         ).sortedBy { it.time }
-        val actual = TimeIndexedCSVBuilder(data, MissingValueHandlingStrategy.LAST_VALUE).getColumn("SAP.DE")
+        val actual = TimeIndexedCSVBuilder(data, LastValueStrategy).getColumn("SAP.DE")
         if(false){
             println(expected.toString())
             println(actual.toString())
         }
-        Assertions.assertEquals(expected, actual)
-    }
-
-
-    @Test
-    fun findClosestEntryTest(){
-        val instant = Instant.now().minusSeconds(5000)
-        val list = listOf(
-            PriceEntry(instant, "a", PLACEHOLDER_VALUE, "a"),
-            PriceEntry(instant.minusSeconds(1000), "a", BigDecimal(10), "a"),
-            PriceEntry(instant.plusSeconds(10), "a", BigDecimal(20), "a")
-        )
-        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findClosestEntryMissingValueStrategy(
-            instant.plusSeconds(5), "a" , list, "a", false
-        )
-        val expected = PriceEntry(instant.plusSeconds(5), list[2].columnName, list[2].price, "a")
-
-        Assertions.assertEquals(expected, actual)
-    }
-
-    @Test
-    fun findLastEntryTest(){
-        val instant = Instant.now().minusSeconds(5000)
-        val list = listOf(
-            listOf(PriceEntry(instant, "a", BigDecimal(1), "a"), PriceEntry(instant, "b", BigDecimal(2), "b"), PriceEntry(instant, "c", BigDecimal(3), "c")),
-            listOf(PriceEntry(instant, "a", BigDecimal(4), "a"), PriceEntry(instant, "b", PLACEHOLDER_VALUE, "b"), PriceEntry(instant, "c", BigDecimal(6), "c")),
-            listOf(PriceEntry(instant, "a", BigDecimal(7), "a"), PriceEntry(instant, "a", BigDecimal(8), "a"), PriceEntry(instant, "a", BigDecimal(9), "a"))
-        )
-        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b", instant, "b", list)
-        val expected = list[0][1]
-        Assertions.assertEquals(expected, actual)
-    }
-    @Test
-    fun findLastEntryNoneExistingTest(){
-        val instant = Instant.now().minusSeconds(5000)
-        val list = listOf(
-            listOf(PriceEntry(instant, "a", BigDecimal(1), "a"), PriceEntry(instant, "b", BigDecimal(2), "b"), PriceEntry(instant, "c", BigDecimal(3), "c")),
-            listOf(PriceEntry(instant, "a", BigDecimal(4), "a"), PriceEntry(instant, "b", PLACEHOLDER_VALUE, "b"), PriceEntry(instant, "c", BigDecimal(6), "c")),
-            listOf(PriceEntry(instant, "a", BigDecimal(7), "a"), PriceEntry(instant, "a", BigDecimal(8), "a"), PriceEntry(instant, "a", BigDecimal(9), "a"))
-        )
-        val actual = TimeIndexedCSVBuilder(listOf(), MissingValueHandlingStrategy.IGNORE).findLastEntryMissingValueStrategy(1, 1, "b", instant, "b", list)
-        val expected = list[0][1]
         Assertions.assertEquals(expected, actual)
     }
 

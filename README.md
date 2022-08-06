@@ -12,7 +12,7 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 `docker-compose up`
 
 ## Guide
-#####1. Create companies and add them to your watchlist while doing so:
+##### 1. Create companies and add them to your watchlist while doing so:
 ```
 PUT http://localhost:8085/v1/company?addToWatchList=true
 Content-Type: application/json
@@ -64,11 +64,11 @@ Content-Type: application/json
 ```
 ##### 2. Retrieve financial reports and aggregated price information for the companies:
 ```
-GET http://localhost:8080/v1/company/retrieveDataForCompanies?aggregatedPriceInfoStart=2012-08-01T09:15:29.442856700Z&aggregatedPriceInfoEnd=2022-08-05T09:15:29.442856700Z&lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+GET http://localhost:8085/v1/company/retrieveDataForCompanies?aggregatedPriceInfoStart=2012-08-01T09:15:29.442856700Z&aggregatedPriceInfoEnd=2022-08-05T09:15:29.442856700Z&lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
 Content-Type: application/json
 ```
 
-The composer will use the following endpoints of the financialreportservice and the stockdataservice in order to retrieve the desired data:
+Note: The composer will use the following endpoints of the financialreportservice and the stockdataservice in order to retrieve the desired data:
 - financialreportservice: 
   ```
   GET http://localhost:8083/v1/financialreports/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
