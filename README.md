@@ -2,6 +2,9 @@
 
 myStockData is a prototypical implementation of an architecture for retrieving and managing stock price relevant data. Since it is a prototype rather than a production-ready software to manage stock data, the data retrieved, stored and managed by myStockData is to be treated with caution and is not suitable to base investment decisions on. Since the primary focus of this project is to retrieve and store data, the generated csv files might contain unexpected results.
 
+## Architecture
+![architektur.drawio.png](architektur.drawio.png)
+
 ## Build & Run
 
 ### 1. Build all services (requires gradle)
@@ -80,7 +83,7 @@ Note: The composer will use the following endpoints of the financialreportservic
 
 ##### 3. Get a CSV file of the just retrieved data. 
 ```
-GET http://localhost:8085/v1/aggregatedPriceInfo/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&indicatorNames=EPS&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
+GET http://localhost:8085/v1/aggregatedPriceInfo/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&ifrsFact=ifrs-full:DilutedEarningsLossPerShare&ifrsFact=ifrs-full:Equity&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
 Accept: text/csv
 ```
 Note that the PE-Ratio is calculated based on ifrs-full:BasicEarningsLossPerShare and the closing price. End prices of facts retrieved from financial reports are assigned by using their end of period date.
@@ -342,6 +345,8 @@ The composerservice is used to compose csv files from stored data. It also manag
         in: "query"
         schema:
           type: "string"
+      - name: "ifrsFact"
+        in: "query"
       responses:
         "200":
           description: "OK"
