@@ -1,8 +1,5 @@
 package com.mystockdata.composerservice
 
-import com.mystockdata.composerservice.company.Company
-import com.mystockdata.composerservice.company.CompanyService
-import com.mystockdata.composerservice.company.findCompanyBySymbol
 import com.mystockdata.composerservice.csv.CSVEntryConstants
 import com.mystockdata.composerservice.csv.MissingValueHandlingStrategy
 import com.mystockdata.composerservice.csv.PriceEntry
@@ -12,9 +9,7 @@ import com.mystockdata.composerservice.financialreport.FinancialReportServiceAda
 import com.mystockdata.composerservice.financialreport.IFRSTAGS
 import com.mystockdata.composerservice.financialreport.toFactMap
 import com.mystockdata.composerservice.indicator.*
-import com.mystockdata.composerservice.stockdata.AggregatedPriceInformationResponse
-import com.mystockdata.composerservice.stockdata.StockDataServiceAdapter
-import com.mystockdata.composerservice.stockdata.toCSVEntryList
+import com.mystockdata.composerservice.stockdata.*
 import com.mystockdata.financialreportservice.financialreports.Fact
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -30,8 +25,7 @@ import java.time.Instant
 @Service
 class Composerservice(
     @Autowired private val stockDataServiceAdapter: StockDataServiceAdapter,
-    @Autowired private val financialReportServiceAdapter: FinancialReportServiceAdapter,
-    @Autowired private val companyService: CompanyService
+    @Autowired private val financialReportServiceAdapter: FinancialReportServiceAdapter
 ) {
 
     companion object {
@@ -66,11 +60,10 @@ class Composerservice(
     ): InputStreamResource? {
 
         // Get companies of the provided lei.
-        val companies = companyService.getCompanies(leis).toSet()
+        val companies: Set<Company> = stockDataServiceAdapter.getCompanies(leis).toSet()
 
         // Retrieve aggregated price information for the symbols of the lei.
-        val symbols: List<String> = companies.map { it.getSymbolNames() }.flatten()
-        val (reports, aggregatedPriceInformation) = retrieveData(leis, start, symbols, end)
+        val (reports, aggregatedPriceInformation) = retrieveData(leis, start, end)
 
         // Can not build a csv if the required data is not present.
         if (aggregatedPriceInformation.isNullOrEmpty()) return null
@@ -96,11 +89,10 @@ class Composerservice(
     private suspend fun retrieveData(
         leis: List<String>,
         start: Instant,
-        symbols: List<String>,
         end: Instant
     ): Pair<List<FinancialReport>?, List<AggregatedPriceInformationResponse>?> = coroutineScope {
         val financialReports = async { getFinancialReports(leis, start, end) }
-        val aggregatedPriceInformationResponse = async { getAggregatedPriceInformation(symbols, start, end) }
+        val aggregatedPriceInformationResponse = async { getAggregatedPriceInformation(leis, start, end) }
         return@coroutineScope Pair(financialReports.await(), aggregatedPriceInformationResponse.await())
     }
 
@@ -118,16 +110,16 @@ class Composerservice(
     }
 
     private suspend fun getAggregatedPriceInformation(
-        symbols: List<String>,
+        leis: List<String>,
         start: Instant,
         end: Instant
     ): List<AggregatedPriceInformationResponse>? {
-        return if (symbols.isEmpty()) {
-            logger.debug("No symbols found.")
+        return if (leis.isEmpty()) {
+            logger.debug("No leis found.")
             null
         } else {
             val aggregatedPriceInformation: List<AggregatedPriceInformationResponse> =
-                stockDataServiceAdapter.getAggregatedPriceInformation(symbols.toSet(), start, end).toList()
+                stockDataServiceAdapter.getAggregatedPriceInformation(leis.toSet(), start, end).toList()
             aggregatedPriceInformation.ifEmpty {
                 logger.debug("Could not retrieve aggregated price information.")
                 null
@@ -257,7 +249,7 @@ class Composerservice(
     ): List<PriceEntry> {
         // Find fact
         val factList = financialReport.findFacts(ifrsTag)
-        val symbolOfCompanyOrLei = company?.getSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier
+        val symbolOfCompanyOrLei = company?.getAssociatedSymbolNames()?.firstOrNull() ?: financialReport.entityIdentifier
         return factList.mapNotNull { it.parseToCSVEntry(if (useSymbolAsColumnName) symbolOfCompanyOrLei else financialReport.entityIdentifier) }
     }
 

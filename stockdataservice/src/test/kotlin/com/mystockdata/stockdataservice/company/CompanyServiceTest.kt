@@ -1,8 +1,6 @@
-package com.mystockdata.composerservice.company
+package com.mystockdata.stockdataservice.company
 
-import com.mystockdata.composerservice.financialreport.FinancialReportServiceAdapter
-import com.mystockdata.composerservice.stockdata.StockDataServiceAdapter
-import kotlinx.coroutines.flow.asFlow
+import com.mystockdata.stockdataservice.watchlist.WatchlistService
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -22,16 +20,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 class CompanyServiceTest(
     @Autowired val companyRepository: CompanyRepository
 ) {
-
-    private val mockStockDataServiceAdapter: StockDataServiceAdapter = Mockito.mock(StockDataServiceAdapter::class.java)
-    private val mockFinancialReportServiceAdapter: FinancialReportServiceAdapter =
-        Mockito.mock(FinancialReportServiceAdapter::class.java)
+    private val watchlistServiceMock = Mockito.mock(WatchlistService::class.java)
 
     private val subject =
-        CompanyService(companyRepository, mockStockDataServiceAdapter, mockFinancialReportServiceAdapter)
+        CompanyService(companyRepository, watchlistServiceMock)
+
     private val companies = listOf(
-        Company("lei", setOf(Security("isin", setOf(Symbol("symbol", "exchange"))))),
-        Company("lei1", setOf(Security("isin1", setOf(Symbol("symbol1", "exchange")))))
+        Company("lei", setOf(Security("isin", setOf(Symbol("symbol", "system", "exchange"))))),
+        Company("lei1", setOf(Security("isin1", setOf(Symbol("symbol1", "system", "exchange")))))
     )
 
     @BeforeEach
@@ -51,8 +47,8 @@ class CompanyServiceTest(
 
     @Test
     fun addCompaniesAlsoToWatchlistTest(): Unit = runBlocking {
-        val symbols = companies.map { it.getSymbolNames() }.flatten().toSet()
-        Mockito.`when`(mockStockDataServiceAdapter.addToWatchlist(symbols)).thenReturn(symbols.toList().asFlow())
+        val leis = companies.map { it.lei }.toSet()
+        Mockito.`when`(watchlistServiceMock.addToWatchList(leis)).thenReturn(leis.toList())
 
         val response = subject.addCompaniesAndSaveToWatchList(companies.toSet())
         val savedData = companyRepository.findAll().toList()
@@ -63,7 +59,7 @@ class CompanyServiceTest(
             Assertions.assertTrue(savedData.contains(it))
         }
 
-        Mockito.verify(mockStockDataServiceAdapter, times(1)).addToWatchlist(symbols)
+        Mockito.verify(watchlistServiceMock, times(1)).addToWatchList(leis)
     }
 
     @Test

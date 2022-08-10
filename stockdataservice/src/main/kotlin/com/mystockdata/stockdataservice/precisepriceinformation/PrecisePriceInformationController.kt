@@ -1,7 +1,6 @@
 package com.mystockdata.stockdataservice.precisepriceinformation
 
 import com.mystockdata.stockdataservice.StockDataService
-import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,21 +17,21 @@ class PrecisePriceInformationController(
 ) {
     @GetMapping("/start")
     suspend fun start(
-        @RequestParam symbol: Set<String>?
-    ) = stockDataService.startRetrievingPrecisePriceInformation(symbol)
+        @RequestParam lei: Set<String>?
+    ) = stockDataService.startRetrievingPrecisePriceInformation(lei)
 
     @GetMapping("/stop")
     suspend fun stop() = stockDataService.stopRetrievingPrecisePriceInformation()
 
     @GetMapping
     suspend fun get(
-        @RequestParam symbol: List<String>,
+        @RequestParam lei: List<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<List<PrecisePriceInformationResponse>> {
 
         val data = stockDataService.getPrecisePriceInformation(
-            symbols = symbol,
+            leis = lei.toSet(),
             start = start ?: Instant.now().minus(1, ChronoUnit.DAYS),
             end = end ?: Instant.now()
         )

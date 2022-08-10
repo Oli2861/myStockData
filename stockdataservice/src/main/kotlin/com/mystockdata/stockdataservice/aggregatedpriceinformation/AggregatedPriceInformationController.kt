@@ -1,6 +1,7 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
 import com.mystockdata.stockdataservice.StockDataService
+import com.mystockdata.stockdataservice.company.Symbol
 import kotlinx.coroutines.flow.Flow
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,27 +26,27 @@ class AggregatedPriceInformationController(
 
     @GetMapping("/retrieve")
     suspend fun retrieve(
-        @RequestParam symbol: Set<String>?,
+        @RequestParam lei: Set<String>?,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): Flow<AggregatedPriceInformation> {
         return if(start == null || end == null) {
             logger.debug("No time range specified, retrieving for 1 month")
-            stockDataService.retrieveAggregatedInformationForMonths(symbol, 1)
+            stockDataService.retrieveAggregatedInformationForMonths(lei, 1)
         }else{
-            stockDataService.retrieveAggregatedPriceInformation(symbol, start, end)
+            stockDataService.retrieveAggregatedPriceInformation(lei, start, end)
         }
     }
 
     @GetMapping
     suspend fun get(
-        @RequestParam symbol: Set<String>,
+        @RequestParam lei: Set<String>,
         @RequestParam(required = false) start: Instant?,
         @RequestParam(required = false) end: Instant?
     ): ResponseEntity<List<AggregatedPriceInformationResponse>> {
         if(start == null || end == null) logger.debug("No time range specified, retrieving for 30 days")
         val data = stockDataService.getAggregatedPriceInformation(
-            symbols = symbol,
+            leis = lei,
             start = start ?: Instant.now().minus(30, ChronoUnit.DAYS),
             end = end ?: Instant.now()
         )

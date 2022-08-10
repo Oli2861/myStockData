@@ -1,24 +1,23 @@
 package com.mystockdata.stockdataservice.watchlist
 
-import com.mystockdata.stockdataservice.StockDataService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("v1/watchlist")
 class WatchlistController(
-    @Autowired val stockDataService: StockDataService
+    @Autowired val watchlistService: WatchlistService
 ) {
     @GetMapping
-    suspend fun getWatchlist() = stockDataService.getWatchlist()
+    suspend fun getWatchlist() = watchlistService.getWatchlist()
 
     @PutMapping
     suspend fun addToWatchlist(
-        @RequestParam symbol: List<String>
-    ) = stockDataService.addToWatchList(symbol)
+        @RequestParam lei: List<String>
+    ) = watchlistService.addToWatchList(lei.toSet())
 
     @DeleteMapping
     suspend fun removeFromWatchlist(
-        @RequestParam symbol: List<String>
-    ) = stockDataService.removeFromWatchList(symbol.toSet())
+        @RequestParam lei: List<String>
+    ) = watchlistService.removeFromWatchList(lei.toSet())
 }

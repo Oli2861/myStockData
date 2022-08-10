@@ -1,4 +1,4 @@
-package com.mystockdata.composerservice.company
+package com.mystockdata.stockdataservice.company
 
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository

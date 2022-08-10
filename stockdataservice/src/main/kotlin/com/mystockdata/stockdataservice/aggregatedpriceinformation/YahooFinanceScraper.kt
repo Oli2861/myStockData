@@ -1,5 +1,7 @@
 package com.mystockdata.stockdataservice.aggregatedpriceinformation
 
+import com.mystockdata.stockdataservice.company.Symbol
+import com.mystockdata.stockdataservice.company.SymbolConstants.YAHOO_FINANCE_SYSTEM
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -28,16 +30,21 @@ class YahooFinanceScraper(
      * @return Retrieved AggregatedPriceInformation.
      */
     override suspend fun retrieveHistoricalStockData(
-        stockSymbol: String,
+        stockSymbol: Symbol,
         startDate: Instant,
         endDate: Instant
     ): List<AggregatedPriceInformation>? {
-
-        logger.trace("Retrieving historical stock data for $stockSymbol ranging from $startDate to $endDate")
+        val symbol = if (stockSymbol.system == YAHOO_FINANCE_SYSTEM) {
+            logger.trace("Retrieving historical stock data for $stockSymbol ranging from $startDate to $endDate")
+            stockSymbol.symbol
+        } else {
+            logger.debug("Unable to retrieve $stockSymbol since it is not a Yahoo Finance stock symbol.")
+            return null
+        }
 
         val csvResponse = yahooFinanceWebClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("/v7/finance/download/$stockSymbol")
+                uriBuilder.path("/v7/finance/download/$symbol")
                     .queryParam("period1", startDate.toEpochMilli() / 1000)
                     .queryParam("period2", endDate.toEpochMilli() / 1000)
                     .queryParam("interval", "1d")
@@ -47,7 +54,7 @@ class YahooFinanceScraper(
             }.retrieve()
             .awaitBody<String>()
 
-        val list = parseCSVString(csvResponse, stockSymbol)
+        val list = parseCSVString(csvResponse, symbol)
         logger.trace("Retrieved stock data $list")
 
         return list
@@ -73,9 +80,9 @@ class YahooFinanceScraper(
 
         for (line: String in listBody) {
             val stockDataOHLCV = parseLine(line, stockSymbol)
-            if (stockDataOHLCV != null){
+            if (stockDataOHLCV != null) {
                 list.add(stockDataOHLCV)
-            }else{
+            } else {
                 logger.debug("Unable to parse line: $line")
             }
         }

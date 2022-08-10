@@ -1,12 +1,10 @@
-GET http://localhost:8085/v1/company/529900NNUPAGGOMPXZ31
+# @name Companies_get
+GET http://localhost:8084/v1/company?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68
 Content-Type: application/json
 
 ###
-GET http://localhost:8080/v1/company/retrieveDataForCompanies?aggregatedPriceInfoStart=2012-08-01T09:15:29.442856700Z&aggregatedPriceInfoEnd=2022-08-05T09:15:29.442856700Z&lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
-Content-Type: application/json
-
-###
-PUT http://localhost:8085/v1/company?addToWatchList=true
+# @name Companies_add
+PUT http://localhost:8084/v1/company?addToWatchList=true
 Content-Type: application/json
 
 [
@@ -18,6 +16,7 @@ Content-Type: application/json
         "symbols": [
           {
             "symbol": "VOW3.DE",
+            "system": "Yahoo Finance",
             "exchange": "XETRA"
           }
         ]
@@ -32,6 +31,7 @@ Content-Type: application/json
         "symbols": [
           {
             "symbol": "SAP.DE",
+            "system": "Yahoo Finance",
             "exchange": "XETRA"
           }
         ]
@@ -46,6 +46,7 @@ Content-Type: application/json
         "symbols": [
           {
             "symbol": "ADS.DE",
+            "system": "Yahoo Finance",
             "exchange": "XETRA"
           }
         ]

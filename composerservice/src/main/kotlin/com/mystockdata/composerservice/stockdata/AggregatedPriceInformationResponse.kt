@@ -1,8 +1,6 @@
 package com.mystockdata.composerservice.stockdata
 
-import com.mystockdata.composerservice.company.Company
 import com.mystockdata.composerservice.csv.CSVEntryConstants
-import com.mystockdata.composerservice.csv.CsvEntry
 import com.mystockdata.composerservice.csv.PriceEntry
 import java.math.BigDecimal
 import java.time.Instant
@@ -46,7 +44,7 @@ fun List<AggregatedPriceInformationResponse>.matchToCompany(
     val map = mutableMapOf<Company, MutableList<AggregatedPriceInformationResponse>>()
     forEach { priceInfo ->
         companies.forEach { company ->
-            if (company.containsSymbol(priceInfo.symbol)) {
+            if (company.isAssociatedWithSymbol(priceInfo.symbol)) {
                 if (map[company].isNullOrEmpty()) {
                     map[company] = mutableListOf()
                     map[company]?.add(priceInfo)

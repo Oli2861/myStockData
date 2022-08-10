@@ -2,11 +2,14 @@ package com.mystockdata.stockdataservice
 
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedInformationProvider
 import com.mystockdata.stockdataservice.aggregatedpriceinformation.AggregatedPriceInformationRepository
+import com.mystockdata.stockdataservice.company.CompanyService
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationProvider
 import com.mystockdata.stockdataservice.precisepriceinformation.PrecisePriceInformationRepository
+import com.mystockdata.stockdataservice.company.Symbol
 import com.mystockdata.stockdataservice.watchlist.Watchlist
 import com.mystockdata.stockdataservice.watchlist.WatchlistConstants
 import com.mystockdata.stockdataservice.watchlist.WatchlistRepository
+import com.mystockdata.stockdataservice.watchlist.WatchlistService
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
@@ -19,66 +22,25 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner
 
-@ActiveProfiles("test")
-@RunWith(SpringJUnit4ClassRunner::class)
-@DataMongoTest
-class StockDataServiceTest(
-    @Autowired val watchlistRepository: WatchlistRepository
-    ) {
+
+class StockDataServiceTest{
 
     private val aggregatedPriceInformationMock = Mockito.mock(AggregatedInformationProvider::class.java)
     private val precisePriceInformationProviderMock = Mockito.mock(PrecisePriceInformationProvider::class.java)
     private val precisePriceInformationRepositoryMock = Mockito.mock(PrecisePriceInformationRepository::class.java)
     private val aggregatedPriceInformationRepositoryMock = Mockito.mock(AggregatedPriceInformationRepository::class.java)
+    private val watchlistServiceMock = Mockito.mock(WatchlistService::class.java)
+    private val companyServiceMock = Mockito.mock(CompanyService::class.java)
 
     private val subject = StockDataService(
         aggregatedPriceInformationMock,
         precisePriceInformationProviderMock,
         precisePriceInformationRepositoryMock,
         aggregatedPriceInformationRepositoryMock,
-        watchlistRepository
+        watchlistServiceMock,
+        companyServiceMock
     )
 
-    private val watchlist = listOf("lei", "lei1")
 
-    @BeforeEach
-    fun clearDB() = runBlocking {
-        watchlistRepository.deleteAll()
-    }
-
-    @Test
-    fun getWatchListNotExistingTest() = runBlocking {
-        val actual = subject.getWatchlist()
-        Assertions.assertEquals(null, actual)
-    }
-
-    @Test
-    fun removeFromWatchListTest() = runBlocking {
-        subject.addToWatchList(watchlist)
-        val response = subject.removeFromWatchList(setOf(watchlist[0]))
-        val actual = subject.getWatchlist()
-        Assertions.assertEquals(1, actual!!.size)
-        Assertions.assertEquals(watchlist[1], actual.first())
-        Assertions.assertEquals(setOf(watchlist[0]) , response)
-    }
-
-    @Test
-    fun addToWatchListNotExistingTest() = runBlocking {
-        val response = subject.addToWatchList(watchlist)
-        val actual = watchlistRepository.findAll().first()
-        Assertions.assertEquals(watchlist, response.toList())
-        Assertions.assertEquals(Watchlist(WatchlistConstants.watchlistID, watchlist.toMutableSet()), actual)
-    }
-
-    @Test
-    fun addToWatchListTest() = runBlocking {
-        subject.addToWatchList(watchlist)
-        val response = subject.addToWatchList(listOf("lei3"))
-        val actual = watchlistRepository.findAll().first()
-        Assertions.assertEquals("lei3", response.first())
-        val expectedWatchList = watchlist.toMutableSet()
-        expectedWatchList.add("lei3")
-        Assertions.assertEquals(Watchlist(WatchlistConstants.watchlistID, expectedWatchList), actual)
-    }
 
 }

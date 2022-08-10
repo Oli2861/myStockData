@@ -79,8 +79,9 @@ class TimeIndexedCSVBuilder(
                     columnMap[columnName]?.filter { it.time == time }
                 val symbol = columnMap[columnName]?.firstOrNull()?.symbol ?: SYMBOL_MISSING_STRING
 
-                val valueToBePlaced = entriesMatchingTime?.firstOrNull { it.price != null && it.price != PLACEHOLDER_VALUE }
-                        ?: missingValueHandlingStrategy.findValueToBePlaced(rowIndex, time, columnIndex, columnName, symbol, csvBody, columnMap[columnName], false)
+                val valueToBePlaced =
+                    entriesMatchingTime?.firstOrNull { it.price != null && it.price != PLACEHOLDER_VALUE } ?: missingValueHandlingStrategy.findValueToBePlaced(
+                        rowIndex, time, columnIndex, columnName, symbol, csvBody, columnMap[columnName], false)
 
                 csvBody[rowIndex].add(valueToBePlaced)
             }
@@ -127,8 +128,9 @@ class TimeIndexedCSVBuilder(
         // Search for each time index the entry that matches best.
         for ((rowIndex, time) in timeIndex.withIndex()) {
             // Next matching entry.
-            val closestEntry = ClosestEntryStrategy.findValueToBePlaced(
-                rowIndex, time, csvHeader.indexOf(columnName), columnName, csvEntries.firstOrNull()?.symbol ?: SYMBOL_MISSING_STRING, csvBody, csvEntries,false)
+            val closestEntry = ClosestEntryStrategy.findValueToBePlaced(rowIndex, time, csvHeader.indexOf(columnName),
+                columnName, csvEntries.firstOrNull()?.symbol ?: SYMBOL_MISSING_STRING, csvBody, csvEntries, false
+            )
             // Set closest entry as value in the current row.
             csvBody[rowIndex].add(closestEntry)
         }
@@ -150,10 +152,15 @@ class TimeIndexedCSVBuilder(
             it.mapNotNull { entry -> entry as? PriceEntry }
         }.forEach { column ->
             val calculatedIndicator = calculationFunction.invoke(column)
-            if (calculatedIndicator.isEmpty()) return@forEach
-
-            val header = "${indicatorName.indicatorName}_${calculatedIndicator.firstNotNullOfOrNull { it.symbol }}"
-            addColumn(calculatedIndicator.map { PriceEntry(it.time, header, it.value, it.symbol) }, header)
+            if (
+                calculatedIndicator.isEmpty() ||
+                (ignoreNullColumns && calculatedIndicator.none { it.value == null })
+            ) {
+                return@forEach
+            } else {
+                val header = "${indicatorName.indicatorName}_${calculatedIndicator.firstNotNullOfOrNull { it.symbol }}"
+                addColumn(calculatedIndicator.map { PriceEntry(it.time, header, it.value, it.symbol) }, header)
+            }
         }
     }
 

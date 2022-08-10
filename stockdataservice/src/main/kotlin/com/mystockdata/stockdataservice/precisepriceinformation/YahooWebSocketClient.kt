@@ -4,6 +4,8 @@ import Yahoo
 import com.google.protobuf.ByteString
 import com.google.protobuf.StringValue.parseFrom
 import com.google.protobuf.kotlin.toByteString
+import com.mystockdata.stockdataservice.company.Symbol
+import com.mystockdata.stockdataservice.company.SymbolConstants.YAHOO_FINANCE_SYSTEM
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Component
 import java.net.URI
 import java.nio.ByteBuffer
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Component
@@ -24,22 +25,34 @@ class YahooWebSocketClient(
     var initialMsg: String? = null,
     serverUri: URI = URI.create("wss://streamer.finance.yahoo.com/"),
     private val base64Decoder: Base64.Decoder = Base64.getDecoder(),
-    private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss.SSS"),
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Default),
-    override val flow: MutableSharedFlow<PrecisePriceInformation> = MutableSharedFlow<PrecisePriceInformation>()
+    override val flow: MutableSharedFlow<PrecisePriceInformation> = MutableSharedFlow()
 ) : WebSocketClient(serverUri), PrecisePriceInformationProvider {
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(YahooWebSocketClient::class.java)
     }
 
-    override fun establishConnection(symbols: Set<String>) {
-        initialMsg = prepareSymbolString(symbols)
+    override fun establishConnection(symbols: Set<Symbol>) {
+        val yahooSymbols = toYahooSymbolStrings(symbols)
+        initialMsg = prepareSymbolString(yahooSymbols)
         connect()
     }
 
-    override fun setWatchedSecurities(symbols: Set<String>) {
-        send(prepareSymbolString(symbols))
+    override fun setWatchedSecurities(symbols: Set<Symbol>) {
+        val yahooSymbols = toYahooSymbolStrings(symbols)
+        send(prepareSymbolString(yahooSymbols))
+    }
+
+    private fun toYahooSymbolStrings(symbols: Set<Symbol>): Set<String> {
+        return symbols.filter {
+            if(it.system == YAHOO_FINANCE_SYSTEM){
+                true
+            }else{
+                logger.debug("Unable to retrieve $it since it is not a Yahoo Finance stock symbol.")
+                false
+            }
+        }.map { it.symbol }.toSet()
     }
 
     private fun prepareSymbolString(symbols: Set<String>): String {
@@ -91,65 +104,3 @@ class YahooWebSocketClient(
     }
 
 }
-
-
-/*
-@Component
-class YahooStockDataRetriever(
-    @Autowired private val yahooWebSocketHandler: YahooWebSocketHandler,
-    @Autowired private val websocketClient: WebSocketClient
-){
-    fun start(){
-        val uri = URI.create("wss://streamer.finance.yahoo.com/")
-        websocketClient.execute(uri, yahooWebSocketHandler).block()
-
-    }
-    fun stop(){
-
-    }
-}
-
-fun main(){
-    val webSocketConfig = WebSocketConfig()
-    val yahooStockDataRetriever = YahooStockDataRetriever(webSocketConfig.yahooWebSocketHandler(), webSocketConfig.webSocketClient())
-    yahooStockDataRetriever.start()
-}
-
-
-@Configuration
-class WebSocketConfig {
-    @Bean
-    fun handlerMapping(): HandlerMapping {
-        val map = mapOf("/path" to YahooWebSocketHandler())
-        val order = -1
-        return SimpleUrlHandlerMapping(map, order)
-    }
-
-    @Bean
-    fun yahooWebSocketHandler(): YahooWebSocketHandler = YahooWebSocketHandler()
-
-    @Bean
-    fun webSocketClient(): WebSocketClient = ReactorNettyWebSocketClient()
-
-    @Bean
-    fun protobufHttpMessageConverter(): ProtobufHttpMessageConverter = ProtobufHttpMessageConverter()
-
-}
-
-
-@EnableWebFlux
-class YahooWebSocketHandler(
-    val message: String = "{\"subscribe\":[\"AMC\", \"TSLA\"]}"
-) : WebSocketHandler {
-
-    override fun handle(session: WebSocketSession): Mono<Void> {
-        return session.send(
-            Mono.just(session.textMessage(message))
-        ).thenMany(
-            session.receive()
-                .map(WebSocketMessage::getPayloadAsText)
-                .log()
-        ).then()
-    }
-}
- */

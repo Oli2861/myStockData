@@ -3,7 +3,7 @@ GET http://localhost:8083/v1/financialreports/retrieveReports
 Accept: application/stream+json
 
 ### Retrieve reports
-GET http://localhost:8083/v1/financialreports/retrieveReports?lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&lei=529900NNUPAGGOMPXZ31
+GET http://localhost:8083/v1/financialreports/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
 Accept: application/stream+json
 
 ### Get reports
