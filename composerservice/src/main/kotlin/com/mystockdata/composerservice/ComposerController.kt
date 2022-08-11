@@ -30,7 +30,7 @@ class ComposerController(
         private val logger: Logger = LoggerFactory.getLogger(ComposerController::class.java)
     }
 
-    @GetMapping("precisePriceInfo/csv")
+    @GetMapping("precisePriceInformation/csv")
     suspend fun getPrecisePriceCSV(
         @RequestParam symbols: List<String>,
         @RequestParam(required = false) start: Instant?,
@@ -56,7 +56,7 @@ class ComposerController(
 
     }
 
-    @GetMapping("aggregatedPriceInfo/csv")
+    @GetMapping("aggregatedPriceInformation/csv")
     suspend fun getAggregatedPriceInfoCSV(
         @RequestParam lei: List<String>,
         @RequestParam(required = false) start: Instant?,

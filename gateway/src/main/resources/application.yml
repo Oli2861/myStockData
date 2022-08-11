@@ -1,0 +1,12 @@
+financialreportservice:
+  host: "localhost"
+  port: "8083"
+stockdataservice:
+  host: "localhost"
+  port: "8084"
+composerservice:
+  host: "localhost"
+  port: "8085"
+logging.level.com.mystockdata: DEBUG
+logging.level.org.springframework.cloud.gateway: DEBUG
+logging.level.reactor.netty: DEBUG

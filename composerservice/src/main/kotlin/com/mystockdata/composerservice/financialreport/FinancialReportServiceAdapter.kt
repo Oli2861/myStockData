@@ -45,7 +45,7 @@ class FinancialReportServiceAdapter(
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")
         return financialReportServiceWebClient.get()
             .uri { uriBuilder ->
-                uriBuilder.path("v1/financialreports")
+                uriBuilder.path("v1/financialreport")
                     .queryParam("lei", leis)
                     .queryParam("start", dateFormat.format(startDate))
                     .queryParam("end", dateFormat.format(endDate))
@@ -65,10 +65,10 @@ class FinancialReportServiceAdapter(
         return financialReportServiceWebClient.get()
             .uri { uriBuilder ->
                 if (leis.isEmpty()) {
-                    uriBuilder.path("v1/financialreports/retrieveReports")
+                    uriBuilder.path("v1/financialreport/retrieveReports")
                         .build()
                 } else {
-                    uriBuilder.path("v1/financialreports/retrieveReports")
+                    uriBuilder.path("v1/financialreport/retrieveReports")
                         .queryParam(LEI_QUERY_PARAM, leis)
                         .build()
                 }

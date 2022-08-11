@@ -11,7 +11,7 @@ import java.time.Instant
 import java.util.Date
 
 @RestController
-@RequestMapping("v1/financialreports")
+@RequestMapping("v1/financialreport")
 class FinancialReportController(
     @Autowired val financialReportService: FinancialReportService
 ) {

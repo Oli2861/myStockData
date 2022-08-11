@@ -1,10 +1,10 @@
 # @name Companies_get
-GET http://localhost:8084/v1/company?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68
+GET http://localhost:8080/v1/stockdata/company?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68
 Content-Type: application/json
 
 ###
 # @name Companies_add
-PUT http://localhost:8084/v1/company?addToWatchList=true
+PUT http://localhost:8080/v1/stockdata/company?addToWatchList=true
 Content-Type: application/json
 
 [

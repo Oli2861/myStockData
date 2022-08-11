@@ -1,24 +1,28 @@
 ###
 # @name AggregatedPriceInformation_retrieve
-GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?start=2018-08-01T09:15:29.442856700Z&end=2022-08-10T09:15:29.442856700Z
+GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation/retrieve?start=2018-08-01T09:15:29.442856700Z&end=2022-08-10T09:15:29.442856700Z
 Accept: application/json
 ###
 # @name AggregatedPriceInformation_retrieve
-GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?lei=529900D6BF99LW9R2E68&lei=529900NNUPAGGOMPXZ31&symbol=549300JSX0Z4CW0V5023&start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
+GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation/retrieve?lei=529900D6BF99LW9R2E68&lei=529900NNUPAGGOMPXZ31&symbol=549300JSX0Z4CW0V5023&start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
 Accept: application/json
 
 ###
 # @name AggregatedPriceInformation_get
-GET http://localhost:8084/v1/aggregatedPriceInformation?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
+GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
 Accept: application/json
-
 
 ###
 # @name PrecisePriceInformation_start
-GET http://localhost:8084/v1/precisePriceInformation/start?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
+GET http://localhost:8080/v1/stockdata/precisePriceInformation/start?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
 Accept: application/stream+json
 
 ###
+# @name PrecisePriceInformation_stop
+GET http://localhost:8080/v1/stockdata/precisePriceInformation/stop
+Accept: application/json
+
+###
 # @name PrecisePriceInformation_get
-GET http://localhost:8084/v1/aggregatedPriceInformation?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
+GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation?lei=529900NNUPAGGOMPXZ31&lei=549300JSX0Z4CW0V5023&lei=529900D6BF99LW9R2E68
 Accept: application/json

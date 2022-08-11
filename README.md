@@ -105,7 +105,7 @@ Retrieved financial reports can also be viewed by using MongoDBCompass with the 
 ```
   /v1/financialreports:
     get:
-      summary: "GET v1/financialreports"
+      summary: "GET v1/financialreport"
       operationId: "getReports"
       parameters:
       - name: "lei"
@@ -120,7 +120,7 @@ Retrieved financial reports can also be viewed by using MongoDBCompass with the 
 ---
   /v1/financialreports/retrieveReports:
     get:
-      summary: "GET v1/financialreports/retrieveReports"
+      summary: "GET v1/financialreport/retrieveReports"
       operationId: "retrieveReports"
       parameters:
       - name: "lei"
@@ -322,8 +322,5 @@ The composerservice is used to compose csv files from data stored by other servi
 ```
 
 ## Know issues
-- Partially retrieved reports are not extended.
-- When adding creating new companies and directly adding them to the watchlist of the stockdataservice the Response received by the StockDataServiceAdapter WebClient contains a single String containing the added symbols rather than a list of strings. This is behavior is also described in https://github.com/spring-projects/spring-framework/issues/24734. The mentioned workaround does not seam to apply for this project. 
-  - Expected Response: ```["SAP.DE", "VOW3.DE", "ADS.DE"]```
-  - Actual Response: ```"[\"SAP.DE\",\"VOW3.DE\",\"ADS.DE\"]"```
 - After the retrieval of precise price information is stopped, it cannot be started again without restarting the whole microservice.
+- Gateway does not forward json/stream data
