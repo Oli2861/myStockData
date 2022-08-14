@@ -5,13 +5,16 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 ## Architecture
 ![architektur.drawio.png](architektur.drawio.png)
 
+## Clone
+`git clone https://github.com/Oli2861/myStockData --recursive`
+
 ## Build & Run
 
 ### 1. Build all services (requires gradle)
-- GitBash: `cd financialreportservice && ./gradlew build && cd ../ && cd schedulingservice && ./gradlew build && cd ../ && cd stockdataservice && ./gradlew build && cd ../`
-- PowerShell: `cd financialreportservice; ./gradlew build; cd ../; cd schedulingservice; ./gradlew build; cd ../; cd stockdataservice; ./gradlew build; cd ../`
+- GitBash: `cd financialreportservice && ./gradlew build && cd ../ && cd schedulingservice && ./gradlew build && cd ../ && cd stockdataservice && ./gradlew build && cd ../ && cd composerservice && ./gradlew build && cd ../ && cd gateway && ./gradlew build && cd ../`
+- PowerShell: `cd financialreportservice; ./gradlew build; cd ../; cd schedulingservice; ./gradlew build; cd ../; cd stockdataservice; ./gradlew build; cd ../; cd gateway; ./gradlew build; cd ../; cd composerservice; ./gradlew build; cd ../`
 
-### 2. Start all containers in docker-compose
+### 2. Start all containers
 `docker-compose up`
 
 ## Testing Guide
