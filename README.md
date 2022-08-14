@@ -14,10 +14,11 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 ### 2. Start all containers in docker-compose
 `docker-compose up`
 
-## Guide
+## Testing Guide
+The following requests are part of TestRequests.http and can simplify the testing process when using them in conjunction with IDE IntelliJ Idea.
 ##### 1. Create companies and add them to your watchlist while doing so:
 ```
-PUT http://localhost:8084/v1/company?addToWatchList=true
+PUT http://localhost:8084/v1/stockdata/company?addToWatchList=true
 Content-Type: application/json
 
 [
@@ -71,24 +72,31 @@ Content-Type: application/json
 ##### 2. Retrieve financial reports and aggregated price information for the companies:
 - stockdataservice
   ```
-  GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
+  GET http://localhost:8084/v1/stockdata/aggregatedPriceInformation/retrieve?start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
+  Accept: application/stream+json
   ```
 - financialreportservice: 
   ```
-  GET http://localhost:8083/v1/financialreports/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+  GET http://localhost:8083/v1/financialreport/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+  Accept: application/stream+json
   ```
 Make sure to wait ~2 minutes after retrieving the data since the financialreportservice sleeps for 20 seconds before retrieving a report.
 ##### 3. Get a CSV file of the just retrieved data. 
 ```
-GET http://localhost:8085/v1/aggregatedPriceInfo/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&ifrsFact=ifrs-full:DilutedEarningsLossPerShare&ifrsFact=ifrs-full:Equity&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
+GET http://localhost:8080/v1/composedData/aggregatedPriceInformation/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&ifrsFact=ifrs-full:DilutedEarningsLossPerShare&ifrsFact=ifrs-full:Equity&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
 Accept: text/csv
 ```
 Note that the PE-Ratio is calculated based on ifrs-full:BasicEarningsLossPerShare and the closing price. End prices of facts retrieved from financial reports are assigned by using their end of period date.
 
-
 ##### 4. Start retrieving precise price information for the companies on your watchlist:
 ```
-GET http://localhost:8084/v1/precisePriceInformation/start
+GET http://localhost:8080/v1/stockdata/precisePriceInformation/start?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+Accept: application/stream+json
+```
+
+##### 5. Get some retrieved precise price information:
+```
+GET http://localhost:8080/v1/stockdata/precisePriceInformation?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
 Accept: application/stream+json
 ```
 
@@ -136,6 +144,7 @@ Before price information can be retrieved, a company with symbol and associated 
 The stockdataservice manages a watchlist which has to be populated in order to retrieve aggregated price information based on events.
 Stored data can also be viewed by using the Influx web interface (http://localhost:8086/ username: user password: password).
 ##### OpenAPI Specification
+When addressed via the gateway, ```stockdata/``` is inserted between ```/v1/``` and ```aggregatedPriceInfo```, ```precisePriceInfo```, ```company``` or ```watchlist``` respectively.
 ```
   /v1/aggregatedPriceInformation:
     get:
@@ -273,6 +282,7 @@ Stored data can also be viewed by using the Influx web interface (http://localho
 ### composerservice
 The composerservice is used to compose csv files from data stored by other services. The current state of the composerservice is able to produce a csv file including aggregated price information, facts from financial reports and simple moving average and price to earnings ratio indicators. Financial facts and indicators are not yet implemented for precise price information csv files.
 ##### OpenAPI Specification
+When addressed via the gateway, ```composedData/``` is inserted between ```/v1/``` and ```aggregatedPriceInfo/csv``` or ```precisePriceInfo/csv``` respectively.
 ```
   /v1/aggregatedPriceInfo/csv:
     get:
@@ -323,4 +333,4 @@ The composerservice is used to compose csv files from data stored by other servi
 
 ## Know issues
 - After the retrieval of precise price information is stopped, it cannot be started again without restarting the whole microservice.
-- Gateway does not forward json/stream data
+- Gateway does not forward json/stream data / only if the stream is terminated

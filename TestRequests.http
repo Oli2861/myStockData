@@ -1,6 +1,6 @@
 ###
 # @name stockdataservice_companies_add
-PUT http://localhost:8084/v1/company?addToWatchList=true
+PUT http://localhost:8080/v1/stockdata/company?addToWatchList=true
 Content-Type: application/json
 
 [
@@ -53,13 +53,25 @@ Content-Type: application/json
 
 ###
 # @name stockdataservice_aggregatedPriceInformation_retrieve
-GET http://localhost:8084/v1/aggregatedPriceInformation/retrieve?start=2018-08-01T09:15:29.442856700Z&end=2022-08-10T09:15:29.442856700Z
-Accept: application/json
+GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation/retrieve?start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
+Accept: application/stream+json
 
 ###
 # @name financialreportservice_financialreports_retrieve
-GET http://localhost:8083/v1/financialreports/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+GET http://localhost:8080/v1/financialreport/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+Accept: application/stream+json
 
 ###
 # @name datacomposerservice_aggregatedPriceInfo_csv
-GET http://localhost:8085/v1/aggregatedPriceInfo/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&ifrsFact=ifrs-full:DilutedEarningsLossPerShare&ifrsFact=ifrs-full:Equity&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
+GET http://localhost:8080/v1/composedData/aggregatedPriceInformation/csv?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023&missingValueStrategy=LAST_VALUE&indicatorNames=SMA&indicatorNames=PER&ifrsFact=ifrs-full:DilutedEarningsLossPerShare&ifrsFact=ifrs-full:Equity&start=2018-08-01T09:15:29.442856700Z&end=2022-08-01T09:15:29.442856700Z
+Accept: text/csv
+
+###
+# @name stockdataservice_precisePriceInformation_start
+GET http://localhost:8080/v1/stockdata/precisePriceInformation/start?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+Accept: application/stream+json
+
+###
+# @name PrecisePriceInformation_get
+GET http://localhost:8080/v1/stockdata/precisePriceInformation?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+Accept: application/stream+json

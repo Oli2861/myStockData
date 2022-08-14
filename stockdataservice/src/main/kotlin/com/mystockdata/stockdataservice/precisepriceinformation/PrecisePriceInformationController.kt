@@ -35,8 +35,6 @@ class PrecisePriceInformationController(
             start = start ?: Instant.now().minus(1, ChronoUnit.DAYS),
             end = end ?: Instant.now()
         )
-
         return ResponseEntity.ok(data)
-
     }
 }
