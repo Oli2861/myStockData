@@ -111,9 +111,13 @@ Accept: application/stream+json
 ### schedulingservice
 The scheduling service triggers routines of other services by sending rabbitmq events.
 - The collection of financial reports is scheduled for every monday at 8 am by the following CRON-expression: 
-  ```0 0 8 * * MON```
+  ```
+  0 0 8 * * MON
+  ```
 - The collection of aggregated price information is scheduled daily at 11 pm by the following CRON-expression: 
-  ```0 0 23 * * *```
+  ```
+  0 0 23 * * *
+  ```
 
 ### financialreportservice
 The financialreportservice retrieves and stores financial reports in a local running MongoDB. Financial reports are retrieved after receiving an event from the scheduling service or an API call.  
@@ -342,6 +346,6 @@ When addressed via the gateway, ```composedData/``` is inserted between ```/v1/`
 
 ## Know issues
 - After the retrieval of precise price information is stopped, it cannot be started again without restarting the whole microservice.
-- - Timestamps of retrieved price information concerning stops are 15 minutes behind
+- Timestamps of retrieved price information concerning stops are 15 minutes behind
 - Gateway does not forward json/stream data / only if the stream is terminated
 - If indicators based on financial figures are part of the requested csv file from the composerservice and the financial figure is not present, a null column is present 
