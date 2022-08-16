@@ -21,8 +21,8 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 `docker-compose up`
 
 ## Testing Guide
-The following requests are part of TestRequests.http and can simplify the testing process when using them in conjunction with the IDE IntelliJ Idea.
-The response should be similar to the content of https://github.com/Oli2861/myStockData/blob/main/example_response.csv
+The following requests are part of [TestRequests.http](https://github.com/Oli2861/myStockData/blob/main/TestRequests.http) and can simplify the testing process when using them in conjunction with the IDE IntelliJ Idea.
+The response should be similar to the content of this [example](https://github.com/Oli2861/myStockData/blob/main/example_response.csv).
 ##### 1. Create companies and add them to your watchlist:
 ```
 PUT http://localhost:8084/v1/stockdata/company?addToWatchList=true
