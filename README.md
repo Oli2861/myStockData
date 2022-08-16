@@ -5,6 +5,9 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 ## Architecture
 ![architektur.drawio.png](architektur.drawio.png)
 
+## Docker Hub
+
+
 ## Clone
 `git clone https://github.com/Oli2861/myStockData --recursive`
 
@@ -18,8 +21,9 @@ myStockData is a prototypical implementation of an architecture for retrieving a
 `docker-compose up`
 
 ## Testing Guide
-The following requests are part of TestRequests.http and can simplify the testing process when using them in conjunction with IDE IntelliJ Idea.
-##### 1. Create companies and add them to your watchlist while doing so:
+The following requests are part of TestRequests.http and can simplify the testing process when using them in conjunction with the IDE IntelliJ Idea.
+The response should be similar to the content of example_response.csv
+##### 1. Create companies and add them to your watchlist:
 ```
 PUT http://localhost:8084/v1/stockdata/company?addToWatchList=true
 Content-Type: application/json
@@ -75,12 +79,12 @@ Content-Type: application/json
 ##### 2. Retrieve financial reports and aggregated price information for the companies:
 - stockdataservice
   ```
-  GET http://localhost:8084/v1/stockdata/aggregatedPriceInformation/retrieve?start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
+  GET http://localhost:8080/v1/stockdata/aggregatedPriceInformation/retrieve?start=2012-08-01T09:15:29.442856700Z&end=2022-08-05T09:15:29.442856700Z
   Accept: application/stream+json
   ```
 - financialreportservice: 
   ```
-  GET http://localhost:8083/v1/financialreport/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
+  GET http://localhost:8080/v1/financialreport/retrieveReports?lei=529900NNUPAGGOMPXZ31&lei=529900D6BF99LW9R2E68&lei=549300JSX0Z4CW0V5023
   Accept: application/stream+json
   ```
 Make sure to wait ~2 minutes after retrieving the data since the financialreportservice sleeps for 20 seconds before retrieving a report.
@@ -106,8 +110,10 @@ Accept: application/stream+json
 ## Service Description
 ### schedulingservice
 The scheduling service triggers routines of other services by sending rabbitmq events.
-- The collection of financial reports is scheduled for every monday at 8 am by the following CRON-expression: ```0 0 8 * * MON```
-- The collection of aggregated price information is scheduled daily at 11 pm by the following CRON-expression: ```0 0 23 * * *```
+- The collection of financial reports is scheduled for every monday at 8 am by the following CRON-expression: 
+  ```0 0 8 * * MON```
+- The collection of aggregated price information is scheduled daily at 11 pm by the following CRON-expression: 
+  ```0 0 23 * * *```
 
 ### financialreportservice
 The financialreportservice retrieves and stores financial reports in a local running MongoDB. Financial reports are retrieved after receiving an event from the scheduling service or an API call.  
@@ -336,4 +342,6 @@ When addressed via the gateway, ```composedData/``` is inserted between ```/v1/`
 
 ## Know issues
 - After the retrieval of precise price information is stopped, it cannot be started again without restarting the whole microservice.
+- - Timestamps of retrieved price information concerning stops are 15 minutes behind
 - Gateway does not forward json/stream data / only if the stream is terminated
+- If indicators based on financial figures are part of the requested csv file from the composerservice and the financial figure is not present, a null column is present 
